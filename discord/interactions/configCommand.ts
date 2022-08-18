@@ -10,6 +10,7 @@ import {
   ModalSubmitInteraction,
   REST,
   SelectMenuBuilder,
+  SelectMenuComponentOptionData,
   SelectMenuInteraction,
   TextInputBuilder,
   TextInputStyle,
@@ -18,7 +19,8 @@ import { assertAdmin } from "./permissions";
 
 import { DiscordServer } from "../../db/entity/DiscordServer";
 import { DiscordServerRepository } from "../../db";
-import { getRoles } from "../role";
+import { getRoles, isBotRole } from "../role";
+import starkcordModules from "../../modules";
 
 type OngoingConfiguration = {
   network?: string;
@@ -42,6 +44,57 @@ export const handleInitialConfigCommand = async (
   if (!interaction.guildId) return;
   ongoingConfigurationsCache[interaction.guildId] = {};
 
+  const roles = await getRoles(restClient, interaction.guildId);
+  // Showing roles, excluding everyone and the bot's role
+  const options = roles
+    .filter((role) => role.name !== "@everyone" && !isBotRole(role))
+    .map((role) => ({
+      label: role.name,
+      value: role.id,
+    }));
+
+  const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+    new SelectMenuBuilder()
+      .setCustomId("starkcord-config-role")
+      .setPlaceholder("Role to assign")
+      .addOptions(...options)
+  );
+  await interaction.reply({
+    content:
+      "What role do you want to assign to people matching your criteria?",
+    components: [row],
+    ephemeral: true,
+  });
+};
+
+export const handleRoleConfigCommand = async (
+  interaction: SelectMenuInteraction,
+  client: Client,
+  restClient: REST
+) => {
+  await assertAdmin(interaction);
+  if (!interaction.guildId) return;
+  const roles = await getRoles(restClient, interaction.guildId);
+  const botRole = roles.find((role) => isBotRole(role));
+  const selectedRole = roles.find((role) => role.id === interaction.values[0]);
+
+  if (!botRole || !selectedRole) return;
+  // Bot role position must be bigger (= higher on the list) than the selected role so we can assign
+  if (botRole.position <= selectedRole.position) {
+    await interaction.update({
+      content: `❌ You have selected a role that the bot cannot control. Please place the role \`${botRole.name}\` above the role \`${selectedRole.name}\` in Server Settings > Roles`,
+      components: [],
+    });
+    return;
+  }
+
+  ongoingConfigurationsCache[interaction.guildId].roleId =
+    interaction.values[0];
+  await interaction.update({
+    content: "Thanks, following up...",
+    components: [],
+  });
+
   const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
     new SelectMenuBuilder()
       .setCustomId("starkcord-config-network")
@@ -60,7 +113,7 @@ export const handleInitialConfigCommand = async (
       )
   );
 
-  await interaction.reply({
+  await interaction.followUp({
     content: "On what Starknet network do you want to set up Starkcord?",
     components: [row],
     ephemeral: true,
@@ -81,50 +134,21 @@ export const handleNetworkConfigCommand = async (
     content: "Thanks, following up...",
     components: [],
   });
-  const roles = await getRoles(restClient, interaction.guildId);
-  const options = roles
-    .filter((role) => role.name !== "@everyone")
-    .map((role) => ({
-      label: role.name,
-      value: role.id,
-    }));
 
-  const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
-    new SelectMenuBuilder()
-      .setCustomId("starkcord-config-role")
-      .setPlaceholder("Role to assign")
-      .addOptions(...options)
-  );
-  await interaction.followUp({
-    content:
-      "What role do you want to assign to people matching your criteria?",
-    components: [row],
-    ephemeral: true,
-  });
-};
-
-export const handleRoleConfigCommand = async (
-  interaction: SelectMenuInteraction,
-  client: Client,
-  restClient: REST
-) => {
-  await assertAdmin(interaction);
-  if (!interaction.guildId) return;
-  ongoingConfigurationsCache[interaction.guildId].roleId =
-    interaction.values[0];
-  await interaction.update({
-    content: "Thanks, following up...",
-    components: [],
-  });
+  const modulesOptions: SelectMenuComponentOptionData[] = [];
+  for (const starkcordModuleId in starkcordModules) {
+    const starkcordModule = starkcordModules[starkcordModuleId];
+    modulesOptions.push({
+      label: starkcordModule.name,
+      value: starkcordModuleId,
+    });
+  }
 
   const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
     new SelectMenuBuilder()
       .setCustomId("starkcord-config-module-type")
       .setPlaceholder("Starkcord module to use")
-      .addOptions({
-        label: "ERC-721",
-        value: "erc721",
-      })
+      .addOptions(...modulesOptions)
   );
   await interaction.followUp({
     content: "What Starkcord module do you want to use (only ERC-721 for now)?",
@@ -140,22 +164,26 @@ export const handleModuleTypeConfigCommand = async (
 ) => {
   await assertAdmin(interaction);
   if (!interaction.guildId) return;
+  const starkcordModuleId = interaction.values[0];
   ongoingConfigurationsCache[interaction.guildId].moduleType =
-    interaction.values[0];
+    starkcordModuleId;
+  const starkcordModule = starkcordModules[starkcordModuleId];
+  if (!starkcordModule) return;
 
   const modal = new ModalBuilder()
     .setCustomId("starkcord-config-module-config")
-    .setTitle("Configure the ERC-721 Starkcord module");
-  const contractRow =
+    .setTitle(`Configure the ${starkcordModule.name} Starkcord module`);
+  const rows = starkcordModule.fields.map((moduleField) =>
     new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
       new TextInputBuilder()
-        .setCustomId("contractAddress")
-        // The label is the prompt the user sees for this input
-        .setLabel("What's the ERC-721 contract address?")
-        // Short means only a single line of text
-        .setStyle(TextInputStyle.Short)
-    );
-  modal.addComponents(contractRow);
+        .setCustomId(moduleField.id)
+        .setLabel(moduleField.question)
+        .setStyle(
+          moduleField.textarea ? TextInputStyle.Paragraph : TextInputStyle.Short
+        )
+    )
+  );
+  modal.addComponents(...rows);
   await interaction.showModal(modal);
   await interaction.editReply({
     content: "Thanks, following up...",

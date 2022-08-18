@@ -12,6 +12,9 @@ const config = {
   DB_USERNAME: process.env.DB_USERNAME || "postgres",
   DB_PASSWORD: process.env.DB_PASSWORD || "postgres",
   DB_DATABASE: process.env.DB_DATABASE || "starkcord",
+  UPDATE_STATUS_EVERY_SECONDS: process.env.UPDATE_STATUS_EVERY_SECONDS
+    ? parseInt(process.env.UPDATE_STATUS_EVERY_SECONDS, 10)
+    : 5 * 60,
 };
 
 export default config;

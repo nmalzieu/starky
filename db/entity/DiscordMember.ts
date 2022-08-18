@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryColumn, ManyToOne } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  ManyToOne,
+  DeleteDateColumn,
+} from "typeorm";
 import { DiscordServer } from "./DiscordServer";
 
 @Entity()
@@ -17,4 +23,7 @@ export class DiscordMember {
 
   @Column()
   customLink: string;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

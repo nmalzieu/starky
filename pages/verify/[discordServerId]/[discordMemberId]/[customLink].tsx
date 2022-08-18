@@ -27,6 +27,8 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const [starknet, setStarknet] = useState<IStarknetWindowObject | undefined>(
     undefined
   );
+  const [noStarknetWallet, setNotStarknetWallet] = useState(false);
+  const [wrongStarknetNetwork, setWrongStarknetNetwork] = useState(false);
   const [verifyingSignature, setVerifyingSignature] = useState(false);
   const [verifiedSignature, setVerifiedSignature] = useState(false);
   const [unverifiedSignature, setUnverifiedSignature] = useState(false);
@@ -34,16 +36,17 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const connectToStarknet = useCallback(async () => {
     const strk = await starknetConnect({ showList: false });
     if (!strk) {
-      throw Error("No Starknet wallet found");
+      setNotStarknetWallet(true);
+      return;
     }
     await strk.enable();
     const chainId = (strk as any).chainId;
     if (chainId !== chainIdByNetwork[starknetNetwork]) {
-      console.log("WRONG NETWORK");
+      setWrongStarknetNetwork(true);
     } else {
       setStarknet(strk);
     }
-  }, []);
+  }, [starknetNetwork]);
 
   const verifySignature = useCallback(
     async (signature: Signature) => {
@@ -82,7 +85,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
     return <div>Successfully verified! You can close this window.</div>;
   }
 
-  return (
+  const headerDiv = (
     <div>
       Welcome to Starkcord!
       <br />
@@ -90,9 +93,25 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       <br />
       Starknet network: {starknetNetwork}
       <br />
-      Starknet wallet:
+    </div>
+  );
+
+  let starknetWalletDiv = (
+    <div>
+      Starknet wallet:{" "}
       {!starknet?.isConnected && (
-        <button onClick={connectToStarknet}>Connect to Starknet</button>
+        <span>
+          {wrongStarknetNetwork && (
+            <span>
+              This Discord server has been configured to verify identity on the{" "}
+              {starknetNetwork} network.
+              <br />
+              Please switch your browser wallet to the {starknetNetwork} network
+              then click again on{" "}
+            </span>
+          )}
+          <button onClick={connectToStarknet}>Connect to Starknet</button>
+        </span>
       )}
       {starknet?.isConnected && (
         <span>
@@ -107,6 +126,22 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       )}
       {verifyingSignature && <div>Verifying your signature...</div>}
       {unverifiedSignature && <div>Your signature could not be verified</div>}
+    </div>
+  );
+
+  if (noStarknetWallet) {
+    starknetWalletDiv = <div>No Starknet wallet detected on your browser.</div>;
+  }
+
+  return (
+    <div>
+      Welcome to Starkcord!
+      <br />
+      Discord server: {discordServerName}
+      <br />
+      Starknet network: {starknetNetwork}
+      <br />
+      {starknetWalletDiv}
     </div>
   );
 };

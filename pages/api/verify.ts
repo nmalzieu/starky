@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { typedData } from "starknet";
+import { refreshDiscordMember } from "../../cron";
 import { DiscordMemberRepository, setupDb } from "../../db";
 import messageToSign from "../../starknet/message";
 import { verifySignature } from "../../starknet/verifySignature";
@@ -31,6 +32,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
   const discordMember = await DiscordMemberRepository.findOne({
     where: { discordServerId: body.discordServerId, id: body.discordMemberId },
+    relations: ["discordServer"],
   });
 
   if (!discordMember || discordMember.customLink !== body.customLink) {
@@ -45,7 +47,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     body.account,
     messageHexHash,
     body.signature,
-    true
+    discordMember.discordServer.starknetNetwork
   );
   if (!signatureVerified) {
     return res.status(400).json({ message: "Signature is invalid" });
@@ -53,6 +55,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     discordMember.starknetWalletAddress = body.account;
     await DiscordMemberRepository.save(discordMember);
     res.status(200).json({ message: "Successfully verified" });
+    // Let's refresh its status immediatly
+    refreshDiscordMember(discordMember.discordServer, discordMember);
   }
 };
 

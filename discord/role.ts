@@ -1,5 +1,17 @@
 import { Role, Routes } from "discord.js";
 import { REST } from "@discordjs/rest";
+import config from "../config";
+
+export const isBotRole = (role: Role): boolean => {
+  if (
+    role.tags &&
+    (role.tags.botId === config.DISCORD_CLIENT_ID ||
+      (role.tags as any).bot_id === config.DISCORD_CLIENT_ID) // Getting bot_id from the API, not botID
+  ) {
+    return true;
+  }
+  return false;
+};
 
 export const getRoles = async (
   client: REST,

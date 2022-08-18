@@ -8,6 +8,7 @@ import {
   REST,
 } from "discord.js";
 import { DiscordMemberRepository } from "../../db";
+import { removeRole } from "../role";
 
 export const handleDisconnectConfirmCommand = async (
   interaction: ButtonInteraction,
@@ -17,13 +18,22 @@ export const handleDisconnectConfirmCommand = async (
   const userId = interaction.member?.user?.id;
   const guildId = interaction.guildId;
   if (!userId || !guildId) return;
-  const alreadyDiscordMember = await DiscordMemberRepository.findOneBy({
-    id: userId,
-    discordServerId: guildId,
+  const alreadyDiscordMember = await DiscordMemberRepository.findOne({
+    where: {
+      id: userId,
+      discordServerId: guildId,
+    },
+    relations: ["discordServer"],
   });
   if (!alreadyDiscordMember) return;
-  // TODO => remove role !
-  await DiscordMemberRepository.remove(alreadyDiscordMember);
+
+  await DiscordMemberRepository.softRemove(alreadyDiscordMember);
+  removeRole(
+    restClient,
+    guildId,
+    userId,
+    alreadyDiscordMember.discordServer.discordRoleId
+  );
   await interaction.update({
     content: "Disconnected!",
     components: [],

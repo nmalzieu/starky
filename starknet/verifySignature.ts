@@ -1,26 +1,25 @@
-import { Provider, Contract } from "starknet";
 import { toBN } from "starknet/utils/number";
+import { callContract } from "./call";
 
 export const verifySignature = async (
   accountAddress: string,
   hexHash: string,
   signature: string[],
-  mainnet: boolean
+  starknetNetwork: string
 ): Promise<boolean> => {
   // We can verify this message hash against the signature generated in the frontend
   // by calling the is_valid_signature method on the Account contract
-  const provider = new Provider({
-    network: mainnet ? "mainnet-alpha" : "goerli-alpha",
-  });
-  const hash = toBN(hexHash.replace("0x", ""), "hex").toString();
   try {
-    const response = await provider.callContract({
+    const result = await callContract({
+      starknetNetwork: starknetNetwork === "mainnet" ? "mainnet" : "goerli",
       contractAddress: accountAddress,
       entrypoint: "is_valid_signature",
-      calldata: [hash, `${signature.length}`, ...signature],
+      calldata: [hexHash, `${signature.length}`, ...signature],
     });
-    return response.result[0] === "0x1";
+
+    return result[0] === "0x1";
   } catch (e) {
+    console.error(e);
     return false;
   }
 };
