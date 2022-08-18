@@ -1,35 +1,40 @@
-// server.js
+import "reflect-metadata";
 import { createServer } from "http";
 import { parse } from "url";
 import next from "next";
-import { launchBot } from "./bot";
+import { launchBot } from "./discord";
+import { setupDb } from "./db";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = process.env.HOST || "localhost";
-const port = process.env.PORT || 3000;
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
-app.prepare().then(() => {
+const launchServer = async () => {
+  await setupDb();
+  await app.prepare();
   createServer(async (req, res) => {
     try {
-      // Be sure to pass `true` as the second argument to `url.parse`.
-      // This tells it to parse the query portion of the URL.
       const parsedUrl = parse(req.url || "", true);
-      const { pathname, query } = parsedUrl;
-
       await handle(req, res, parsedUrl);
     } catch (err) {
       console.error("Error occurred handling", req.url, err);
       res.statusCode = 500;
       res.end("internal server error");
     }
-  }).listen(port, (err: any) => {
+  }).listen(port, async (err: any) => {
     if (err) throw err;
-    launchBot();
-    console.log(`> Ready on http://${hostname}:${port}`);
+    try {
+      await launchBot();
+    } catch (e) {
+      throw new Error(`[Starkbot] ${e}`);
+    }
+    console.log(`> Server ready on http://${hostname}:${port}`);
   });
-});
+};
+
+launchServer();
 
 export {};
