@@ -7,8 +7,8 @@ const verifyConfig = () => {
   if (!config.DISCORD_CLIENT_ID) {
     throw new Error(`Missing config: DISCORD_CLIENT_ID`);
   }
-  if (!config.DISCORD_TOKEN) {
-    throw new Error(`Missing config: DISCORD_TOKEN`);
+  if (!config.DISCORD_BOT_TOKEN) {
+    throw new Error(`Missing config: DISCORD_BOT_TOKEN`);
   }
 };
 

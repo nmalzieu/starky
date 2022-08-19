@@ -17,7 +17,9 @@ import {
 } from "./disconnectCommand";
 
 export const setupInteractions = (client: Client) => {
-  const restClient = new REST({ version: "10" }).setToken(config.DISCORD_TOKEN);
+  const restClient = new REST({ version: "10" }).setToken(
+    config.DISCORD_BOT_TOKEN
+  );
   client.on("interactionCreate", async (interaction) => {
     const isInitialConfig =
       interaction.isChatInputCommand() &&

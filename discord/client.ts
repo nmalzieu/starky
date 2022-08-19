@@ -8,11 +8,11 @@ export const createDiscordClient = (): Promise<Client> =>
       console.log("> Discord bot launched successfully");
       resolve(client);
     });
-    client.login(config.DISCORD_TOKEN).catch((e) => {
+    client.login(config.DISCORD_BOT_TOKEN).catch((e) => {
       reject(e);
     });
   });
 
 export const restDiscordClient = new REST({ version: "10" }).setToken(
-  config.DISCORD_TOKEN
+  config.DISCORD_BOT_TOKEN
 );

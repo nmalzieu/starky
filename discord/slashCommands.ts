@@ -5,7 +5,7 @@ import config from "../config";
 
 export const registerSlashCommands = async () => {
   const restDiscordClient = new REST({ version: "10" }).setToken(
-    config.DISCORD_TOKEN
+    config.DISCORD_BOT_TOKEN
   );
 
   const slashCommands = [
