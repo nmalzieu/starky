@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryColumn, OneToMany } from "typeorm";
-import type { StarkcordModuleConfig } from "../../starkcordModules/types";
+import type { StarkyModuleConfig } from "../../starkyModules/types";
 import { DiscordMember } from "./DiscordMember";
 
 @Entity()
@@ -14,10 +14,10 @@ export class DiscordServer {
   discordRoleId: string;
 
   @Column()
-  starkcordModuleType: "erc721";
+  starkyModuleType: "erc721";
 
   @Column("jsonb", { nullable: false, default: {} })
-  starkcordModuleConfig: StarkcordModuleConfig;
+  starkyModuleConfig: StarkyModuleConfig;
 
   @OneToMany((type) => DiscordMember, (member) => member.discordServer)
   members: DiscordMember[];

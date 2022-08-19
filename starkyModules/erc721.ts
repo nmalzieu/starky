@@ -1,10 +1,10 @@
 import { uint256ToBN } from "starknet/dist/utils/uint256";
 import { callContract } from "../starknet/call";
-import { StarkcordModuleConfig, StarkcordModuleField } from "./types";
+import { StarkyModuleConfig, StarkyModuleField } from "./types";
 
 export const name = "ERC-721";
 
-export const fields: StarkcordModuleField[] = [
+export const fields: StarkyModuleField[] = [
   {
     id: "contractAddress",
     question: "What's the ERC-721 contract address?",
@@ -14,11 +14,11 @@ export const fields: StarkcordModuleField[] = [
 export const shouldHaveRole = async (
   starknetWalletAddress: string,
   starknetNetwork: "mainnet" | "goerli",
-  starkcordModuleConfig: StarkcordModuleConfig
+  starkyModuleConfig: StarkyModuleConfig
 ): Promise<boolean> => {
   const result = await callContract({
     starknetNetwork,
-    contractAddress: starkcordModuleConfig.contractAddress,
+    contractAddress: starkyModuleConfig.contractAddress,
     entrypoint: "balanceOf",
     calldata: [starknetWalletAddress],
   });

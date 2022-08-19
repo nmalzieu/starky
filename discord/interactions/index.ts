@@ -23,23 +23,23 @@ export const setupInteractions = (client: Client) => {
   client.on("interactionCreate", async (interaction) => {
     const isInitialConfig =
       interaction.isChatInputCommand() &&
-      interaction.commandName === "starkcord-config";
+      interaction.commandName === "starky-config";
 
     const isNetworkConfig =
       interaction.isSelectMenu() &&
-      interaction.customId === "starkcord-config-network";
+      interaction.customId === "starky-config-network";
 
     const isRoleConfig =
       interaction.isSelectMenu() &&
-      interaction.customId === "starkcord-config-role";
+      interaction.customId === "starky-config-role";
 
     const isModuleTypeConfig =
       interaction.isSelectMenu() &&
-      interaction.customId === "starkcord-config-module-type";
+      interaction.customId === "starky-config-module-type";
 
     const isModuleConfig =
       interaction.isModalSubmit() &&
-      interaction.customId === "starkcord-config-module-config";
+      interaction.customId === "starky-config-module-config";
 
     const isConfigConfirm =
       interaction.isButton() &&
@@ -51,11 +51,11 @@ export const setupInteractions = (client: Client) => {
 
     const isUserConnect =
       interaction.isChatInputCommand() &&
-      interaction.commandName === "starkcord-connect";
+      interaction.commandName === "starky-connect";
 
     const isUserDisonnect =
       interaction.isChatInputCommand() &&
-      interaction.commandName === "starkcord-disconnect";
+      interaction.commandName === "starky-disconnect";
 
     const isUserDisconnectConfirm =
       interaction.isButton() && interaction.customId === "disconnect-confirm";

@@ -87,7 +87,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
 
   const headerDiv = (
     <div>
-      Welcome to Starkcord!
+      Welcome to Starky!
       <br />
       Discord server: {discordServerName}
       <br />
@@ -135,7 +135,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
 
   return (
     <div>
-      Welcome to Starkcord!
+      Welcome to Starky!
       <br />
       Discord server: {discordServerName}
       <br />

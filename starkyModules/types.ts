@@ -1,26 +1,26 @@
 import { DiscordMember } from "../db/entity/DiscordMember";
 import { DiscordServer } from "../db/entity/DiscordServer";
 
-export type StarkcordModuleField = {
+export type StarkyModuleField = {
   id: string;
   question: string;
   textarea?: boolean;
 };
 
-export type StarkcordModule = {
+export type StarkyModule = {
   name: string;
-  fields: StarkcordModuleField[];
+  fields: StarkyModuleField[];
   shouldHaveRole: (
     starknetWalletAddress: string,
     starknetNetwork: "mainnet" | "goerli",
-    starkcordModuleConfig: StarkcordModuleConfig
+    starkyModuleConfig: StarkyModuleConfig
   ) => Promise<boolean>;
 };
 
-export type StarkcordModules = {
-  [moduleId: string]: StarkcordModule;
+export type StarkyModules = {
+  [moduleId: string]: StarkyModule;
 };
 
-export type StarkcordModuleConfig = {
+export type StarkyModuleConfig = {
   [key: string]: string;
 };

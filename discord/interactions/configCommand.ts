@@ -20,7 +20,7 @@ import { assertAdmin } from "./permissions";
 import { DiscordServer } from "../../db/entity/DiscordServer";
 import { DiscordServerRepository } from "../../db";
 import { getRoles, isBotRole } from "../role";
-import starkcordModules from "../../starkcordModules";
+import starkyModules from "../../starkyModules";
 
 type OngoingConfiguration = {
   network?: string;
@@ -55,7 +55,7 @@ export const handleInitialConfigCommand = async (
 
   const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
     new SelectMenuBuilder()
-      .setCustomId("starkcord-config-role")
+      .setCustomId("starky-config-role")
       .setPlaceholder("Role to assign")
       .addOptions(...options)
   );
@@ -97,7 +97,7 @@ export const handleRoleConfigCommand = async (
 
   const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
     new SelectMenuBuilder()
-      .setCustomId("starkcord-config-network")
+      .setCustomId("starky-config-network")
       .setPlaceholder("Starknet Network")
       .addOptions(
         {
@@ -114,7 +114,7 @@ export const handleRoleConfigCommand = async (
   );
 
   await interaction.followUp({
-    content: "On what Starknet network do you want to set up Starkcord?",
+    content: "On what Starknet network do you want to set up Starky?",
     components: [row],
     ephemeral: true,
   });
@@ -136,22 +136,22 @@ export const handleNetworkConfigCommand = async (
   });
 
   const modulesOptions: SelectMenuComponentOptionData[] = [];
-  for (const starkcordModuleId in starkcordModules) {
-    const starkcordModule = starkcordModules[starkcordModuleId];
+  for (const starkyModuleId in starkyModules) {
+    const starkyModule = starkyModules[starkyModuleId];
     modulesOptions.push({
-      label: starkcordModule.name,
-      value: starkcordModuleId,
+      label: starkyModule.name,
+      value: starkyModuleId,
     });
   }
 
   const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
     new SelectMenuBuilder()
-      .setCustomId("starkcord-config-module-type")
-      .setPlaceholder("Starkcord module to use")
+      .setCustomId("starky-config-module-type")
+      .setPlaceholder("Starky module to use")
       .addOptions(...modulesOptions)
   );
   await interaction.followUp({
-    content: "What Starkcord module do you want to use (only ERC-721 for now)?",
+    content: "What Starky module do you want to use (only ERC-721 for now)?",
     components: [row],
     ephemeral: true,
   });
@@ -164,16 +164,15 @@ export const handleModuleTypeConfigCommand = async (
 ) => {
   await assertAdmin(interaction);
   if (!interaction.guildId) return;
-  const starkcordModuleId = interaction.values[0];
-  ongoingConfigurationsCache[interaction.guildId].moduleType =
-    starkcordModuleId;
-  const starkcordModule = starkcordModules[starkcordModuleId];
-  if (!starkcordModule) return;
+  const starkyModuleId = interaction.values[0];
+  ongoingConfigurationsCache[interaction.guildId].moduleType = starkyModuleId;
+  const starkyModule = starkyModules[starkyModuleId];
+  if (!starkyModule) return;
 
   const modal = new ModalBuilder()
-    .setCustomId("starkcord-config-module-config")
-    .setTitle(`Configure the ${starkcordModule.name} Starkcord module`);
-  const rows = starkcordModule.fields.map((moduleField) =>
+    .setCustomId("starky-config-module-config")
+    .setTitle(`Configure the ${starkyModule.name} Starky module`);
+  const rows = starkyModule.fields.map((moduleField) =>
     new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
       new TextInputBuilder()
         .setCustomId(moduleField.id)
@@ -210,7 +209,7 @@ export const handleModuleConfigCommand = async (
     (r) => r.id === currentConfig.roleId
   );
 
-  let summaryContent = `Thanks for configuring Starkcord 🎉\n\nHere is a summary of your configuration:\n\n__Starknet network:__ \`${currentConfig.network}\`\n__Discord role to assign:__ \`${role?.name}\`\n__Starkcord module:__ \`${currentConfig.moduleType}\`\n\nModule specific settings:\n`;
+  let summaryContent = `Thanks for configuring Starky 🎉\n\nHere is a summary of your configuration:\n\n__Starknet network:__ \`${currentConfig.network}\`\n__Discord role to assign:__ \`${role?.name}\`\n__Starky module:__ \`${currentConfig.moduleType}\`\n\nModule specific settings:\n`;
   for (const fieldId in moduleConfig) {
     summaryContent = `${summaryContent}\n${fieldId}: \`${moduleConfig[fieldId]}\``;
   }
@@ -245,7 +244,7 @@ export const handleConfigCancelCommand = async (
   delete ongoingConfigurationsCache[interaction.guildId];
 
   await interaction.update({
-    content: "❌ Starkcord configuration aborted.",
+    content: "❌ Starky configuration aborted.",
     components: [],
   });
 };
@@ -280,16 +279,16 @@ export const handleConfigConfirmCommand = async (
   if (currentConfig.moduleType !== "erc721") {
     throw new Error("Wrong module config");
   }
-  discordServer.starkcordModuleType = currentConfig.moduleType;
+  discordServer.starkyModuleType = currentConfig.moduleType;
 
-  discordServer.starkcordModuleConfig = currentConfig.moduleConfig;
+  discordServer.starkyModuleConfig = currentConfig.moduleConfig;
 
   await DiscordServerRepository.save(discordServer);
 
   delete ongoingConfigurationsCache[interaction.guildId];
 
   await interaction.update({
-    content: "✅ Thanks, your Starkcord configuration is now done.",
+    content: "✅ Thanks, your Starky configuration is now done.",
     components: [],
   });
 };

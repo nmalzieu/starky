@@ -23,7 +23,7 @@ export const handleConnectCommand = async (
 
   if (!alreadyDiscordServer) {
     await interaction.reply({
-      content: "Starkcord is not yet configured on this server",
+      content: "Starky is not yet configured on this server",
       ephemeral: true,
     });
     return;
@@ -38,7 +38,7 @@ export const handleConnectCommand = async (
     if (alreadyDiscordMember.starknetWalletAddress) {
       await interaction.reply({
         content:
-          "You have already linked a Starknet wallet to this Discord server. Use `/starkcord-disconnect` first if you want to link a new one",
+          "You have already linked a Starknet wallet to this Discord server. Use `/starky-disconnect` first if you want to link a new one",
         ephemeral: true,
       });
     } else {

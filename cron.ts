@@ -5,8 +5,8 @@ import { DiscordMember } from "./db/entity/DiscordMember";
 import { DiscordServer } from "./db/entity/DiscordServer";
 import { restDiscordClient } from "./discord/client";
 import { addRole, removeRole } from "./discord/role";
-import modules from "./starkcordModules";
-import { StarkcordModule } from "./starkcordModules/types";
+import modules from "./starkyModules";
+import { StarkyModule } from "./starkyModules/types";
 
 const refreshDiscordServers = async () => {
   const discordServers = await DiscordServerRepository.find();
@@ -26,16 +26,16 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
   });
   // Refreshing each member one by one. We could
   // optimize using a pool in parallel.
-  const starkcordModule = modules[discordServer.starkcordModuleType];
-  if (!starkcordModule) {
+  const starkyModule = modules[discordServer.starkyModuleType];
+  if (!starkyModule) {
     console.error(
-      `Discord server ${discordServer.id} is configured with module ${discordServer.starkcordModuleType} which does not exist`
+      `Discord server ${discordServer.id} is configured with module ${discordServer.starkyModuleType} which does not exist`
     );
     return;
   }
   for (let discordMember of discordMembers) {
     try {
-      await refreshDiscordMember(discordServer, discordMember, starkcordModule);
+      await refreshDiscordMember(discordServer, discordMember, starkyModule);
     } catch (e) {
       console.error(
         `Could not refresh discord member ${discordMember.id} from server ${discordServer.id}: ${e}`
@@ -47,18 +47,17 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
 export const refreshDiscordMember = async (
   discordServer: DiscordServer,
   discordMember: DiscordMember,
-  starkcordModule?: StarkcordModule
+  starkyModule?: StarkyModule
 ) => {
   if (!discordMember.starknetWalletAddress) return;
-  const starkcordMod =
-    starkcordModule || modules[discordServer.starkcordModuleType];
+  const starkyMod = starkyModule || modules[discordServer.starkyModuleType];
   // Always remove role for deleted users
   const shouldHaveRole = discordMember.deletedAt
     ? false
-    : await starkcordMod.shouldHaveRole(
+    : await starkyMod.shouldHaveRole(
         discordMember.starknetWalletAddress,
         discordServer.starknetNetwork === "mainnet" ? "mainnet" : "goerli",
-        discordServer?.starkcordModuleConfig
+        discordServer?.starkyModuleConfig
       );
   if (shouldHaveRole) {
     await addRole(

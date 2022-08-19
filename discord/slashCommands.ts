@@ -10,16 +10,16 @@ export const registerSlashCommands = async () => {
 
   const slashCommands = [
     new SlashCommandBuilder()
-      .setName("starkcord-connect")
+      .setName("starky-connect")
       .setDescription("Connect your Starknet wallet to this Discord server"),
     new SlashCommandBuilder()
-      .setName("starkcord-disconnect")
+      .setName("starky-disconnect")
       .setDescription(
         "Disconnect your Starknet wallet from this Discord server"
       ),
     new SlashCommandBuilder()
-      .setName("starkcord-config")
-      .setDescription("Configure starkcord on this server"),
+      .setName("starky-config")
+      .setDescription("Configure starky on this server"),
   ].map((command) => command.toJSON());
   console.log("> Registering Discord slash commands...");
   await restDiscordClient.put(

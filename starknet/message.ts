@@ -1,5 +1,5 @@
 const domain = {
-  name: "Starkcord",
+  name: "Starky",
 };
 
 const types = {
@@ -22,7 +22,7 @@ const messageToSign = {
   types,
   primaryType: "Message",
   message: {
-    message: "Starkcord signature",
+    message: "Starky signature",
   },
 };
 

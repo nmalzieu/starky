@@ -7,7 +7,7 @@ let DB_HOST = process.env.DB_HOST || "localhost";
 let DB_PORT = process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432;
 let DB_USERNAME = process.env.DB_USERNAME || "postgres";
 let DB_PASSWORD = process.env.DB_PASSWORD || "postgres";
-let DB_DATABASE = process.env.DB_DATABASE || "starkcord";
+let DB_DATABASE = process.env.DB_DATABASE || "starky";
 
 if (process.env.DATABASE_URL) {
   const parsedUrl = parseDatabaseUrl(process.env.DATABASE_URL);

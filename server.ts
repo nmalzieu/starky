@@ -40,7 +40,7 @@ const launchServer = async () => {
     try {
       await launchBot();
     } catch (e) {
-      throw new Error(`[Starkcord Discord Bot Error] ${e}`);
+      throw new Error(`[Starky Discord Bot Error] ${e}`);
     }
     // Launch the cron
     launchCron();
