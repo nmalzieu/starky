@@ -20,7 +20,7 @@ import { assertAdmin } from "./permissions";
 import { DiscordServer } from "../../db/entity/DiscordServer";
 import { DiscordServerRepository } from "../../db";
 import { getRoles, isBotRole } from "../role";
-import starkcordModules from "../../modules";
+import starkcordModules from "../../starkcordModules";
 
 type OngoingConfiguration = {
   network?: string;
