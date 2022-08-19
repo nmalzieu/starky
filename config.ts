@@ -1,6 +1,22 @@
 import * as dotenv from "dotenv";
+import parseDatabaseUrl from "ts-parse-database-url";
 
 dotenv.config({ path: ".env.local" });
+
+let DB_HOST = process.env.DB_HOST || "localhost";
+let DB_PORT = process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432;
+let DB_USERNAME = process.env.DB_USERNAME || "postgres";
+let DB_PASSWORD = process.env.DB_PASSWORD || "postgres";
+let DB_DATABASE = process.env.DB_DATABASE || "starkcord";
+
+if (process.env.DATABASE_URL) {
+  const parsedUrl = parseDatabaseUrl(process.env.DATABASE_URL);
+  DB_HOST = parsedUrl.host || DB_HOST;
+  DB_PORT = parsedUrl.port || DB_PORT;
+  DB_USERNAME = parsedUrl.user || DB_USERNAME;
+  DB_PASSWORD = parsedUrl.password || DB_PASSWORD;
+  DB_DATABASE = parsedUrl.database || DB_DATABASE;
+}
 
 const config = {
   DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID || "",

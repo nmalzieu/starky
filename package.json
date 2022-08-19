@@ -24,6 +24,7 @@
     "react-dom": "18.2.0",
     "reflect-metadata": "^0.1.13",
     "starknet": "^3.18.2",
+    "ts-parse-database-url": "^1.0.3",
     "typeorm": "^0.3.7"
   },
   "devDependencies": {
