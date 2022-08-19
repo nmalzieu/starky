@@ -15,6 +15,8 @@ const config = {
   UPDATE_STATUS_EVERY_SECONDS: process.env.UPDATE_STATUS_EVERY_SECONDS
     ? parseInt(process.env.UPDATE_STATUS_EVERY_SECONDS, 10)
     : 5 * 60,
+  HOST: process.env.HOST || "localhost",
+  PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
 };
 
 export default config;

@@ -16,7 +16,9 @@ export const assertAdmin = async (
   const member = interaction.member;
   if (
     !member ||
-    !member.permissions.has(PermissionsBitField.Flags.Administrator)
+    !(member.permissions as PermissionsBitField).has(
+      PermissionsBitField.Flags.Administrator
+    )
   ) {
     await interaction.reply({
       content: "❌ This command can only be called by an Administrator",

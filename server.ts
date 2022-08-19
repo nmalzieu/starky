@@ -6,12 +6,10 @@ import next from "next";
 import { launchBot } from "./discord";
 import { setupDb } from "./db";
 import launchCron from "./cron";
+import config from "./config";
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = process.env.HOST || "localhost";
-const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
-// when using middleware `hostname` and `port` must be provided below
-const app = next({ dev, hostname, port });
+const app = next({ dev, hostname: config.HOST, port: config.PORT });
 const handle = app.getRequestHandler();
 
 const launchServer = async () => {
@@ -21,7 +19,9 @@ const launchServer = async () => {
   await app.prepare();
   // Create the http server ready to receive requests
   // TODO => handle HTTPS
-  createHttpServer(async (req, res) => {
+  const isHttps = false;
+  const createServer = isHttps ? createHttpsServer : createHttpServer;
+  createServer(async (req, res) => {
     try {
       const parsedUrl = parse(req.url || "", true);
       await handle(req, res, parsedUrl);
@@ -30,9 +30,12 @@ const launchServer = async () => {
       res.statusCode = 500;
       res.end("internal server error");
     }
-  }).listen(port, async (err: any) => {
-    if (err) throw err;
-    console.log(`> Server ready on http://${hostname}:${port}`);
+  }).listen(config.PORT, async () => {
+    console.log(
+      `> Server ready on http${isHttps ? "s" : ""}://${config.HOST}:${
+        config.PORT
+      }`
+    );
     // Launch the Discord bot
     try {
       await launchBot();
