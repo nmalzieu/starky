@@ -21,7 +21,6 @@ if (process.env.DATABASE_URL) {
 const config = {
   DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID || "",
   DISCORD_TOKEN: process.env.DISCORD_TOKEN || "",
-  DISCORD_ROLE: process.env.DISCORD_ROLE || "",
   DOMAIN: process.env.DOMAIN || "http://localhost:3000",
   DB_HOST,
   DB_PORT,

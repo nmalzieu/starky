@@ -10,13 +10,15 @@ const verifyConfig = () => {
   if (!config.DISCORD_TOKEN) {
     throw new Error(`Missing config: DISCORD_TOKEN`);
   }
-  if (!config.DISCORD_ROLE) {
-    throw new Error(`Missing config: DISCORD_ROLE`);
-  }
 };
 
 export const launchBot = async () => {
-  verifyConfig();
+  try {
+    verifyConfig();
+  } catch (e) {
+    console.error(e);
+    return;
+  }
   const client = await createDiscordClient();
   await registerSlashCommands();
   setupInteractions(client);
