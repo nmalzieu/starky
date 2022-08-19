@@ -34,7 +34,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const [unverifiedSignature, setUnverifiedSignature] = useState(false);
 
   const connectToStarknet = useCallback(async () => {
-    const strk = await starknetConnect({ showList: false });
+    const strk = await starknetConnect();
     if (!strk) {
       setNotStarknetWallet(true);
       return;

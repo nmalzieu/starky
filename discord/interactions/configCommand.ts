@@ -82,7 +82,7 @@ export const handleRoleConfigCommand = async (
   // Bot role position must be bigger (= higher on the list) than the selected role so we can assign
   if (botRole.position <= selectedRole.position) {
     await interaction.update({
-      content: `❌ You have selected a role that the bot cannot control. Please place the role \`${botRole.name}\` above the role \`${selectedRole.name}\` in Server Settings > Roles`,
+      content: `❌ You have selected a role that the bot cannot control. Please place the role \`${botRole.name}\` above the role \`${selectedRole.name}\` in Server Settings > Roles and try again.`,
       components: [],
     });
     return;
