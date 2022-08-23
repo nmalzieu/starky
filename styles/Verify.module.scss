@@ -1,0 +1,27 @@
+.verify {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  a {
+    display: inline-block;
+  }
+
+  .connect {
+    margin-bottom: 10px;
+  }
+
+  .sign {
+    margin-top: 10px;
+    display: inline-block;
+  }
+
+  h1 {
+    margin-top: 18px;
+    margin-bottom: 38px;
+  }
+
+  .starknetWallet {
+    word-wrap: break-word;
+  }
+}

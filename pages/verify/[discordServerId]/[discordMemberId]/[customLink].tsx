@@ -9,7 +9,9 @@ import { Signature } from "starknet";
 import messageToSign from "../../../../starknet/message";
 import { useRouter } from "next/router";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
-import { AppDataSource } from "../../../../db/data-source";
+import styles from "../../../../styles/Verify.module.scss";
+import Logo from "../../../../components/Logo";
+import SocialLinks from "../../../../components/SocialLinks";
 
 type Props = {
   discordServerName: string;
@@ -81,67 +83,71 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
     }
   }, [starknet?.account, starknet?.isConnected, verifySignature]);
 
-  if (verifiedSignature) {
-    return <div>Successfully verified! You can close this window.</div>;
-  }
-
-  const headerDiv = (
-    <div>
-      Welcome to Starky!
-      <br />
-      Discord server: {discordServerName}
-      <br />
-      Starknet network: {starknetNetwork}
-      <br />
-    </div>
-  );
-
   let starknetWalletDiv = (
     <div>
-      Starknet wallet:{" "}
       {!starknet?.isConnected && (
-        <span>
+        <div>
+          <a className={styles.connect} onClick={connectToStarknet}>
+            connect your Starknet wallet
+          </a>
           {wrongStarknetNetwork && (
-            <span>
-              This Discord server has been configured to verify identity on the{" "}
+            <div className="danger">
+              this discord server has been configured to verify identity on the{" "}
               {starknetNetwork} network.
               <br />
-              Please switch your browser wallet to the {starknetNetwork} network
-              then click again on{" "}
-            </span>
+              please switch your browser wallet to the {starknetNetwork} network
+              then connect again
+            </div>
           )}
-          <button onClick={connectToStarknet}>Connect to Starknet</button>
-        </span>
-      )}
-      {starknet?.isConnected && (
-        <span>
-          {starknet.account.address}{" "}
-          <button onClick={() => setStarknet(undefined)}>Disconnect</button>
-        </span>
-      )}
-      {starknet?.isConnected && !verifyingSignature && (
-        <div>
-          <button onClick={sign}>Sign a message to verify your identity</button>
         </div>
       )}
-      {verifyingSignature && <div>Verifying your signature...</div>}
-      {unverifiedSignature && <div>Your signature could not be verified</div>}
+      {starknet?.isConnected && !verifyingSignature && !verifiedSignature && (
+        <a className={styles.sign} onClick={sign}>
+          sign a message to verify your identity
+        </a>
+      )}
+      {verifyingSignature && (
+        <span className={styles.sign}>verifying your signature...</span>
+      )}
+      {unverifiedSignature && (
+        <div className="danger">
+          your signature could not be verified, please try again
+        </div>
+      )}
     </div>
   );
 
   if (noStarknetWallet) {
-    starknetWalletDiv = <div>No Starknet wallet detected on your browser.</div>;
+    starknetWalletDiv = <div>no Starknet wallet detected on your browser.</div>;
   }
 
   return (
-    <div>
-      Welcome to Starky!
-      <br />
-      Discord server: {discordServerName}
-      <br />
-      Starknet network: {starknetNetwork}
-      <br />
-      {starknetWalletDiv}
+    <div className={styles.verify}>
+      <Logo />
+      <div>
+        Discord server: <b>{discordServerName}</b>
+        <br />
+        Starknet network: <b>{starknetNetwork}</b>
+        <br />
+        {starknet?.isConnected && (
+          <span className={styles.starknetWallet}>
+            Starknet wallet: <b>{starknet.account.address}</b>{" "}
+            <a onClick={() => setStarknet(undefined)}>disconnect</a>
+          </span>
+        )}
+        <br />
+        {verifiedSignature && (
+          <div>
+            <span>
+              Identity: <b>verified</b>
+            </span>
+            <h1>YOU’RE ALL SET FREN</h1>
+            <span>you shall close this tab</span>
+          </div>
+        )}
+        {!verifiedSignature && starknetWalletDiv}
+      </div>
+      <SocialLinks />
     </div>
   );
 };
@@ -158,11 +164,13 @@ export async function getServerSideProps({ res, query }: any) {
     res.setHeader("location", "/");
     res.statusCode = 302;
     res.end();
-    return;
+    return { props: {} };
   }
   try {
     discordServerName = await getDiscordServerName(`${query.discordServerId}`);
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
   return {
     props: {
       discordServerName,

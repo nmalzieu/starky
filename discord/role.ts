@@ -5,8 +5,8 @@ import config from "../config";
 export const isBotRole = (role: Role): boolean => {
   if (
     role.tags &&
-    (role.tags.botId === config.DISCORD_CLIENT_ID ||
-      (role.tags as any).bot_id === config.DISCORD_CLIENT_ID) // Getting bot_id from the API, not botID
+    (role.tags.botId === config.NEXT_PUBLIC_DISCORD_CLIENT_ID ||
+      (role.tags as any).bot_id === config.NEXT_PUBLIC_DISCORD_CLIENT_ID) // Getting bot_id from the API, not botID
   ) {
     return true;
   }

@@ -1,0 +1,55 @@
+html,
+body {
+  background-color: #fffef3;
+  font-family: "Arial Narrow";
+  font-size: 20px;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.container {
+  padding: 105px 108px;
+  height: calc(100% - 210px);
+  @media (max-width: 450px) {
+    padding: 46px;
+    height: calc(100% - 92px);
+  }
+}
+
+#__next {
+  height: 100%;
+}
+
+h1 {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 100px;
+  line-height: 115px;
+  margin: 0;
+
+  @media (max-width: 450px) {
+    font-size: 40px;
+    line-height: 46px;
+  }
+}
+
+h2 {
+  font-weight: 400;
+  font-size: 50px;
+  line-height: 57px;
+  @media (max-width: 450px) {
+    font-size: 30px;
+    line-height: 34px;
+  }
+}
+
+a {
+  color: black;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.danger {
+  color: #c3453f;
+}

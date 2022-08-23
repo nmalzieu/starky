@@ -1,0 +1,17 @@
+.socialLinks {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+  a {
+    text-decoration: none;
+  }
+
+  .separator {
+    width: 6px;
+    height: 6px;
+    display: inline-block;
+    background-color: black;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}

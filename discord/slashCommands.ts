@@ -23,7 +23,7 @@ export const registerSlashCommands = async () => {
   ].map((command) => command.toJSON());
   console.log("> Registering Discord slash commands...");
   await restDiscordClient.put(
-    Routes.applicationCommands(config.DISCORD_CLIENT_ID),
+    Routes.applicationCommands(config.NEXT_PUBLIC_DISCORD_CLIENT_ID),
     {
       body: slashCommands,
     }
