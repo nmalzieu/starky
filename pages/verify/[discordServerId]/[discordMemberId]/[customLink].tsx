@@ -19,8 +19,8 @@ type Props = {
 };
 
 const chainIdByNetwork = {
-  goerli: "SN_GOERLI",
-  mainnet: "SN_MAIN",
+  goerli: "0x534e5f474f45524c49",
+  mainnet: "0x534e5f4d41494e",
 };
 
 const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
@@ -42,7 +42,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       return;
     }
     await strk.enable();
-    const chainId = (strk as any).chainId;
+    const chainId = strk.provider.chainId;
     if (chainId !== chainIdByNetwork[starknetNetwork]) {
       setWrongStarknetNetwork(true);
     } else {
