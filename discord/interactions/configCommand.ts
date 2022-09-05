@@ -157,6 +157,47 @@ export const handleNetworkConfigCommand = async (
   });
 };
 
+export const finishUpConfiguration = async (
+  interaction: ModalSubmitInteraction | SelectMenuInteraction,
+  client: Client,
+  restClient: REST
+) => {
+  await assertAdmin(interaction);
+  if (!interaction.guildId) return;
+
+  const currentConfig = ongoingConfigurationsCache[interaction.guildId];
+  const role = (await getRoles(restClient, interaction.guildId)).find(
+    (r) => r.id === currentConfig.roleId
+  );
+
+  let summaryContent = `Thanks for configuring Starky 🎉\n\nHere is a summary of your configuration:\n\n__Starknet network:__ \`${
+    currentConfig.network
+  }\`\n__Discord role to assign:__ \`${role?.name}\`\n__Starky module:__ \`${
+    currentConfig.moduleType
+  }\`${currentConfig.moduleConfig ? "\n\nModule specific settings:\n" : ""}`;
+  for (const fieldId in currentConfig.moduleConfig) {
+    summaryContent = `${summaryContent}\n${fieldId}: \`${currentConfig.moduleConfig[fieldId]}\``;
+  }
+  summaryContent = `${summaryContent}\n\n**Do you want to save this configuration?**`;
+
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId("starcord-config-cancel")
+      .setLabel("Cancel")
+      .setStyle(ButtonStyle.Danger),
+    new ButtonBuilder()
+      .setCustomId("starcord-config-confirm")
+      .setLabel("Save configuration")
+      .setStyle(ButtonStyle.Primary)
+  );
+
+  await interaction.reply({
+    content: summaryContent,
+    components: [row],
+    ephemeral: true,
+  });
+};
+
 export const handleModuleTypeConfigCommand = async (
   interaction: SelectMenuInteraction,
   client: Client,
@@ -168,6 +209,11 @@ export const handleModuleTypeConfigCommand = async (
   ongoingConfigurationsCache[interaction.guildId].moduleType = starkyModuleId;
   const starkyModule = starkyModules[starkyModuleId];
   if (!starkyModule) return;
+
+  if (starkyModule.fields.length === 0) {
+    await finishUpConfiguration(interaction, client, restClient);
+    return;
+  }
 
   const modal = new ModalBuilder()
     .setCustomId("starky-config-module-config")
@@ -205,32 +251,7 @@ export const handleModuleConfigCommand = async (
 
   const currentConfig = ongoingConfigurationsCache[interaction.guildId];
   currentConfig.moduleConfig = moduleConfig;
-  const role = (await getRoles(restClient, interaction.guildId)).find(
-    (r) => r.id === currentConfig.roleId
-  );
-
-  let summaryContent = `Thanks for configuring Starky 🎉\n\nHere is a summary of your configuration:\n\n__Starknet network:__ \`${currentConfig.network}\`\n__Discord role to assign:__ \`${role?.name}\`\n__Starky module:__ \`${currentConfig.moduleType}\`\n\nModule specific settings:\n`;
-  for (const fieldId in moduleConfig) {
-    summaryContent = `${summaryContent}\n${fieldId}: \`${moduleConfig[fieldId]}\``;
-  }
-  summaryContent = `${summaryContent}\n\n**Do you want to save this configuration?**`;
-
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId("starcord-config-cancel")
-      .setLabel("Cancel")
-      .setStyle(ButtonStyle.Danger),
-    new ButtonBuilder()
-      .setCustomId("starcord-config-confirm")
-      .setLabel("Save configuration")
-      .setStyle(ButtonStyle.Primary)
-  );
-
-  await interaction.reply({
-    content: summaryContent,
-    components: [row],
-    ephemeral: true,
-  });
+  await finishUpConfiguration(interaction, client, restClient);
 };
 
 export const handleConfigCancelCommand = async (
@@ -276,12 +297,15 @@ export const handleConfigConfirmCommand = async (
     throw new Error("Wrong role config");
   }
   discordServer.discordRoleId = currentConfig.roleId;
-  if (currentConfig.moduleType !== "erc721") {
+  if (
+    !currentConfig.moduleType ||
+    !(currentConfig.moduleType in starkyModules)
+  ) {
     throw new Error("Wrong module config");
   }
   discordServer.starkyModuleType = currentConfig.moduleType;
 
-  discordServer.starkyModuleConfig = currentConfig.moduleConfig;
+  discordServer.starkyModuleConfig = currentConfig.moduleConfig || {};
 
   await DiscordServerRepository.save(discordServer);
 

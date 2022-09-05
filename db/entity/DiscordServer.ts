@@ -14,7 +14,7 @@ export class DiscordServer {
   discordRoleId: string;
 
   @Column()
-  starkyModuleType: "erc721";
+  starkyModuleType: string;
 
   @Column("jsonb", { nullable: false, default: {} })
   starkyModuleConfig: StarkyModuleConfig;
