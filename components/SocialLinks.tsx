@@ -6,7 +6,11 @@ const SocialLinks = () => (
       twitter
     </a>
     <div className={styles.separator} />
-    <a href="tutorial" target="_blank" rel="noreferrer">
+    <a
+      href="https://starkywtf.notion.site/Starky-wtf-f2f918be668b4e96863e82c0791e317c"
+      target="_blank"
+      rel="noreferrer"
+    >
       tutorial
     </a>
     <div className={styles.separator} />
@@ -18,7 +22,7 @@ const SocialLinks = () => (
       github
     </a>
     <div className={styles.separator} />
-    <a href="telegram" target="_blank" rel="noreferrer">
+    <a href="https://t.me/+Mi34Im1Uafc1Y2Q8" target="_blank" rel="noreferrer">
       telegram
     </a>
   </div>
