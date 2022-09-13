@@ -62,7 +62,10 @@ Copy your bot TOKEN: if it doesn’t show, just click “Reset Token” and copy
 
 Starky is a Next.js application with a custom server. Indeed it’s more than just a Next.js application, it also launches the Discord bot (i.e. ability to react to Application Commands) and a cron (a regular check to assign / unassign roles in Discord).
 
-Starky unfortunately cannot be hosted on [Vercel](https://vercel.com/) (a usually obvious Next.js choice!) as it needs to stay up and running so the bot is always active, and Vercel Next.js hosting are run on each request but don’t stay up.
+<aside>
+🚫 Starky unfortunately cannot be hosted on [Vercel](https://vercel.com/) (a usually obvious Next.js choice!) as it needs to stay up and running so the bot is always active, and Vercel Next.js hosting are run on each request but don’t stay up.
+
+</aside>
 
 We provide a docker version of Starky here: [https://hub.docker.com/r/noemalzieu/starky](https://hub.docker.com/r/noemalzieu/starky)
 
