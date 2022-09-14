@@ -13,10 +13,16 @@ RUN \
     fi
 
 COPY . .
-ARG NEXT_PUBLIC_DISCORD_CLIENT_ID
+# This is a boolean displaying the "official" Starky
+# website (with a direct link to the Discord app
+# and our Social Links). This is disabled by default!
 ARG NEXT_PUBLIC_STARKY_OFFICIAL
-ENV NEXT_PUBLIC_DISCORD_CLIENT_ID=$NEXT_PUBLIC_DISCORD_CLIENT_ID
 ENV NEXT_PUBLIC_STARKY_OFFICIAL=$NEXT_PUBLIC_STARKY_OFFICIAL
+# Next also needs the discord client id at build time to
+# display a direct link to the application installation. Same,
+# not needed by default.
+ARG NEXT_PUBLIC_DISCORD_CLIENT_ID
+ENV NEXT_PUBLIC_DISCORD_CLIENT_ID=$NEXT_PUBLIC_DISCORD_CLIENT_ID
 ENV NODE_ENV production
 RUN yarn build
 

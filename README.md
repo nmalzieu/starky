@@ -1,5 +1,3 @@
-# Starky README
-
 Welcome to Starky!
 
 Starky is a Discord bot that lets you token-gate roles and channels with Starknet assets.
@@ -74,7 +72,12 @@ Just run the `noemalzieu/starky:latest` docker container, providing the followin
 
 - `NEXT_PUBLIC_DISCORD_CLIENT_ID` : the Discord application ID from step 2
 - `DISCORD_BOT_TOKEN` : the Discord bot token from step 2
-- `UPDATE_STATUS_EVERY_SECONDS` (optional) : the cron interval in seconds
+- Your database information:
+    - either `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE`
+    - or `DATABASE_URL`
+- `DOMAIN` : the domain on which Starky is hosted (will be used to send their custom link to users in Discord)
+- `PORT` : the port on which to run the server (defaults to 8080 and it is the port exposed in the Dockerfile)
+- `UPDATE_STATUS_EVERY_SECONDS` (optional - defaults to 5min) : the cron interval in seconds
 
 ## Step 4: install your Discord application on your server
 
