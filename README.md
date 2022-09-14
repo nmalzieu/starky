@@ -75,7 +75,7 @@ Just run the `noemalzieu/starky:latest` docker container, providing the followin
 - Your database information:
     - either `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE`
     - or `DATABASE_URL`
-- `DOMAIN` : the domain on which Starky is hosted (will be used to send their custom link to users in Discord)
+- `BASE_URL` (default : `http://localhost:8080`): the base URL on which Starky is hosted (will be used to send their custom link to users in Discord)
 - `PORT` : the port on which to run the server (defaults to 8080 and it is the port exposed in the Dockerfile)
 - `UPDATE_STATUS_EVERY_SECONDS` (optional - defaults to 5min) : the cron interval in seconds
 

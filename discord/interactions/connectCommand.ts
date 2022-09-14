@@ -43,7 +43,7 @@ export const handleConnectCommand = async (
       });
     } else {
       await interaction.reply({
-        content: `Go to this link : ${config.DOMAIN}/verify/${guildId}/${userId}/${alreadyDiscordMember.customLink} and verify your Starknet identity!`,
+        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMember.customLink} and verify your Starknet identity!`,
         ephemeral: true,
       });
     }
@@ -54,7 +54,7 @@ export const handleConnectCommand = async (
     newDiscordMember.customLink = nanoid();
     await DiscordMemberRepository.save(newDiscordMember);
     await interaction.reply({
-      content: `Go to this link : ${config.DOMAIN}/verify/${guildId}/${userId}/${newDiscordMember.customLink} and verify your Starknet identity!`,
+      content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${newDiscordMember.customLink} and verify your Starknet identity!`,
       ephemeral: true,
     });
   }
