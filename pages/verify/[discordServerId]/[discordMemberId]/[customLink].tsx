@@ -147,7 +147,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
         )}
         {!verifiedSignature && starknetWalletDiv}
       </div>
-      <SocialLinks />
+      {process.env.NEXT_PUBLIC_STARKY_OFFICIAL && <SocialLinks />}
     </div>
   );
 };
