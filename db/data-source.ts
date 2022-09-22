@@ -11,9 +11,10 @@ export const AppDataSource = new DataSource({
   username: config.DB_USERNAME,
   password: config.DB_PASSWORD,
   database: config.DB_DATABASE,
-  synchronize: true,
+  synchronize: false,
   logging: false,
   entities: [DiscordServer, DiscordMember],
-  migrations: [],
+  migrations: [__dirname + "/migration/**/*.ts"],
+  migrationsTableName: "migrations",
   subscribers: [],
 });

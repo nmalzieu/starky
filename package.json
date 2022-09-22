@@ -6,7 +6,8 @@
     "dev": "nodemon server.ts",
     "build:next": "next build",
     "build:server": "tsc --project tsconfig.server.json",
-    "build": "cross-env NODE_ENV=production yarn build:next && cross-env NODE_ENV=production yarn build:server"
+    "build": "cross-env NODE_ENV=production yarn build:next && cross-env NODE_ENV=production yarn build:server",
+    "typeorm": "ts-node ./node_modules/typeorm/cli.js"  
   },
   "dependencies": {
     "@argent/get-starknet": "^4.6.3",
