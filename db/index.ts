@@ -7,7 +7,7 @@ export const setupDb = async () => {
   if (!AppDataSource.isInitialized) {
     await AppDataSource.initialize();
     await setupMigrations();
-    await AppDataSource.runMigrations();
+    await AppDataSource.runMigrations({ transaction: "each" });
   }
 };
 

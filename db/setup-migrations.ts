@@ -9,11 +9,16 @@ export const setupMigrations = async () => {
     "select count(*) from information_schema.tables where table_schema = 'public';"
   );
   await AppDataSource.showMigrations();
-  if (tableCountQuery[0].count > 0) {
-    // We have already synchronized tables, so let's mark the
-    // initial migration as applied
-    await AppDataSource.query(
-      `INSERT INTO migrations(id,timestamp,name) VALUES(1,extract(epoch from now())*1000,'initialDatabase1663853728182') ON CONFLICT DO NOTHING;`
+  if (parseInt(tableCountQuery[0].count, 10) > 0) {
+    const migrationsCountQuery = await AppDataSource.query(
+      "select count(*) from migrations;"
     );
+    if (parseInt(migrationsCountQuery[0].count, 10) === 0) {
+      // We have already synchronized tables, so let's mark the
+      // initial migration as applied
+      await AppDataSource.query(
+        `INSERT INTO migrations(timestamp,name) VALUES(extract(epoch from now())*1000,'initialDatabase1663853728182') ON CONFLICT DO NOTHING;`
+      );
+    }
   }
 };
