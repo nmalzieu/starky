@@ -30,7 +30,7 @@ export const handleConnectCommand = async (
   }
 
   const alreadyDiscordMember = await DiscordMemberRepository.findOneBy({
-    id: userId,
+    discordMemberId: userId,
     discordServer: alreadyDiscordServer,
   });
 

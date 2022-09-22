@@ -31,7 +31,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   }
 
   const discordMember = await DiscordMemberRepository.findOne({
-    where: { discordServerId: body.discordServerId, id: body.discordMemberId },
+    where: {
+      discordServerId: body.discordServerId,
+      discordMemberId: body.discordMemberId,
+    },
     relations: ["discordServer"],
   });
 
