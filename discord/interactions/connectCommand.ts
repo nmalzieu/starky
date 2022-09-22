@@ -50,7 +50,7 @@ export const handleConnectCommand = async (
   } else {
     const newDiscordMember = new DiscordMember();
     newDiscordMember.discordServer = alreadyDiscordServer;
-    newDiscordMember.id = userId;
+    newDiscordMember.discordMemberId = userId;
     newDiscordMember.customLink = nanoid();
     await DiscordMemberRepository.save(newDiscordMember);
     await interaction.reply({

@@ -10,7 +10,7 @@ import { DiscordServer } from "./DiscordServer";
 @Entity()
 export class DiscordMember {
   @PrimaryColumn()
-  id: string;
+  discordMemberId: string;
 
   @PrimaryColumn()
   discordServerId: string;

@@ -38,7 +38,7 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
       await refreshDiscordMember(discordServer, discordMember, starkyModule);
     } catch (e) {
       console.error(
-        `Could not refresh discord member ${discordMember.id} from server ${discordServer.id}: ${e}`
+        `Could not refresh discord member ${discordMember.discordMemberId} from server ${discordServer.id}: ${e}`
       );
     }
   }
@@ -63,14 +63,14 @@ export const refreshDiscordMember = async (
     await addRole(
       restDiscordClient,
       discordServer.id,
-      discordMember.id,
+      discordMember.discordMemberId,
       discordServer.discordRoleId
     );
   } else {
     await removeRole(
       restDiscordClient,
       discordServer.id,
-      discordMember.id,
+      discordMember.discordMemberId,
       discordServer.discordRoleId
     );
   }
