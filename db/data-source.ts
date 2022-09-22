@@ -14,7 +14,7 @@ export const AppDataSource = new DataSource({
   synchronize: false,
   logging: false,
   entities: [DiscordServer, DiscordMember],
-  migrations: [__dirname + "/migration/**/*.ts"],
+  migrations: [__dirname + "/migration/**/*.{js,ts}"],
   migrationsTableName: "migrations",
   subscribers: [],
 });

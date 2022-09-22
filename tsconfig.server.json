@@ -5,5 +5,5 @@
     "outDir": "dist-server",
     "noEmit": false
   },
-  "include": ["server.ts"]
+  "include": ["server.ts", "db/migration/**/*.ts"]
 }
