@@ -85,7 +85,7 @@ Just open the following URL in your browser:
 
 [`https://discord.com/api/oauth2/authorize?client_id=DISCORD_CLIENT_ID&permissions=268435456&scope=applications.commands bot`](https://discord.com/api/oauth2/authorize?client_id=DISCORD_CLIENT_ID&permissions=268435456&scope=applications.commands%20bot)
 
-replacing DISCORD_CLIENT_ID with your Discord application ID from step 1.
+replacing `DISCORD_CLIENT_ID` with your Discord application ID from step 1.
 
 `permissions=268435456` corresponds to the “Manage Roles” permission that your bot needs to have to be able to assign / remove roles from users
 
@@ -132,7 +132,7 @@ Just open the following URL in your browser:
 
 [`https://discord.com/api/oauth2/authorize?client_id=DISCORD_CLIENT_ID&permissions=268435456&scope=applications.commands bot`](https://discord.com/api/oauth2/authorize?client_id=DISCORD_CLIENT_ID&permissions=268435456&scope=applications.commands%20bot)
 
-replacing DISCORD_CLIENT_ID with your Discord application ID from step 1.
+replacing `DISCORD_CLIENT_ID` with your Discord application ID from step 1.
 
 `permissions=268435456` corresponds to the “Manage Roles” permission that your bot needs to have to be able to assign / remove roles from users
 
