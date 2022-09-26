@@ -44,11 +44,7 @@ We developed Starky as open-source under the MIT license. While we host a versio
 
 Here, we detail how to do just that.
 
-## Step 1: host a Postgres DB
-
-Starky needs a Postgres database to save information, so make sure to have the credentials for your database ready!
-
-## Step 2: create a Discord application
+## Step 1: create a Discord application
 
 To function, Starky needs a Discord client ID and a Discord bot token. Go to [https://discord.com/developers/applications](https://discord.com/developers/applications) and create a new application. You can give it a name, logo and description, but they don’t really matter, as if you host Starky yourself, it’s probably just to use it on your Discord server and only you will install this Discord app.
 
@@ -60,6 +56,10 @@ If you want to install this bot yourself on your own server, you can uncheck the
 
 Copy your bot TOKEN: if it doesn’t show, just click “Reset Token” and copy the newly generated token.
 
+## Step 2: host a Postgres DB
+
+Starky needs a Postgres database to save information, so make sure to have the credentials for your database ready!
+
 ## Step 3: host Starky
 
 Starky is a Next.js application with a custom server. Indeed it’s more than just a Next.js application, it also launches the Discord bot (i.e. ability to react to Application Commands) and a cron (a regular check to assign / unassign roles in Discord).
@@ -70,12 +70,12 @@ We provide a docker version of Starky here: [https://hub.docker.com/r/noemalzieu
 
 Just run the `noemalzieu/starky:latest` docker container, providing the following environment variables:
 
-- `NEXT_PUBLIC_DISCORD_CLIENT_ID` : the Discord application ID from step 2
-- `DISCORD_BOT_TOKEN` : the Discord bot token from step 2
+- `NEXT_PUBLIC_DISCORD_CLIENT_ID` : the Discord application ID from step 1
+- `DISCORD_BOT_TOKEN` : the Discord bot token from step 1
 - Your database information:
     - either `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE`
     - or `DATABASE_URL`
-- `BASE_URL` (default : `http://localhost:8080`): the base URL on which Starky is hosted (will be used to send their custom link to users in Discord)
+- `DOMAIN` : the domain on which Starky is hosted (will be used to send their custom link to users in Discord)
 - `PORT` : the port on which to run the server (defaults to 8080 and it is the port exposed in the Dockerfile)
 - `UPDATE_STATUS_EVERY_SECONDS` (optional - defaults to 5min) : the cron interval in seconds
 
@@ -85,11 +85,81 @@ Just open the following URL in your browser:
 
 [`https://discord.com/api/oauth2/authorize?client_id=DISCORD_CLIENT_ID&permissions=268435456&scope=applications.commands bot`](https://discord.com/api/oauth2/authorize?client_id=DISCORD_CLIENT_ID&permissions=268435456&scope=applications.commands%20bot)
 
-replacing DISCORD_CLIENT_ID with your Discord application ID from step 2.
+replacing DISCORD_CLIENT_ID with your Discord application ID from step 1.
 
 `permissions=268435456` corresponds to the “Manage Roles” permission that your bot needs to have to be able to assign / remove roles from users
 
 ## Step 5: configure Starky on your Discord server
+
+Just enter `/starky-configure` and follow instructions!
+
+# Run Starky locally (dev)
+
+Running Starky locally is pretty simple and follows the steps of the self-host version
+
+## Step 1: create a Discord application
+
+Refer to step 1 of the self-hosted Starky tutorial.
+
+## Step 2: host a Postgres DB
+
+Starky needs a Postgres database to save information, so make sure to have the credentials for your database ready!
+
+## Step 3: clone Starky & install dependencies
+
+```bash
+# Clone the repository
+git clone git@github.com:nmalzieu/starky.git
+
+# Install dependencies with yarn or npm
+yarn install
+npm install
+```
+
+## Step 4: configure Starky
+
+Copy the sample configuration file
+
+```bash
+cp .env.local.sample .env.local
+```
+
+and fill in the env variables (refer to step 3 of the self-host version for their signification)
+
+## Step 5: install your Discord application on your server
+
+Just open the following URL in your browser:
+
+[`https://discord.com/api/oauth2/authorize?client_id=DISCORD_CLIENT_ID&permissions=268435456&scope=applications.commands bot`](https://discord.com/api/oauth2/authorize?client_id=DISCORD_CLIENT_ID&permissions=268435456&scope=applications.commands%20bot)
+
+replacing DISCORD_CLIENT_ID with your Discord application ID from step 1.
+
+`permissions=268435456` corresponds to the “Manage Roles” permission that your bot needs to have to be able to assign / remove roles from users
+
+## Step 6: run Starky locally in dev mode
+
+```bash
+yarn dev
+
+# You should see the following
+yarn run v1.22.17
+$ nodemon server.ts
+[nodemon] 2.0.19
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: ts,json
+[nodemon] starting `ts-node server.ts`
+info  - Loaded env from /Users/noemalzieu/Documents/Projets/starky/.env.local
+info  - SWC minify release candidate enabled. https://nextjs.link/swcmin
+event - compiled client and server successfully in 221 ms (179 modules)
+> Server ready on http://localhost:8080
+> Discord bot launched successfully
+> Registering Discord slash commands...
+> Registered Discord slash commands!
+> Discord interactions set up successfully
+```
+
+## Step 7: configure Starky on your Discord server
 
 Just enter `/starky-configure` and follow instructions!
 
