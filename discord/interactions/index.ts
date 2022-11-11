@@ -9,7 +9,10 @@ import {
   handleModuleTypeConfigCommand,
   handleNetworkConfigCommand,
   handleRoleConfigCommand,
-} from "./configCommand";
+} from "./addConfigCommand";
+
+import { handleDeleteConfigCommand } from "./deleteConfigCommand";
+
 import { handleConnectCommand } from "./connectCommand";
 import {
   handleDisconnectCommand,
@@ -23,7 +26,11 @@ export const setupInteractions = (client: Client) => {
   client.on("interactionCreate", async (interaction) => {
     const isInitialConfig =
       interaction.isChatInputCommand() &&
-      interaction.commandName === "starky-config";
+      interaction.commandName === "add-starky-config";
+
+    const deleteConfig =
+      interaction.isChatInputCommand() &&
+      interaction.commandName === "delete-starky-config";
 
     const isNetworkConfig =
       interaction.isSelectMenu() &&
@@ -64,6 +71,8 @@ export const setupInteractions = (client: Client) => {
       return handleConnectCommand(interaction, client, restClient);
     } else if (isInitialConfig) {
       return handleInitialConfigCommand(interaction, client, restClient);
+    } else if (deleteConfig) {
+      return handleDeleteConfigCommand(interaction, client, restClient);
     } else if (isNetworkConfig) {
       return handleNetworkConfigCommand(interaction, client, restClient);
     } else if (isRoleConfig) {

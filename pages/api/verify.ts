@@ -16,6 +16,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     return;
   }
   const body = req.body;
+  //console.log(body);
   if (
     !body.account ||
     !body.signature ||
@@ -25,41 +26,47 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   ) {
     res.status(400).json({
       message:
-        "Missing body: account, signature, discordServerId, discordMemberId & customLink required",
+        "Missing body: account, signature, DiscordServerId, discordMemberId & customLink required",
     });
     return;
   }
 
-  const discordMember = await DiscordMemberRepository.findOne({
+  const discordMembers = await DiscordMemberRepository.find({
     where: {
-      discordServerId: body.discordServerId,
+      DiscordServerId: body.discordServerId,
       discordMemberId: body.discordMemberId,
     },
-    relations: ["discordServer"],
+    relations: ["DiscordServerConfig"],
   });
 
-  if (!discordMember || discordMember.customLink !== body.customLink) {
-    res.status(400).json({
-      message: "Wrong custom link",
-    });
-    return;
-  }
+  for (let discordMember of discordMembers) {
+    if (!discordMember || discordMember.customLink !== body.customLink) {
+      res.status(400).json({
+        message: "Wrong custom link",
+      });
+      return;
+    }
 
-  const messageHexHash = typedData.getMessageHash(messageToSign, body.account);
-  const signatureVerified = await verifySignature(
-    body.account,
-    messageHexHash,
-    body.signature,
-    discordMember.discordServer.starknetNetwork
-  );
-  if (!signatureVerified) {
-    return res.status(400).json({ message: "Signature is invalid" });
-  } else {
-    discordMember.starknetWalletAddress = body.account;
-    await DiscordMemberRepository.save(discordMember);
-    res.status(200).json({ message: "Successfully verified" });
-    // Let's refresh its status immediatly
-    refreshDiscordMember(discordMember.discordServer, discordMember);
+    const messageHexHash = typedData.getMessageHash(
+      messageToSign,
+      body.account
+    );
+    const signatureVerified = await verifySignature(
+      body.account,
+      messageHexHash,
+      body.signature,
+      discordMember.DiscordServerConfig.starknetNetwork
+    );
+    if (!signatureVerified) {
+      return res.status(400).json({ message: "Signature is invalid" });
+    } else {
+      discordMember.starknetWalletAddress = body.account;
+
+      res.status(200).json({ message: "Successfully verified" });
+      // Let's refresh its status immediatly
+      DiscordMemberRepository.save(discordMembers);
+      refreshDiscordMember(discordMember.DiscordServerConfig, discordMember);
+    }
   }
 };
 

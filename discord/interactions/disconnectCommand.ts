@@ -18,22 +18,26 @@ export const handleDisconnectConfirmCommand = async (
   const userId = interaction.member?.user?.id;
   const guildId = interaction.guildId;
   if (!userId || !guildId) return;
-  const alreadyDiscordMember = await DiscordMemberRepository.findOne({
+  const alreadyDiscordMember = await DiscordMemberRepository.find({
     where: {
       discordMemberId: userId,
-      discordServerId: guildId,
+      DiscordServerId: guildId,
     },
-    relations: ["discordServer"],
+    relations: ["DiscordServerConfig"],
   });
   if (!alreadyDiscordMember) return;
 
   await DiscordMemberRepository.softRemove(alreadyDiscordMember);
-  removeRole(
-    restClient,
-    guildId,
-    userId,
-    alreadyDiscordMember.discordServer.discordRoleId
-  );
+
+  for (let discordMember of alreadyDiscordMember) {
+    removeRole(
+      restClient,
+      guildId,
+      userId,
+      discordMember.DiscordServerConfig.discordRoleId
+    );
+  }
+
   await interaction.update({
     content: "Disconnected!",
     components: [],
@@ -50,7 +54,7 @@ export const handleDisconnectCommand = async (
   if (!userId || !guildId) return;
   const alreadyDiscordMember = await DiscordMemberRepository.findOneBy({
     discordMemberId: userId,
-    discordServerId: guildId,
+    DiscordServerId: guildId,
   });
   if (!alreadyDiscordMember) {
     await interaction.reply({

@@ -14,7 +14,7 @@ import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
 
 type Props = {
-  discordServerName: string;
+  DiscordServerName: string;
   starknetNetwork: "goerli" | "mainnet";
 };
 
@@ -23,7 +23,7 @@ const chainIdByNetwork = {
   mainnet: "0x534e5f4d41494e",
 };
 
-const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
+const VerifyPage = ({ DiscordServerName, starknetNetwork }: Props) => {
   const router = useRouter();
   const { discordServerId, discordMemberId, customLink } = router.query;
   const [starknet, setStarknet] = useState<IStarknetWindowObject | undefined>(
@@ -39,6 +39,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
     const strk = await starknetConnect();
     if (!strk) {
       setNotStarknetWallet(true);
+      console.log("we here 2");
       return;
     }
     await strk.enable();
@@ -55,6 +56,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       setUnverifiedSignature(false);
       setVerifyingSignature(true);
       try {
+        console.log("qq");
         await axios.post("/api/verify", {
           account: starknet?.account?.address,
           signature,
@@ -65,6 +67,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
         setVerifiedSignature(true);
         setVerifyingSignature(false);
       } catch (e) {
+        console.error(e);
         setVerifyingSignature(false);
         setUnverifiedSignature(true);
       }
@@ -125,7 +128,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
     <div className={styles.verify}>
       <Logo />
       <div>
-        Discord server: <b>{discordServerName}</b>
+        Discord server: <b>{DiscordServerName}</b>
         <br />
         Starknet network: <b>{starknetNetwork}</b>
         <br />
@@ -154,11 +157,11 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
 
 export async function getServerSideProps({ res, query }: any) {
   await setupDb();
-  let discordServerName = null;
-  const { discordServerId, discordMemberId, customLink } = query;
+  let DiscordServerName = null;
+  const { DiscordServerId, discordMemberId, customLink } = query;
   const discordMember = await DiscordMemberRepository.findOne({
-    where: { discordServerId, discordMemberId },
-    relations: ["discordServer"],
+    where: { DiscordServerId, discordMemberId },
+    relations: ["DiscordServerConfig"],
   });
   if (!discordMember || discordMember.customLink !== customLink) {
     res.setHeader("location", "/");
@@ -167,14 +170,14 @@ export async function getServerSideProps({ res, query }: any) {
     return { props: {} };
   }
   try {
-    discordServerName = await getDiscordServerName(`${query.discordServerId}`);
+    DiscordServerName = await getDiscordServerName(`${query.discordServerId}`);
   } catch (e) {
     console.error(e);
   }
   return {
     props: {
-      discordServerName,
-      starknetNetwork: discordMember.discordServer.starknetNetwork,
+      DiscordServerName,
+      starknetNetwork: discordMember.DiscordServerConfig.starknetNetwork,
     },
   };
 }

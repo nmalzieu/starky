@@ -1,77 +1,103 @@
 import { IsNull, Not } from "typeorm";
 import config from "./config";
-import { DiscordMemberRepository, DiscordServerRepository } from "./db";
+import { DiscordMemberRepository, DiscordServerConfigRepository } from "./db";
 import { DiscordMember } from "./db/entity/DiscordMember";
-import { DiscordServer } from "./db/entity/DiscordServer";
+import { DiscordServerConfig } from "./db/entity/DiscordServerConfig";
 import { restDiscordClient } from "./discord/client";
 import { addRole, removeRole } from "./discord/role";
 import modules from "./starkyModules";
 import { StarkyModule } from "./starkyModules/types";
 
-const refreshDiscordServers = async () => {
-  const discordServers = await DiscordServerRepository.find();
-  for (let discordServer of discordServers) {
-    await refreshDiscordServer(discordServer);
+const refreshDiscordServerConfigs = async () => {
+  const DiscordServerConfigs = await DiscordServerConfigRepository.find();
+  for (let DiscordServerConfig of DiscordServerConfigs) {
+    await refreshDiscordServerConfig(DiscordServerConfig);
   }
 };
 
-export const refreshDiscordServer = async (discordServer: DiscordServer) => {
-  console.log(`[Cron] Refreshing discord server ${discordServer.id}`);
+export const memberStarknetAddress = async (discordMember: DiscordMember) => {
+  const discordMemberWithAddress = await DiscordMemberRepository.findOneBy({
+    starknetWalletAddress: Not(IsNull()),
+    discordMemberId: discordMember.discordMemberId,
+    DiscordServerId: discordMember.DiscordServerId,
+  });
+  if (discordMemberWithAddress == null) return;
+  discordMember.starknetWalletAddress =
+    discordMemberWithAddress.starknetWalletAddress;
+  //console.log(discordMember);
+  return;
+};
+
+export const refreshDiscordServerConfig = async (
+  DiscordServerConfig: DiscordServerConfig
+) => {
+  console.log(
+    `[Cron] Refreshing discord server ${DiscordServerConfig.DiscordServerId}, configuration ${DiscordServerConfig.id}`
+  );
   const discordMembers = await DiscordMemberRepository.find({
     where: {
-      discordServer,
-      starknetWalletAddress: Not(IsNull()),
+      DiscordServerConfig,
     },
     withDeleted: true,
   });
   // Refreshing each member one by one. We could
   // optimize using a pool in parallel.
-  const starkyModule = modules[discordServer.starkyModuleType];
+  const starkyModule = modules[DiscordServerConfig.starkyModuleType];
   if (!starkyModule) {
     console.error(
-      `Discord server ${discordServer.id} is configured with module ${discordServer.starkyModuleType} which does not exist`
+      `Server configuration ${DiscordServerConfig.id} uses module ${DiscordServerConfig.starkyModuleType} which does not exist`
     );
     return;
   }
   for (let discordMember of discordMembers) {
     try {
-      await refreshDiscordMember(discordServer, discordMember, starkyModule);
+      await memberStarknetAddress(discordMember);
+      //console.log(discordMember);
+      await refreshDiscordMember(
+        DiscordServerConfig,
+        discordMember,
+        starkyModule
+      );
     } catch (e) {
       console.error(
-        `Could not refresh discord member ${discordMember.discordMemberId} from server ${discordServer.id}: ${e}`
+        `Could not refresh discord member ${discordMember.discordMemberId} with configuration ${DiscordServerConfig.id}: ${e}`
       );
     }
   }
 };
 
 export const refreshDiscordMember = async (
-  discordServer: DiscordServer,
+  DiscordServerConfig: DiscordServerConfig,
   discordMember: DiscordMember,
   starkyModule?: StarkyModule
 ) => {
   if (!discordMember.starknetWalletAddress) return;
-  const starkyMod = starkyModule || modules[discordServer.starkyModuleType];
+  const starkyMod =
+    starkyModule || modules[DiscordServerConfig.starkyModuleType];
   // Always remove role for deleted users
   const shouldHaveRole = discordMember.deletedAt
     ? false
     : await starkyMod.shouldHaveRole(
         discordMember.starknetWalletAddress,
-        discordServer.starknetNetwork === "mainnet" ? "mainnet" : "goerli",
-        discordServer?.starkyModuleConfig
+        DiscordServerConfig.starknetNetwork === "mainnet"
+          ? "mainnet"
+          : "goerli",
+        DiscordServerConfig?.starkyModuleConfig
       );
+  //console.log(discordMember);
   if (shouldHaveRole) {
     await addRole(
       restDiscordClient,
-      discordServer.id,
+      DiscordServerConfig.DiscordServerId,
       discordMember.discordMemberId,
-      discordServer.discordRoleId
+      DiscordServerConfig.discordRoleId
     );
   } else {
     await removeRole(
       restDiscordClient,
-      discordServer.id,
+      DiscordServerConfig.DiscordServerId,
       discordMember.discordMemberId,
-      discordServer.discordRoleId
+      DiscordServerConfig.discordRoleId
     );
   }
 
@@ -82,7 +108,7 @@ export const refreshDiscordMember = async (
 
 const cronInterval = async () => {
   try {
-    await refreshDiscordServers();
+    await refreshDiscordServerConfigs();
   } catch (e) {
     console.error(e);
   }

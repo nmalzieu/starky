@@ -1,5 +1,5 @@
 import { DiscordMember } from "../db/entity/DiscordMember";
-import { DiscordServer } from "../db/entity/DiscordServer";
+import { DiscordServerConfig } from "../db/entity/DiscordServerConfig";
 
 export type StarkyModuleField = {
   id: string;

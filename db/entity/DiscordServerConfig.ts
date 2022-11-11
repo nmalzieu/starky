@@ -1,11 +1,20 @@
-import { Entity, Column, PrimaryColumn, OneToMany } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  OneToMany,
+} from "typeorm";
 import type { StarkyModuleConfig } from "../../starkyModules/types";
 import { DiscordMember } from "./DiscordMember";
 
 @Entity()
-export class DiscordServer {
-  @PrimaryColumn()
+export class DiscordServerConfig {
+  @PrimaryGeneratedColumn("increment")
   id: string;
+
+  @Column()
+  DiscordServerId: string;
 
   @Column()
   starknetNetwork: string;
@@ -19,6 +28,6 @@ export class DiscordServer {
   @Column("jsonb", { nullable: false, default: {} })
   starkyModuleConfig: StarkyModuleConfig;
 
-  @OneToMany((type) => DiscordMember, (member) => member.discordServer)
+  @OneToMany((type) => DiscordMember, (member) => member.DiscordServerConfig)
   members: DiscordMember[];
 }

@@ -7,7 +7,7 @@
     "build:next": "next build",
     "build:server": "tsc --project tsconfig.server.json",
     "build": "cross-env NODE_ENV=production yarn build:next && cross-env NODE_ENV=production yarn build:server",
-    "typeorm": "ts-node ./node_modules/typeorm/cli.js"  
+    "typeorm": "ts-node ./node_modules/typeorm/cli.js"
   },
   "dependencies": {
     "@argent/get-starknet": "^4.6.3",
@@ -26,8 +26,10 @@
     "reflect-metadata": "^0.1.13",
     "sass": "^1.54.5",
     "starknet": "^3.18.2",
+    "ts-node": "^10.9.1",
     "ts-parse-database-url": "^1.0.3",
-    "typeorm": "^0.3.7"
+    "typeorm": "^0.3.7",
+    "yarn": "^1.22.19"
   },
   "devDependencies": {
     "@types/node": "^18.7.1",
