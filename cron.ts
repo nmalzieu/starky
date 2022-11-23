@@ -9,7 +9,7 @@ import modules from "./starkyModules";
 import { StarkyModule } from "./starkyModules/types";
 
 const refreshDiscordServerConfigs = async () => {
-  const DiscordServerConfigs = await DiscordServerConfigRepository.find();
+  const discordServerConfigs = await DiscordServerConfigRepository.find();
   for (let DiscordServerConfig of DiscordServerConfigs) {
     await refreshDiscordServerConfig(DiscordServerConfig);
   }
