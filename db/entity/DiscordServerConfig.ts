@@ -1,14 +1,23 @@
 import {
   Entity,
   Column,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
-  OneToMany,
+  ManyToOne,
+  DeleteDateColumn,
+  Index,
 } from "typeorm";
 import type { StarkyModuleConfig } from "../../starkyModules/types";
-import { DiscordMember } from "./DiscordMember";
+import { DiscordServer } from "./DiscordServer";
 
 @Entity()
+@Index(["id", "DiscordServerId", "deletedAt"], {
+  unique: true,
+  where: '"deletedAt" IS NOT NULL',
+})
+@Index(["id", "DiscordServerId"], {
+  unique: true,
+  where: '"deletedAt" IS NULL',
+})
 export class DiscordServerConfig {
   @PrimaryGeneratedColumn("increment")
   id: string;
@@ -28,6 +37,9 @@ export class DiscordServerConfig {
   @Column("jsonb", { nullable: false, default: {} })
   starkyModuleConfig: StarkyModuleConfig;
 
-  @OneToMany((type) => DiscordMember, (member) => member.DiscordServerConfig)
-  members: DiscordMember[];
+  @ManyToOne((type) => DiscordServer, (server) => server.serverConfigs)
+  DiscordServer: DiscordServer;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

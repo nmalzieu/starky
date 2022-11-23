@@ -18,9 +18,11 @@ import {
 import { assertAdmin } from "./permissions";
 import { IsNull, Not } from "typeorm";
 import { DiscordServerConfig } from "../../db/entity/DiscordServerConfig";
+import { DiscordServer } from "../../db/entity/DiscordServer";
+
 import {
   DiscordServerConfigRepository,
-  DiscordMemberRepository,
+  DiscordServerRepository,
 } from "../../db";
 import { getRoles, isBotRole } from "../role";
 import starkyModules from "../../starkyModules";
@@ -290,8 +292,16 @@ export const handleConfigConfirmCommand = async (
       discordRoleId: currentConfig.roleId,
     });
 
+  const alreadyDiscordServer = await DiscordServerRepository.findOneBy({
+    id: interaction.guildId,
+  });
+
   const discordServerConfig =
     alreadyDiscordServerConfig || new DiscordServerConfig();
+
+  const discordServer = alreadyDiscordServer || new DiscordServer();
+  discordServer.id = interaction.guildId;
+
   discordServerConfig.DiscordServerId = interaction.guildId;
   if (
     currentConfig.network !== "mainnet" &&
@@ -314,16 +324,9 @@ export const handleConfigConfirmCommand = async (
 
   discordServerConfig.starkyModuleConfig = currentConfig.moduleConfig || {};
 
+  await DiscordServerRepository.save(discordServer);
   await DiscordServerConfigRepository.save(discordServerConfig);
 
-  const NewDiscordMembers = await DiscordMemberRepository.findBy({
-    starknetWalletAddress: Not(IsNull()),
-  });
-  for (let discordMember of NewDiscordMembers) {
-    discordMember.DiscordServerConfig = discordServerConfig;
-    discordMember.DiscordServerConfigId = discordServerConfig.id;
-    await DiscordMemberRepository.insert(discordMember);
-  }
 
   delete ongoingConfigurationsCache[interaction.guildId];
 

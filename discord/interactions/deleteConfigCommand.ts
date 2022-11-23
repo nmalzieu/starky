@@ -71,12 +71,6 @@ export const handleDeletingConfigCommand = async (
     id: interaction.values[0],
   });
   if (!serverConfigtodelete) return;
-  const membersToDelete = await DiscordMemberRepository.findBy({
-    DiscordServerConfig: serverConfigtodelete,
-  });
-  if (!membersToDelete) return;
-
-  await DiscordMemberRepository.softRemove(membersToDelete);
 
   await DiscordServerConfigRepository.softRemove(serverConfigtodelete);
 

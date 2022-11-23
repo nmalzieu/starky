@@ -39,7 +39,6 @@ const VerifyPage = ({ DiscordServerName, starknetNetwork }: Props) => {
     const strk = await starknetConnect();
     if (!strk) {
       setNotStarknetWallet(true);
-      console.log("we here 2");
       return;
     }
     await strk.enable();
@@ -56,13 +55,13 @@ const VerifyPage = ({ DiscordServerName, starknetNetwork }: Props) => {
       setUnverifiedSignature(false);
       setVerifyingSignature(true);
       try {
-        console.log("qq");
         await axios.post("/api/verify", {
           account: starknet?.account?.address,
           signature,
           discordServerId,
           discordMemberId,
           customLink,
+          network: starknetNetwork,
         });
         setVerifiedSignature(true);
         setVerifyingSignature(false);
@@ -161,7 +160,7 @@ export async function getServerSideProps({ res, query }: any) {
   const { DiscordServerId, discordMemberId, customLink } = query;
   const discordMember = await DiscordMemberRepository.findOne({
     where: { DiscordServerId, discordMemberId },
-    relations: ["DiscordServerConfig"],
+    relations: ["DiscordServer"],
   });
   if (!discordMember || discordMember.customLink !== customLink) {
     res.setHeader("location", "/");
@@ -177,7 +176,7 @@ export async function getServerSideProps({ res, query }: any) {
   return {
     props: {
       DiscordServerName,
-      starknetNetwork: discordMember.DiscordServerConfig.starknetNetwork,
+      starknetNetwork: discordMember.starknetNetwork,
     },
   };
 }

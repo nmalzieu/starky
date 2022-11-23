@@ -7,8 +7,11 @@ import {
   Client,
   REST,
 } from "discord.js";
-import { DiscordMemberRepository } from "../../db";
-import { removeRole } from "../role";
+import {
+  DiscordMemberRepository,
+  DiscordServerConfigRepository,
+} from "../../db";
+import { removeRole, getRoles } from "../role";
 
 export const handleDisconnectConfirmCommand = async (
   interaction: ButtonInteraction,
@@ -16,6 +19,7 @@ export const handleDisconnectConfirmCommand = async (
   restClient: REST
 ) => {
   const userId = interaction.member?.user?.id;
+  const userRoles = interaction.member?.roles;
   const guildId = interaction.guildId;
   if (!userId || !guildId) return;
   const alreadyDiscordMember = await DiscordMemberRepository.find({
@@ -27,15 +31,18 @@ export const handleDisconnectConfirmCommand = async (
   });
   if (!alreadyDiscordMember) return;
 
+  const serverConfigs = await DiscordServerConfigRepository.find({
+    where: {
+      DiscordServerId: guildId,
+    },
+    relations: ["DiscordServerConfig"],
+  });
+
   await DiscordMemberRepository.softRemove(alreadyDiscordMember);
 
-  for (let discordMember of alreadyDiscordMember) {
-    removeRole(
-      restClient,
-      guildId,
-      userId,
-      discordMember.DiscordServerConfig.discordRoleId
-    );
+  for (let serverConfig of serverConfigs) {
+    if (userRoles && serverConfig.discordRoleId in userRoles)
+      removeRole(restClient, guildId, userId, serverConfig.discordRoleId);
   }
 
   await interaction.update({

@@ -4,6 +4,7 @@ import { refreshDiscordMember } from "../../cron";
 import { DiscordMemberRepository, setupDb } from "../../db";
 import messageToSign from "../../starknet/message";
 import { verifySignature } from "../../starknet/verifySignature";
+import { DiscordServerConfigRepository } from "../../db/index";
 
 type Data = {
   message: string;
@@ -16,17 +17,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     return;
   }
   const body = req.body;
-  //console.log(body);
   if (
     !body.account ||
     !body.signature ||
     !body.discordServerId ||
     !body.discordMemberId ||
-    !body.customLink
+    !body.customLink ||
+    !body.network
   ) {
     res.status(400).json({
       message:
-        "Missing body: account, signature, DiscordServerId, discordMemberId & customLink required",
+        "Missing body: account, signature, DiscordServerId, discordMemberId, customLink & network required",
     });
     return;
   }
@@ -35,8 +36,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     where: {
       DiscordServerId: body.discordServerId,
       discordMemberId: body.discordMemberId,
+      starknetNetwork: body.network,
     },
     relations: ["DiscordServerConfig"],
+  });
+
+  const discordConfigs = await DiscordServerConfigRepository.findBy({
+    DiscordServerId: discordMembers[0].DiscordServerId,
   });
 
   for (let discordMember of discordMembers) {
@@ -55,7 +61,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
       body.account,
       messageHexHash,
       body.signature,
-      discordMember.DiscordServerConfig.starknetNetwork
+      body.network
     );
     if (!signatureVerified) {
       return res.status(400).json({ message: "Signature is invalid" });
@@ -65,7 +71,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
       res.status(200).json({ message: "Successfully verified" });
       // Let's refresh its status immediatly
       DiscordMemberRepository.save(discordMembers);
-      refreshDiscordMember(discordMember.DiscordServerConfig, discordMember);
+
+      for (let discordMember of discordMembers) {
+        for (let discordConfig of discordConfigs) {
+          refreshDiscordMember(discordConfig, discordMember, body.network);
+        }
+      }
     }
   }
 };

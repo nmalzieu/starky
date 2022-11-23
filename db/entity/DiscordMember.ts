@@ -6,14 +6,14 @@ import {
   PrimaryGeneratedColumn,
   Index,
 } from "typeorm";
-import { DiscordServerConfig } from "./DiscordServerConfig";
+import { DiscordServer } from "./DiscordServer";
 
 @Entity()
-@Index(["discordMemberId", "DiscordServerConfigId", "deletedAt"], {
+@Index(["discordMemberId", "DiscordServerId", "deletedAt"], {
   unique: true,
   where: '"deletedAt" IS NOT NULL',
 })
-@Index(["discordMemberId", "DiscordServerConfigId"], {
+@Index(["discordMemberId", "DiscordServerId"], {
   unique: true,
   where: '"deletedAt" IS NULL',
 })
@@ -27,14 +27,11 @@ export class DiscordMember {
   @Column()
   DiscordServerId: string;
 
-  @Column()
-  DiscordServerConfigId: string;
+  @ManyToOne((type) => DiscordServer, (server) => server.members)
+  DiscordServer: DiscordServer;
 
-  @ManyToOne(
-    (type) => DiscordServerConfig,
-    (serverConfig) => serverConfig.members
-  )
-  DiscordServerConfig: DiscordServerConfig;
+  @Column()
+  starknetNetwork: string;
 
   @Column({ nullable: true })
   starknetWalletAddress?: string;

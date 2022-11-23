@@ -13,7 +13,10 @@ import {
 
 import { handleDeleteConfigCommand } from "./deleteConfigCommand";
 
-import { handleConnectCommand } from "./connectCommand";
+import {
+  handleConnectCommand,
+  handleUserNetworkConfigCommand,
+} from "./connectCommand";
 import {
   handleDisconnectCommand,
   handleDisconnectConfirmCommand,
@@ -60,6 +63,10 @@ export const setupInteractions = (client: Client) => {
       interaction.isChatInputCommand() &&
       interaction.commandName === "starky-connect";
 
+    const isUserNetworkConfig =
+      interaction.isSelectMenu() &&
+      interaction.customId === "user-config-network";
+
     const isUserDisonnect =
       interaction.isChatInputCommand() &&
       interaction.commandName === "starky-disconnect";
@@ -69,6 +76,8 @@ export const setupInteractions = (client: Client) => {
 
     if (isUserConnect) {
       return handleConnectCommand(interaction, client, restClient);
+    } else if (isUserNetworkConfig) {
+      return handleUserNetworkConfigCommand(interaction, client, restClient);
     } else if (isInitialConfig) {
       return handleInitialConfigCommand(interaction, client, restClient);
     } else if (deleteConfig) {
