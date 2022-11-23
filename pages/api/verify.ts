@@ -38,7 +38,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
       discordMemberId: body.discordMemberId,
       starknetNetwork: body.network,
     },
-    relations: ["DiscordServerConfig"],
+    relations: ["DiscordServer"],
   });
 
   const discordConfigs = await DiscordServerConfigRepository.findBy({
