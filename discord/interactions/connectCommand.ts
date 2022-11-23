@@ -71,7 +71,7 @@ export const handleConnectCommand = async (
 
       newDiscordMember.discordMemberId =
         alreadyDiscordMember[0].discordMemberId;
-      newDiscordMember.customLink = alreadyDiscordMember[0].customLink;
+      newDiscordMember.customLink = nanoid();
       newDiscordMember.DiscordServer = alreadyDiscordServer;
       newDiscordMember.DiscordServerId = alreadyDiscordServer.id;
       newDiscordMember.starknetNetwork = otherNetwork(
