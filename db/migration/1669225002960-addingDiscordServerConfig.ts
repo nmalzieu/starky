@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class addingDiscordServerConfig1669216155900 implements MigrationInterface {
-    name = 'addingDiscordServerConfig1669216155900'
+export class addingDiscordServerConfig1669225002960 implements MigrationInterface {
+    name = 'addingDiscordServerConfig1669225002960'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`DROP INDEX "public"."IDX_bae91edec1a1f5d4de62c99f66"`);
@@ -17,8 +17,8 @@ export class addingDiscordServerConfig1669216155900 implements MigrationInterfac
         await queryRunner.query(`ALTER TABLE "discord_member" ADD "starknetNetwork" character varying NOT NULL`);
         await queryRunner.query(`ALTER TABLE "discord_member" DROP CONSTRAINT "FK_20b29204205a768ef8b22b54f06"`);
         await queryRunner.query(`ALTER TABLE "discord_member" ALTER COLUMN "discordServerId" DROP NOT NULL`);
-        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_c240e9caf2f7193202cf5ce058" ON "discord_member" ("discordMemberId", "DiscordServerId") WHERE "deletedAt" IS NULL`);
-        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_ca78841c1a05bd094ed9918a42" ON "discord_member" ("discordMemberId", "DiscordServerId", "deletedAt") WHERE "deletedAt" IS NOT NULL`);
+        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_5dc849cce301458a0c14e5a1c5" ON "discord_member" ("discordMemberId", "DiscordServerId", "starknetNetwork") WHERE "deletedAt" IS NULL`);
+        await queryRunner.query(`CREATE UNIQUE INDEX "IDX_3f69a5c6b1a2fb0d1a6444a855" ON "discord_member" ("discordMemberId", "DiscordServerId", "starknetNetwork", "deletedAt") WHERE "deletedAt" IS NOT NULL`);
         await queryRunner.query(`ALTER TABLE "discord_server_config" ADD CONSTRAINT "FK_d1e14920aa449199417c60e4167" FOREIGN KEY ("discordServerId") REFERENCES "discord_server"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "discord_member" ADD CONSTRAINT "FK_20b29204205a768ef8b22b54f06" FOREIGN KEY ("discordServerId") REFERENCES "discord_server"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
     }
@@ -26,8 +26,8 @@ export class addingDiscordServerConfig1669216155900 implements MigrationInterfac
     public async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE "discord_member" DROP CONSTRAINT "FK_20b29204205a768ef8b22b54f06"`);
         await queryRunner.query(`ALTER TABLE "discord_server_config" DROP CONSTRAINT "FK_d1e14920aa449199417c60e4167"`);
-        await queryRunner.query(`DROP INDEX "public"."IDX_ca78841c1a05bd094ed9918a42"`);
-        await queryRunner.query(`DROP INDEX "public"."IDX_c240e9caf2f7193202cf5ce058"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_3f69a5c6b1a2fb0d1a6444a855"`);
+        await queryRunner.query(`DROP INDEX "public"."IDX_5dc849cce301458a0c14e5a1c5"`);
         await queryRunner.query(`ALTER TABLE "discord_member" ALTER COLUMN "discordServerId" SET NOT NULL`);
         await queryRunner.query(`ALTER TABLE "discord_member" ADD CONSTRAINT "FK_20b29204205a768ef8b22b54f06" FOREIGN KEY ("discordServerId") REFERENCES "discord_server"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "discord_member" DROP COLUMN "starknetNetwork"`);
