@@ -5,6 +5,7 @@ import {
   ManyToOne,
   DeleteDateColumn,
   Index,
+  Relation,
 } from "typeorm";
 import type { StarkyModuleConfig } from "../../starkyModules/types";
 import { DiscordServer } from "./DiscordServer";
@@ -38,7 +39,7 @@ export class DiscordServerConfig {
   starkyModuleConfig: StarkyModuleConfig;
 
   @ManyToOne((type) => DiscordServer, (server) => server.serverConfigs)
-  DiscordServer: DiscordServer;
+  DiscordServer: Relation<DiscordServer>[];
 
   @DeleteDateColumn()
   deletedAt?: Date;
