@@ -28,7 +28,7 @@ export class DiscordMember {
   discordServerId: string;
 
   @ManyToOne((type) => DiscordServer, (server) => server.members)
-  DiscordServer: DiscordServer;
+  discordServer: DiscordServer;
 
   @Column()
   starknetNetwork: string;
