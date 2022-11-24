@@ -64,7 +64,7 @@ export const refreshDiscordMember = async (
   starkyModule?: StarkyModule
 ) => {
   if (!discordMember.starknetWalletAddress) return;
-  if (discordMember.starknetNetwork != discordServerConfig.starknetNetwork)
+  if (discordMember.starknetNetwork !== discordServerConfig.starknetNetwork)
     return;
   const starkyMod =
     starkyModule || modules[discordServerConfig.starkyModuleType];
