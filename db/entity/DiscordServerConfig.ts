@@ -40,7 +40,4 @@ export class DiscordServerConfig {
 
   @ManyToOne((type) => DiscordServer, (server) => server.serverConfigs)
   discordServer: DiscordServer;
-
-  @DeleteDateColumn()
-  deletedAt?: Date;
 }

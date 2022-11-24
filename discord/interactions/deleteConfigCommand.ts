@@ -40,9 +40,6 @@ export const handleDeleteConfigCommand = async (
   // Showing configurations
   const options = configurations.map((config) => ({
     label: config.id.toString(),
-    //.concat(config.id.toString())
-    //.concat(" in server n°")
-    //.concat(config.DiscordServerId),
     value: config.id.toString(),
   }));
 
@@ -72,7 +69,7 @@ export const handleDeleteConfigConfirmCommand = async (
   });
   if (!serverConfigtodelete) return;
 
-  await DiscordServerConfigRepository.softRemove(serverConfigtodelete);
+  await DiscordServerConfigRepository.remove(serverConfigtodelete);
 
   await interaction.update({
     content: "This configuration was deleted",

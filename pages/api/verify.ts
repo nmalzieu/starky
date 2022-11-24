@@ -32,51 +32,43 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     return;
   }
 
-  const discordMembers = await DiscordMemberRepository.find({
+  const discordMember = await DiscordMemberRepository.findOne({
     where: {
       discordServerId: body.discordServerId,
       discordMemberId: body.discordMemberId,
       starknetNetwork: body.network,
     },
-    relations: ["DiscordServer"],
+    relations: ["discordServer"],
   });
 
+  if (!discordMember || discordMember.customLink !== body.customLink) {
+    res.status(400).json({
+      message: "Wrong custom link",
+    });
+    return;
+  }
   const discordConfigs = await DiscordServerConfigRepository.findBy({
-    discordServerId: discordMembers[0].discordServerId,
+    discordServerId: discordMember.discordServerId,
   });
 
-  for (let discordMember of discordMembers) {
-    if (!discordMember || discordMember.customLink !== body.customLink) {
-      res.status(400).json({
-        message: "Wrong custom link",
-      });
-      return;
-    }
+  const messageHexHash = typedData.getMessageHash(messageToSign, body.account);
+  const signatureVerified = await verifySignature(
+    body.account,
+    messageHexHash,
+    body.signature,
+    body.network
+  );
+  if (!signatureVerified) {
+    return res.status(400).json({ message: "Signature is invalid" });
+  } else {
+    discordMember.starknetWalletAddress = body.account;
 
-    const messageHexHash = typedData.getMessageHash(
-      messageToSign,
-      body.account
-    );
-    const signatureVerified = await verifySignature(
-      body.account,
-      messageHexHash,
-      body.signature,
-      body.network
-    );
-    if (!signatureVerified) {
-      return res.status(400).json({ message: "Signature is invalid" });
-    } else {
-      discordMember.starknetWalletAddress = body.account;
+    res.status(200).json({ message: "Successfully verified" });
+    // Let's refresh its status immediatly
+    DiscordMemberRepository.save(discordMember);
 
-      res.status(200).json({ message: "Successfully verified" });
-      // Let's refresh its status immediatly
-      DiscordMemberRepository.save(discordMembers);
-
-      for (let discordMember of discordMembers) {
-        for (let discordConfig of discordConfigs) {
-          refreshDiscordMember(discordConfig, discordMember, body.network);
-        }
-      }
+    for (let discordConfig of discordConfigs) {
+      refreshDiscordMember(discordConfig, discordMember, body.network);
     }
   }
 };

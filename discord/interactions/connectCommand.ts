@@ -49,8 +49,9 @@ export const handleConnectCommand = async (
 
   const alreadyDiscordMember = await DiscordMemberRepository.findBy({
     discordMemberId: userId,
+    discordServer: alreadyDiscordServer,
   });
-  var alreadyConnectedOnBothNetworks =
+  const alreadyConnectedOnBothNetworks =
     alreadyDiscordMember.length == 2 &&
     alreadyDiscordMember[0].starknetWalletAddress &&
     alreadyDiscordMember[1].starknetWalletAddress;
@@ -66,7 +67,7 @@ export const handleConnectCommand = async (
       alreadyDiscordMember[0].starknetWalletAddress &&
       alreadyDiscordMember.length == 1
     ) {
-      var newDiscordMember = new DiscordMember();
+      const newDiscordMember = new DiscordMember();
 
       newDiscordMember.discordMemberId =
         alreadyDiscordMember[0].discordMemberId;
@@ -161,7 +162,7 @@ export const handleUserNetworkConfigCommand = async (
     });
     return;
   }
-  var newDiscordMember = new DiscordMember();
+  const newDiscordMember = new DiscordMember();
   newDiscordMember.starknetNetwork = interaction.values[0];
   newDiscordMember.discordServerId = guildId;
   newDiscordMember.discordMemberId = userId;
