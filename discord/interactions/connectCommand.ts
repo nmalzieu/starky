@@ -48,7 +48,7 @@ export const handleConnectCommand = async (
     return;
   }
 
-  const alreadyDiscordMember = await DiscordMemberRepository.findBy({
+  const alreadyDiscordMembers = await DiscordMemberRepository.findBy({
     discordMemberId: userId,
   });
   var alreadyConnectedOnBothNetworks =
