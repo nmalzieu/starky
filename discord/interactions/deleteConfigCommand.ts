@@ -35,7 +35,7 @@ export const handleDeleteConfigCommand = async (
   if (!interaction.guildId) return;
 
   const configurations = await DiscordServerConfigRepository.findBy({
-    DiscordServerId: interaction.guildId,
+    discordServerId: interaction.guildId,
   });
   // Showing configurations
   const options = configurations.map((config) => ({

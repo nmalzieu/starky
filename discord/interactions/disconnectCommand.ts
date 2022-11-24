@@ -25,7 +25,7 @@ export const handleDisconnectConfirmCommand = async (
   const alreadyDiscordMember = await DiscordMemberRepository.find({
     where: {
       discordMemberId: userId,
-      DiscordServerId: guildId,
+      discordServerId: guildId,
     },
     relations: ["DiscordServer"],
   });
@@ -33,7 +33,7 @@ export const handleDisconnectConfirmCommand = async (
 
   const serverConfigs = await DiscordServerConfigRepository.find({
     where: {
-      DiscordServerId: guildId,
+      discordServerId: guildId,
     },
     relations: ["DiscordServer"],
   });
@@ -61,7 +61,7 @@ export const handleDisconnectCommand = async (
   if (!userId || !guildId) return;
   const alreadyDiscordMember = await DiscordMemberRepository.findOneBy({
     discordMemberId: userId,
-    DiscordServerId: guildId,
+    discordServerId: guildId,
   });
   if (!alreadyDiscordMember) {
     await interaction.reply({

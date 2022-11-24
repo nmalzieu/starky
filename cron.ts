@@ -25,14 +25,14 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
 
   const discordMembers = await DiscordMemberRepository.find({
     where: {
-      DiscordServerId: discordServer.id,
+      discordServerId: discordServer.id,
       starknetWalletAddress: Not(IsNull()),
     },
     withDeleted: true,
   });
 
   const discordConfigs = await DiscordServerConfigRepository.findBy({
-    DiscordServerId: discordServer.id,
+    discordServerId: discordServer.id,
   });
 
   // Refreshing each member one by one. We could
@@ -51,7 +51,7 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
         await refreshDiscordMember(discordConfig, discordMember, starkyModule);
       } catch (e) {
         console.error(
-          `Could not refresh discord member ${discordMember.discordMemberId} with configuration ${discordConfig.id} in servr : ${discordConfig.DiscordServerId} ${e}`
+          `Could not refresh discord member ${discordMember.discordMemberId} with configuration ${discordConfig.id} in servr : ${discordConfig.discordServerId} ${e}`
         );
       }
     }
@@ -81,14 +81,14 @@ export const refreshDiscordMember = async (
   if (shouldHaveRole) {
     await addRole(
       restDiscordClient,
-      discordServerConfig.DiscordServerId,
+      discordServerConfig.discordServerId,
       discordMember.discordMemberId,
       discordServerConfig.discordRoleId
     );
   } else {
     await removeRole(
       restDiscordClient,
-      discordServerConfig.DiscordServerId,
+      discordServerConfig.discordServerId,
       discordMember.discordMemberId,
       discordServerConfig.discordRoleId
     );

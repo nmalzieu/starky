@@ -287,7 +287,7 @@ export const handleConfigConfirmCommand = async (
 
   const alreadyDiscordServerConfig =
     await DiscordServerConfigRepository.findOneBy({
-      DiscordServerId: interaction.guildId,
+      discordServerId: interaction.guildId,
       starkyModuleConfig: currentConfig.moduleConfig,
       discordRoleId: currentConfig.roleId,
     });
@@ -302,7 +302,7 @@ export const handleConfigConfirmCommand = async (
   const discordServer = alreadyDiscordServer || new DiscordServer();
   discordServer.id = interaction.guildId;
 
-  discordServerConfig.DiscordServerId = interaction.guildId;
+  discordServerConfig.discordServerId = interaction.guildId;
   if (
     currentConfig.network !== "mainnet" &&
     currentConfig.network !== "goerli"

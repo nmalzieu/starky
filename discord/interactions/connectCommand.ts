@@ -72,8 +72,8 @@ export const handleConnectCommand = async (
       newDiscordMember.discordMemberId =
         alreadyDiscordMember[0].discordMemberId;
       newDiscordMember.customLink = nanoid();
-      newDiscordMember.DiscordServer = alreadyDiscordServer;
-      newDiscordMember.DiscordServerId = alreadyDiscordServer.id;
+      newDiscordMember.discordServer = alreadyDiscordServer;
+      newDiscordMember.discordServerId = alreadyDiscordServer.id;
       newDiscordMember.starknetNetwork = otherNetwork(
         alreadyDiscordMember[0].starknetNetwork
       );
@@ -165,10 +165,10 @@ export const handleUserNetworkConfigCommand = async (
   }
   var newDiscordMember = new DiscordMember();
   newDiscordMember.starknetNetwork = interaction.values[0];
-  newDiscordMember.DiscordServerId = guildId;
+  newDiscordMember.discordServerId = guildId;
   newDiscordMember.discordMemberId = userId;
   newDiscordMember.customLink = nanoid();
-  newDiscordMember.DiscordServer = alreadyDiscordServer;
+  newDiscordMember.discordServer = alreadyDiscordServer;
 
   await DiscordMemberRepository.save(newDiscordMember);
   await interaction.reply({

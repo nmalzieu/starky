@@ -7,12 +7,12 @@ export class DiscordServer {
   @PrimaryColumn()
   id: string;
 
-  @OneToMany((type) => DiscordMember, (member) => member.DiscordServer)
+  @OneToMany((type) => DiscordMember, (member) => member.discordServer)
   members: DiscordMember[];
 
   @OneToMany(
     (type) => DiscordServerConfig,
-    (serverConfig) => serverConfig.DiscordServer
+    (serverConfig) => serverConfig.discordServer
   )
   serverConfigs: DiscordServerConfig[];
 }

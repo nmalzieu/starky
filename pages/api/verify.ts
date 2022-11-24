@@ -34,7 +34,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
   const discordMembers = await DiscordMemberRepository.find({
     where: {
-      DiscordServerId: body.discordServerId,
+      discordServerId: body.discordServerId,
       discordMemberId: body.discordMemberId,
       starknetNetwork: body.network,
     },
@@ -42,7 +42,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   });
 
   const discordConfigs = await DiscordServerConfigRepository.findBy({
-    DiscordServerId: discordMembers[0].DiscordServerId,
+    discordServerId: discordMembers[0].discordServerId,
   });
 
   for (let discordMember of discordMembers) {

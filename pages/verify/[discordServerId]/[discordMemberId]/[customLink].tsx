@@ -157,11 +157,11 @@ const VerifyPage = ({ DiscordServerName, starknetNetwork }: Props) => {
 export async function getServerSideProps({ res, query }: any) {
   await setupDb();
   let DiscordServerName = null;
-  const { DiscordServerId, discordMemberId, customLink } = query;
+  const { discordServerId, discordMemberId, customLink } = query;
   const discordMember = await DiscordMemberRepository.findOne({
     where: {
       customLink,
-      DiscordServerId,
+      discordServerId,
       discordMemberId,
     },
     relations: ["DiscordServer"],
