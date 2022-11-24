@@ -39,7 +39,7 @@ export class DiscordServerConfig {
   starkyModuleConfig: StarkyModuleConfig;
 
   @ManyToOne((type) => DiscordServer, (server) => server.serverConfigs)
-  DiscordServer: Relation<DiscordServer>[];
+  discordServer: DiscordServer;
 
   @DeleteDateColumn()
   deletedAt?: Date;
