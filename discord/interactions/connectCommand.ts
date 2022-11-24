@@ -20,7 +20,6 @@ export const otherNetwork = (network: string) => {
   if (network == "mainnet") {
     return "goerli";
   }
-  return "a";
 };
 export const handleConnectCommand = async (
   interaction: ChatInputCommandInteraction,
@@ -74,9 +73,8 @@ export const handleConnectCommand = async (
       newDiscordMember.customLink = nanoid();
       newDiscordMember.discordServer = alreadyDiscordServer;
       newDiscordMember.discordServerId = alreadyDiscordServer.id;
-      newDiscordMember.starknetNetwork = otherNetwork(
-        alreadyDiscordMember[0].starknetNetwork
-      );
+      newDiscordMember.starknetNetwork =
+        otherNetwork(alreadyDiscordMember[0].starknetNetwork) ?? "";
       await DiscordMemberRepository.save(newDiscordMember);
 
       await interaction.reply({
