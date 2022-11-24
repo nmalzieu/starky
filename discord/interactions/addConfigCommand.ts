@@ -290,6 +290,7 @@ export const handleConfigConfirmCommand = async (
       discordServerId: interaction.guildId,
       starkyModuleConfig: currentConfig.moduleConfig,
       discordRoleId: currentConfig.roleId,
+      starknetNetwork: currentConfig.network,
     });
 
   const alreadyDiscordServer = await DiscordServerRepository.findOneBy({
@@ -326,7 +327,6 @@ export const handleConfigConfirmCommand = async (
 
   await DiscordServerRepository.save(discordServer);
   await DiscordServerConfigRepository.save(discordServerConfig);
-
 
   delete ongoingConfigurationsCache[interaction.guildId];
 
