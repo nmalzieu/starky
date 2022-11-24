@@ -24,7 +24,7 @@ export class DiscordServerConfig {
   id: string;
 
   @Column()
-  DiscordServerId: string;
+  discordServerId: string;
 
   @Column()
   starknetNetwork: string;
