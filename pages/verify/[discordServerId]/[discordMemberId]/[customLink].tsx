@@ -159,7 +159,11 @@ export async function getServerSideProps({ res, query }: any) {
   let DiscordServerName = null;
   const { DiscordServerId, discordMemberId, customLink } = query;
   const discordMember = await DiscordMemberRepository.findOne({
-    where: { DiscordServerId, discordMemberId },
+    where: {
+      customLink,
+      DiscordServerId,
+      discordMemberId,
+    },
     relations: ["DiscordServer"],
   });
   if (!discordMember || discordMember.customLink !== customLink) {
