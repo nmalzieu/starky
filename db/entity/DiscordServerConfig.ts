@@ -11,14 +11,6 @@ import type { StarkyModuleConfig } from "../../starkyModules/types";
 import { DiscordServer } from "./DiscordServer";
 
 @Entity()
-@Index(["id", "DiscordServerId", "deletedAt"], {
-  unique: true,
-  where: '"deletedAt" IS NOT NULL',
-})
-@Index(["id", "DiscordServerId"], {
-  unique: true,
-  where: '"deletedAt" IS NULL',
-})
 export class DiscordServerConfig {
   @PrimaryGeneratedColumn("increment")
   id: string;

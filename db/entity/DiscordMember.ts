@@ -9,11 +9,11 @@ import {
 import { DiscordServer } from "./DiscordServer";
 
 @Entity()
-@Index(["discordMemberId", "DiscordServerId", "starknetNetwork", "deletedAt"], {
+@Index(["discordMemberId", "discordServerId", "starknetNetwork", "deletedAt"], {
   unique: true,
   where: '"deletedAt" IS NOT NULL',
 })
-@Index(["discordMemberId", "DiscordServerId", "starknetNetwork"], {
+@Index(["discordMemberId", "discordServerId", "starknetNetwork"], {
   unique: true,
   where: '"deletedAt" IS NULL',
 })
