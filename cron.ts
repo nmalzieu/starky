@@ -22,8 +22,13 @@ const refreshDiscordServers = async () => {
 
 export const refreshDiscordServer = async (discordServer: DiscordServer) => {
   console.log(`[Cron] Refreshing discord server ${discordServer.id}`);
-  const discordMembers = await DiscordMemberRepository.findBy({
-    DiscordServerId: discordServer.id,
+
+  const discordMembers = await DiscordMemberRepository.find({
+    where: {
+      DiscordServerId: discordServer.id,
+      starknetWalletAddress: Not(IsNull()),
+    },
+    withDeleted: true,
   });
 
   const discordConfigs = await DiscordServerConfigRepository.findBy({

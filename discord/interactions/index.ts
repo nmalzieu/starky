@@ -11,7 +11,10 @@ import {
   handleRoleConfigCommand,
 } from "./addConfigCommand";
 
-import { handleDeleteConfigCommand } from "./deleteConfigCommand";
+import {
+  handleDeleteConfigCommand,
+  handleDeleteConfigConfirmCommand,
+} from "./deleteConfigCommand";
 
 import {
   handleConnectCommand,
@@ -74,6 +77,10 @@ export const setupInteractions = (client: Client) => {
     const isUserDisconnectConfirm =
       interaction.isButton() && interaction.customId === "disconnect-confirm";
 
+    const isUserDeleteConfigConfirm =
+      interaction.isSelectMenu() &&
+      interaction.customId === "delete-config-confirm";
+
     if (isUserConnect) {
       return handleConnectCommand(interaction, client, restClient);
     } else if (isUserNetworkConfig) {
@@ -98,6 +105,8 @@ export const setupInteractions = (client: Client) => {
       return handleDisconnectCommand(interaction, client, restClient);
     } else if (isUserDisconnectConfirm) {
       return handleDisconnectConfirmCommand(interaction, client, restClient);
+    } else if (isUserDeleteConfigConfirm) {
+      return handleDeleteConfigConfirmCommand(interaction, client, restClient);
     }
   });
 

@@ -48,7 +48,7 @@ export const handleDeleteConfigCommand = async (
 
   const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
     new SelectMenuBuilder()
-      .setCustomId("Configs-to-delete")
+      .setCustomId("delete-config-confirm")
       .setPlaceholder("Configurations to be deleted")
       .addOptions(...options)
   );
@@ -59,7 +59,7 @@ export const handleDeleteConfigCommand = async (
   });
 };
 
-export const handleDeletingConfigCommand = async (
+export const handleDeleteConfigConfirmCommand = async (
   interaction: SelectMenuInteraction,
   client: Client,
   restClient: REST
