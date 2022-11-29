@@ -56,7 +56,7 @@ export const handleConnectCommand = async (
     alreadyDiscordMember[0].starknetWalletAddress &&
     alreadyDiscordMember[1].starknetWalletAddress;
 
-  if (alreadyDiscordMember[0]) {
+  if (alreadyDiscordMember.length > 0) {
     if (alreadyConnectedOnBothNetworks) {
       await interaction.reply({
         content:
