@@ -27,7 +27,7 @@ export const handleDisconnectConfirmCommand = async (
       discordMemberId: userId,
       discordServerId: guildId,
     },
-    relations: ["DiscordServer"],
+    relations: ["discordServer"],
   });
   if (!alreadyDiscordMember) return;
 
@@ -35,7 +35,7 @@ export const handleDisconnectConfirmCommand = async (
     where: {
       discordServerId: guildId,
     },
-    relations: ["DiscordServer"],
+    relations: ["discordServer"],
   });
 
   await DiscordMemberRepository.softRemove(alreadyDiscordMember);

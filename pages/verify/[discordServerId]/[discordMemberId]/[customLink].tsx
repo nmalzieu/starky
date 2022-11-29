@@ -14,7 +14,7 @@ import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
 
 type Props = {
-  DiscordServerName: string;
+  discordServerName: string;
   starknetNetwork: "goerli" | "mainnet";
 };
 
@@ -23,7 +23,7 @@ const chainIdByNetwork = {
   mainnet: "0x534e5f4d41494e",
 };
 
-const VerifyPage = ({ DiscordServerName, starknetNetwork }: Props) => {
+const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const router = useRouter();
   const { discordServerId, discordMemberId, customLink } = router.query;
   const [starknet, setStarknet] = useState<IStarknetWindowObject | undefined>(
@@ -127,7 +127,7 @@ const VerifyPage = ({ DiscordServerName, starknetNetwork }: Props) => {
     <div className={styles.verify}>
       <Logo />
       <div>
-        Discord server: <b>{DiscordServerName}</b>
+        Discord server: <b>{discordServerName}</b>
         <br />
         Starknet network: <b>{starknetNetwork}</b>
         <br />
@@ -156,7 +156,7 @@ const VerifyPage = ({ DiscordServerName, starknetNetwork }: Props) => {
 
 export async function getServerSideProps({ res, query }: any) {
   await setupDb();
-  let DiscordServerName = null;
+  let discordServerName = null;
   const { discordServerId, discordMemberId, customLink } = query;
   const discordMember = await DiscordMemberRepository.findOne({
     where: {
@@ -164,7 +164,7 @@ export async function getServerSideProps({ res, query }: any) {
       discordServerId,
       discordMemberId,
     },
-    relations: ["DiscordServer"],
+    relations: ["discordServer"],
   });
   if (!discordMember || discordMember.customLink !== customLink) {
     res.setHeader("location", "/");
@@ -173,13 +173,13 @@ export async function getServerSideProps({ res, query }: any) {
     return { props: {} };
   }
   try {
-    DiscordServerName = await getDiscordServerName(`${query.discordServerId}`);
+    discordServerName = await getDiscordServerName(`${query.discordServerId}`);
   } catch (e) {
     console.error(e);
   }
   return {
     props: {
-      DiscordServerName,
+      discordServerName,
       starknetNetwork: discordMember.starknetNetwork,
     },
   };

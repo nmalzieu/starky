@@ -25,6 +25,8 @@ import {
 import { getRoles, isBotRole } from "../role";
 import starkyModules from "../../starkyModules";
 import config from "../../config";
+import { configName } from "../../starkyModules/erc721";
+import { StarkyModule, StarkyModuleConfig } from "../../starkyModules/types";
 
 export const handleDeleteConfigCommand = async (
   interaction: ChatInputCommandInteraction,
@@ -39,14 +41,14 @@ export const handleDeleteConfigCommand = async (
   });
   // Showing configurations
   const options = configurations.map((config) => ({
-    label: config.id.toString(),
+    label: configName(config.starknetNetwork, config.starkyModuleConfig),
     value: config.id.toString(),
   }));
 
   const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
     new SelectMenuBuilder()
       .setCustomId("delete-config-confirm")
-      .setPlaceholder("Configurations to be deleted")
+      .setPlaceholder("Configurations to be deleted ")
       .addOptions(...options)
   );
   await interaction.reply({

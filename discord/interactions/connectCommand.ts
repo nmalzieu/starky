@@ -47,16 +47,16 @@ export const handleConnectCommand = async (
     return;
   }
 
-  const alreadyDiscordMember = await DiscordMemberRepository.findBy({
+  const alreadyDiscordMembers = await DiscordMemberRepository.findBy({
     discordMemberId: userId,
     discordServer: alreadyDiscordServer,
   });
   const alreadyConnectedOnBothNetworks =
-    alreadyDiscordMember.length == 2 &&
-    alreadyDiscordMember[0].starknetWalletAddress &&
-    alreadyDiscordMember[1].starknetWalletAddress;
+    alreadyDiscordMembers.length == 2 &&
+    alreadyDiscordMembers[0].starknetWalletAddress &&
+    alreadyDiscordMembers[1].starknetWalletAddress;
 
-  if (alreadyDiscordMember.length > 0) {
+  if (alreadyDiscordMembers.length > 0) {
     if (alreadyConnectedOnBothNetworks) {
       await interaction.reply({
         content:
@@ -64,49 +64,49 @@ export const handleConnectCommand = async (
         ephemeral: true,
       });
     } else if (
-      alreadyDiscordMember[0].starknetWalletAddress &&
-      alreadyDiscordMember.length == 1
+      alreadyDiscordMembers[0].starknetWalletAddress &&
+      alreadyDiscordMembers.length == 1
     ) {
       const newDiscordMember = new DiscordMember();
 
       newDiscordMember.discordMemberId =
-        alreadyDiscordMember[0].discordMemberId;
+        alreadyDiscordMembers[0].discordMemberId;
       newDiscordMember.customLink = nanoid();
       newDiscordMember.discordServer = alreadyDiscordServer;
       newDiscordMember.discordServerId = alreadyDiscordServer.id;
       newDiscordMember.starknetNetwork =
-        otherNetwork(alreadyDiscordMember[0].starknetNetwork) ?? "";
+        otherNetwork(alreadyDiscordMembers[0].starknetNetwork) ?? "";
       await DiscordMemberRepository.save(newDiscordMember);
 
       await interaction.reply({
         content: `
         You already connected on this Network : ${
-          alreadyDiscordMember[0].starknetNetwork
+          alreadyDiscordMembers[0].starknetNetwork
         } 
         Go to this link : 
             ${config.BASE_URL}/verify/${guildId}/${userId}/${
           newDiscordMember.customLink
         } and verify your Starknet identity on ${otherNetwork(
-          alreadyDiscordMember[0].starknetNetwork
+          alreadyDiscordMembers[0].starknetNetwork
         )} !`,
         ephemeral: true,
       });
     } else if (
-      alreadyDiscordMember.length == 1 &&
-      !alreadyDiscordMember[0].starknetWalletAddress
+      alreadyDiscordMembers.length == 1 &&
+      !alreadyDiscordMembers[0].starknetWalletAddress
     ) {
       await interaction.reply({
-        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMember[0].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMember[0].starknetNetwork} !
+        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[0].starknetNetwork} !
         You can start over by using  /starky-disconnect command. `,
         ephemeral: true,
       });
     } else if (
-      alreadyDiscordMember.length == 2 &&
-      alreadyDiscordMember[0].starknetWalletAddress &&
-      !alreadyDiscordMember[1].starknetWalletAddress
+      alreadyDiscordMembers.length == 2 &&
+      alreadyDiscordMembers[0].starknetWalletAddress &&
+      !alreadyDiscordMembers[1].starknetWalletAddress
     ) {
       await interaction.reply({
-        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMember[1].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMember[1].starknetNetwork}!
+        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[1].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[1].starknetNetwork}!
          You can start over by using  /starky-disconnect command.`,
         ephemeral: true,
       });

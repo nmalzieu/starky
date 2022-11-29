@@ -5,6 +5,7 @@ import { DiscordMemberRepository, setupDb } from "../../db";
 import messageToSign from "../../starknet/message";
 import { verifySignature } from "../../starknet/verifySignature";
 import { DiscordServerConfigRepository } from "../../db/index";
+import modules from "../../starkyModules";
 
 type Data = {
   message: string;
@@ -68,7 +69,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     DiscordMemberRepository.save(discordMember);
 
     for (let discordConfig of discordConfigs) {
-      refreshDiscordMember(discordConfig, discordMember, body.network);
+      refreshDiscordMember(
+        discordConfig,
+        discordMember,
+        modules[discordConfig.starkyModuleType]
+      );
     }
   }
 };
