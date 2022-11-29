@@ -45,7 +45,7 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
         console.error(
           `Server configuration ${discordConfig.id} uses module ${discordConfig.starkyModuleType} which does not exist`
         );
-        return;
+        continue;
       }
       try {
         await refreshDiscordMember(discordConfig, discordMember, starkyModule);
