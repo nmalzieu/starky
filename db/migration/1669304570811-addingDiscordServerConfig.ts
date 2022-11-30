@@ -16,13 +16,13 @@ export class addingDiscordServerConfig1669304570811
       `CREATE TABLE "discord_server_config" ("id" SERIAL NOT NULL, "discordServerId" character varying NOT NULL, "starknetNetwork" character varying NOT NULL, "discordRoleId" character varying NOT NULL, "starkyModuleType" character varying NOT NULL, "starkyModuleConfig" jsonb NOT NULL DEFAULT '{}', CONSTRAINT "PK_42cff3583fdfec30b0c08f24771" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      'insert into "discord_server_config" ("discordServerId", "starknetNetwork", "discordRoleId", "starkyModuleType", "starkyModuleConfig") select ("discordServerId", "starknetNetwork", "discordRoleId", "starkyModuleType", "starkyModuleConfig") from "discord_server"'
+      'insert into discord_server_config("discordServerId", "starknetNetwork", "discordRoleId", "starkyModuleType", "starkyModuleConfig") VALUES (select ("discordServerId", "starknetNetwork", "discordRoleId", "starkyModuleType", "starkyModuleConfig") from discord_server)'
     );
     await queryRunner.query(
       `ALTER TABLE "discord_member" ADD "starknetNetwork" character varying`
     );
     await queryRunner.query(
-      'UPDATE "discord_member" SET "starknetNetwork" = (SELECT "starknetNetwork" FROM "discord_server" WHERE "discord_server"."id"= "discord_member"."discordServerId") '
+      'UPDATE discord_member SET "starknetNetwork" = (SELECT "starknetNetwork" FROM discord_server WHERE discord_server."id"= discord_member."discordServerId") '
     );
     await queryRunner.query(
       'ALTER TABLE "discord_member" ALTER COLUMN "starknetNetwork" SET NOT NULL'
