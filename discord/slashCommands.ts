@@ -18,10 +18,10 @@ export const registerSlashCommands = async () => {
         "Disconnect your Starknet wallet from this Discord server"
       ),
     new SlashCommandBuilder()
-      .setName("add-starky-config")
+      .setName("starky-add-config")
       .setDescription("Add a starky configuration to this server"),
     new SlashCommandBuilder()
-      .setName("delete-starky-config")
+      .setName("starky-delete-config")
       .setDescription("Delete a Starky configuration from this server"),
   ].map((command) => command.toJSON());
   console.log("> Registering Discord slash commands...");

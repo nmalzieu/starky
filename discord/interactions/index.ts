@@ -32,11 +32,11 @@ export const setupInteractions = (client: Client) => {
   client.on("interactionCreate", async (interaction) => {
     const isInitialConfig =
       interaction.isChatInputCommand() &&
-      interaction.commandName === "add-starky-config";
+      interaction.commandName === "starky-add-config";
 
     const deleteConfig =
       interaction.isChatInputCommand() &&
-      interaction.commandName === "delete-starky-config";
+      interaction.commandName === "starky-delete-config";
 
     const isNetworkConfig =
       interaction.isSelectMenu() &&

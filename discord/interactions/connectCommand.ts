@@ -12,6 +12,7 @@ import { nanoid } from "nanoid";
 import config from "../../config";
 import { DiscordMemberRepository, DiscordServerRepository } from "../../db";
 import { DiscordMember } from "../../db/entity/DiscordMember";
+import { DiscordServer } from "../../db/entity/DiscordServer";
 
 export const otherNetwork = (network: string) => {
   if (network == "goerli") {
@@ -35,16 +36,14 @@ export const handleConnectCommand = async (
     return;
   }
 
-  const alreadyDiscordServer = await DiscordServerRepository.findOneBy({
+  var alreadyDiscordServer = await DiscordServerRepository.findOneBy({
     id: guildId,
   });
 
-  if (!alreadyDiscordServer) {
-    await interaction.reply({
-      content: "Starky is not yet configured on this server",
-      ephemeral: true,
-    });
-    return;
+  if (alreadyDiscordServer === null) {
+    alreadyDiscordServer = new DiscordServer();
+    alreadyDiscordServer.id = guildId;
+    await DiscordServerRepository.save(alreadyDiscordServer);
   }
 
   const alreadyDiscordMembers = await DiscordMemberRepository.findBy({
@@ -170,7 +169,13 @@ export const handleUserNetworkConfigCommand = async (
   newDiscordMember.discordServer = alreadyDiscordServer;
 
   await DiscordMemberRepository.save(newDiscordMember);
-  await interaction.reply({
+
+  await interaction.update({
+    content: "Thanks, following up...",
+    components: [],
+  });
+
+  await interaction.followUp({
     content: `Go to this link : 
     ${config.BASE_URL}/verify/${guildId}/${userId}/${newDiscordMember.customLink} and verify your Starknet identity on network : ${interaction.values[0]}!`,
     ephemeral: true,
