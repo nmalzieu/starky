@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 
 import { DiscordServerConfigRepository } from "../../db";
-import { configName } from "../../starkyModules/erc721";
+import starkyModules from "../../starkyModules";
 
 import { assertAdmin } from "./permissions";
 
@@ -25,7 +25,10 @@ export const handleDeleteConfigCommand = async (
   });
   // Showing configurations
   const options = configurations.map((config) => ({
-    label: configName(config.starknetNetwork, config.starkyModuleConfig),
+    label: starkyModules[config.starkyModuleType].configName(
+      config.starknetNetwork,
+      config.starkyModuleConfig
+    ),
     value: config.id.toString(),
   }));
 

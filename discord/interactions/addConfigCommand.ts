@@ -28,7 +28,7 @@ import { getRoles, isBotRole } from "../role";
 import { assertAdmin } from "./permissions";
 
 type OngoingConfiguration = {
-  network?: string;
+  network?: "mainnet" | "goerli";
   roleId?: string;
   moduleType?: string;
   moduleConfig?: any;
@@ -93,6 +93,25 @@ export const handleRoleConfigCommand = async (
     return;
   }
 
+  const alreadyDiscordServerConfigForRole =
+    await DiscordServerConfigRepository.findOneBy({
+      discordServerId: interaction.guildId,
+      discordRoleId: selectedRole.id,
+    });
+
+  if (alreadyDiscordServerConfigForRole) {
+    await interaction.update({
+      content: `❌ You already have setup a Starky configuration for the selected role: \`${starkyModules[
+        alreadyDiscordServerConfigForRole.starkyModuleType
+      ].configName(
+        alreadyDiscordServerConfigForRole.starknetNetwork,
+        alreadyDiscordServerConfigForRole.starkyModuleConfig
+      )}\`. If you want to setup a new configuration for this role, please first delete the existing one with \`/starky-delete-config\``,
+      components: [],
+    });
+    return;
+  }
+
   ongoingConfigurationsCache[interaction.guildId].roleId =
     interaction.values[0];
   await interaction.update({
@@ -132,9 +151,10 @@ export const handleNetworkConfigCommand = async (
 ) => {
   await assertAdmin(interaction);
   if (!interaction.guildId) return;
+  const network = interaction.values[0];
+  if (network !== "mainnet" && network !== "goerli") return;
 
-  ongoingConfigurationsCache[interaction.guildId].network =
-    interaction.values[0];
+  ongoingConfigurationsCache[interaction.guildId].network = network;
   await interaction.update({
     content: "Thanks, following up...",
     components: [],
