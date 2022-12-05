@@ -174,8 +174,7 @@ export const handleUserNetworkConfigCommand = async (
   });
 
   await interaction.followUp({
-    content: `Go to this link : 
-    ${config.BASE_URL}/verify/${guildId}/${userId}/${newDiscordMember.customLink} and verify your Starknet identity on network : ${interaction.values[0]}!`,
+    content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${newDiscordMember.customLink} and verify your Starknet identity on network : ${interaction.values[0]}!`,
     ephemeral: true,
   });
 };
