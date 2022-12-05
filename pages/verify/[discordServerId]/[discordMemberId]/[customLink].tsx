@@ -61,10 +61,12 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
           discordServerId,
           discordMemberId,
           customLink,
+          network: starknetNetwork,
         });
         setVerifiedSignature(true);
         setVerifyingSignature(false);
       } catch (e) {
+        console.error(e);
         setVerifyingSignature(false);
         setUnverifiedSignature(true);
       }
@@ -157,7 +159,11 @@ export async function getServerSideProps({ res, query }: any) {
   let discordServerName = null;
   const { discordServerId, discordMemberId, customLink } = query;
   const discordMember = await DiscordMemberRepository.findOne({
-    where: { discordServerId, discordMemberId },
+    where: {
+      customLink,
+      discordServerId,
+      discordMemberId,
+    },
     relations: ["discordServer"],
   });
   if (!discordMember || discordMember.customLink !== customLink) {
@@ -174,7 +180,7 @@ export async function getServerSideProps({ res, query }: any) {
   return {
     props: {
       discordServerName,
-      starknetNetwork: discordMember.discordServer.starknetNetwork,
+      starknetNetwork: discordMember.starknetNetwork,
     },
   };
 }

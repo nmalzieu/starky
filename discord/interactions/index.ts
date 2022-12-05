@@ -9,8 +9,17 @@ import {
   handleModuleTypeConfigCommand,
   handleNetworkConfigCommand,
   handleRoleConfigCommand,
-} from "./configCommand";
-import { handleConnectCommand } from "./connectCommand";
+} from "./addConfigCommand";
+
+import {
+  handleDeleteConfigCommand,
+  handleDeleteConfigConfirmCommand,
+} from "./deleteConfigCommand";
+
+import {
+  handleConnectCommand,
+  handleUserNetworkConfigCommand,
+} from "./connectCommand";
 import {
   handleDisconnectCommand,
   handleDisconnectConfirmCommand,
@@ -23,7 +32,11 @@ export const setupInteractions = (client: Client) => {
   client.on("interactionCreate", async (interaction) => {
     const isInitialConfig =
       interaction.isChatInputCommand() &&
-      interaction.commandName === "starky-config";
+      interaction.commandName === "starky-add-config";
+
+    const deleteConfig =
+      interaction.isChatInputCommand() &&
+      interaction.commandName === "starky-delete-config";
 
     const isNetworkConfig =
       interaction.isSelectMenu() &&
@@ -53,6 +66,10 @@ export const setupInteractions = (client: Client) => {
       interaction.isChatInputCommand() &&
       interaction.commandName === "starky-connect";
 
+    const isUserNetworkConfig =
+      interaction.isSelectMenu() &&
+      interaction.customId === "user-config-network";
+
     const isUserDisonnect =
       interaction.isChatInputCommand() &&
       interaction.commandName === "starky-disconnect";
@@ -60,10 +77,18 @@ export const setupInteractions = (client: Client) => {
     const isUserDisconnectConfirm =
       interaction.isButton() && interaction.customId === "disconnect-confirm";
 
+    const isUserDeleteConfigConfirm =
+      interaction.isSelectMenu() &&
+      interaction.customId === "delete-config-confirm";
+
     if (isUserConnect) {
       return handleConnectCommand(interaction, client, restClient);
+    } else if (isUserNetworkConfig) {
+      return handleUserNetworkConfigCommand(interaction, client, restClient);
     } else if (isInitialConfig) {
       return handleInitialConfigCommand(interaction, client, restClient);
+    } else if (deleteConfig) {
+      return handleDeleteConfigCommand(interaction, client, restClient);
     } else if (isNetworkConfig) {
       return handleNetworkConfigCommand(interaction, client, restClient);
     } else if (isRoleConfig) {
@@ -80,6 +105,8 @@ export const setupInteractions = (client: Client) => {
       return handleDisconnectCommand(interaction, client, restClient);
     } else if (isUserDisconnectConfirm) {
       return handleDisconnectConfirmCommand(interaction, client, restClient);
+    } else if (isUserDeleteConfigConfirm) {
+      return handleDeleteConfigConfirmCommand(interaction, client, restClient);
     }
   });
 

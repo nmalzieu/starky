@@ -1,7 +1,12 @@
 import { IsNull, Not } from "typeorm";
 import config from "./config";
-import { DiscordMemberRepository, DiscordServerRepository } from "./db";
+import {
+  DiscordMemberRepository,
+  DiscordServerConfigRepository,
+  DiscordServerRepository,
+} from "./db";
 import { DiscordMember } from "./db/entity/DiscordMember";
+import { DiscordServerConfig } from "./db/entity/DiscordServerConfig";
 import { DiscordServer } from "./db/entity/DiscordServer";
 import { restDiscordClient } from "./discord/client";
 import { addRole, removeRole } from "./discord/role";
@@ -17,61 +22,75 @@ const refreshDiscordServers = async () => {
 
 export const refreshDiscordServer = async (discordServer: DiscordServer) => {
   console.log(`[Cron] Refreshing discord server ${discordServer.id}`);
+
   const discordMembers = await DiscordMemberRepository.find({
     where: {
-      discordServer,
+      discordServerId: discordServer.id,
       starknetWalletAddress: Not(IsNull()),
     },
     withDeleted: true,
   });
+
+  const discordConfigs = await DiscordServerConfigRepository.findBy({
+    discordServerId: discordServer.id,
+  });
+
   // Refreshing each member one by one. We could
   // optimize using a pool in parallel.
-  const starkyModule = modules[discordServer.starkyModuleType];
-  if (!starkyModule) {
-    console.error(
-      `Discord server ${discordServer.id} is configured with module ${discordServer.starkyModuleType} which does not exist`
-    );
-    return;
-  }
+
   for (let discordMember of discordMembers) {
-    try {
-      await refreshDiscordMember(discordServer, discordMember, starkyModule);
-    } catch (e) {
-      console.error(
-        `Could not refresh discord member ${discordMember.discordMemberId} from server ${discordServer.id}: ${e}`
-      );
+    for (let discordConfig of discordConfigs) {
+      const starkyModule = modules[discordConfig.starkyModuleType];
+      if (!starkyModule) {
+        console.error(
+          `Server configuration ${discordConfig.id} uses module ${discordConfig.starkyModuleType} which does not exist`
+        );
+        continue;
+      }
+      try {
+        await refreshDiscordMember(discordConfig, discordMember, starkyModule);
+      } catch (e) {
+        console.error(
+          `Could not refresh discord member ${discordMember.discordMemberId} with configuration ${discordConfig.id} in servr : ${discordConfig.discordServerId} ${e}`
+        );
+      }
     }
   }
 };
 
 export const refreshDiscordMember = async (
-  discordServer: DiscordServer,
+  discordServerConfig: DiscordServerConfig,
   discordMember: DiscordMember,
   starkyModule?: StarkyModule
 ) => {
   if (!discordMember.starknetWalletAddress) return;
-  const starkyMod = starkyModule || modules[discordServer.starkyModuleType];
+  if (discordMember.starknetNetwork !== discordServerConfig.starknetNetwork)
+    return;
+  const starkyMod =
+    starkyModule || modules[discordServerConfig.starkyModuleType];
   // Always remove role for deleted users
   const shouldHaveRole = discordMember.deletedAt
     ? false
     : await starkyMod.shouldHaveRole(
         discordMember.starknetWalletAddress,
-        discordServer.starknetNetwork === "mainnet" ? "mainnet" : "goerli",
-        discordServer?.starkyModuleConfig
+        discordServerConfig.starknetNetwork === "mainnet"
+          ? "mainnet"
+          : "goerli",
+        discordServerConfig?.starkyModuleConfig
       );
   if (shouldHaveRole) {
     await addRole(
       restDiscordClient,
-      discordServer.id,
+      discordServerConfig.discordServerId,
       discordMember.discordMemberId,
-      discordServer.discordRoleId
+      discordServerConfig.discordRoleId
     );
   } else {
     await removeRole(
       restDiscordClient,
-      discordServer.id,
+      discordServerConfig.discordServerId,
       discordMember.discordMemberId,
-      discordServer.discordRoleId
+      discordServerConfig.discordRoleId
     );
   }
 

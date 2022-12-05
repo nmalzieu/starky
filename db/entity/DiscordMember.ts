@@ -9,11 +9,11 @@ import {
 import { DiscordServer } from "./DiscordServer";
 
 @Entity()
-@Index(["discordMemberId", "discordServerId", "deletedAt"], {
+@Index(["discordMemberId", "discordServerId", "starknetNetwork", "deletedAt"], {
   unique: true,
   where: '"deletedAt" IS NOT NULL',
 })
-@Index(["discordMemberId", "discordServerId"], {
+@Index(["discordMemberId", "discordServerId", "starknetNetwork"], {
   unique: true,
   where: '"deletedAt" IS NULL',
 })
@@ -29,6 +29,9 @@ export class DiscordMember {
 
   @ManyToOne((type) => DiscordServer, (server) => server.members)
   discordServer: DiscordServer;
+
+  @Column()
+  starknetNetwork: string;
 
   @Column({ nullable: true })
   starknetWalletAddress?: string;

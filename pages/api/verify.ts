@@ -4,6 +4,8 @@ import { refreshDiscordMember } from "../../cron";
 import { DiscordMemberRepository, setupDb } from "../../db";
 import messageToSign from "../../starknet/message";
 import { verifySignature } from "../../starknet/verifySignature";
+import { DiscordServerConfigRepository } from "../../db/index";
+import modules from "../../starkyModules";
 
 type Data = {
   message: string;
@@ -21,11 +23,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     !body.signature ||
     !body.discordServerId ||
     !body.discordMemberId ||
-    !body.customLink
+    !body.customLink ||
+    !body.network
   ) {
     res.status(400).json({
       message:
-        "Missing body: account, signature, discordServerId, discordMemberId & customLink required",
+        "Missing body: account, signature, DiscordServerId, discordMemberId, customLink & network required",
     });
     return;
   }
@@ -34,6 +37,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     where: {
       discordServerId: body.discordServerId,
       discordMemberId: body.discordMemberId,
+      starknetNetwork: body.network,
     },
     relations: ["discordServer"],
   });
@@ -44,22 +48,33 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     });
     return;
   }
+  const discordConfigs = await DiscordServerConfigRepository.findBy({
+    discordServerId: discordMember.discordServerId,
+  });
 
   const messageHexHash = typedData.getMessageHash(messageToSign, body.account);
   const signatureVerified = await verifySignature(
     body.account,
     messageHexHash,
     body.signature,
-    discordMember.discordServer.starknetNetwork
+    body.network
   );
   if (!signatureVerified) {
     return res.status(400).json({ message: "Signature is invalid" });
   } else {
     discordMember.starknetWalletAddress = body.account;
-    await DiscordMemberRepository.save(discordMember);
+
     res.status(200).json({ message: "Successfully verified" });
     // Let's refresh its status immediatly
-    refreshDiscordMember(discordMember.discordServer, discordMember);
+    DiscordMemberRepository.save(discordMember);
+
+    for (let discordConfig of discordConfigs) {
+      refreshDiscordMember(
+        discordConfig,
+        discordMember,
+        modules[discordConfig.starkyModuleType]
+      );
+    }
   }
 };
 

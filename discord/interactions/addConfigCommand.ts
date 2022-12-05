@@ -16,9 +16,14 @@ import {
   TextInputStyle,
 } from "discord.js";
 import { assertAdmin } from "./permissions";
-
+import { IsNull, Not } from "typeorm";
+import { DiscordServerConfig } from "../../db/entity/DiscordServerConfig";
 import { DiscordServer } from "../../db/entity/DiscordServer";
-import { DiscordServerRepository } from "../../db";
+
+import {
+  DiscordServerConfigRepository,
+  DiscordServerRepository,
+} from "../../db";
 import { getRoles, isBotRole } from "../role";
 import starkyModules from "../../starkyModules";
 
@@ -280,34 +285,48 @@ export const handleConfigConfirmCommand = async (
 
   const currentConfig = ongoingConfigurationsCache[interaction.guildId];
 
+  const alreadyDiscordServerConfig =
+    await DiscordServerConfigRepository.findOneBy({
+      discordServerId: interaction.guildId,
+      starkyModuleConfig: currentConfig.moduleConfig,
+      discordRoleId: currentConfig.roleId,
+      starknetNetwork: currentConfig.network,
+    });
+
   const alreadyDiscordServer = await DiscordServerRepository.findOneBy({
     id: interaction.guildId,
   });
 
+  const discordServerConfig =
+    alreadyDiscordServerConfig || new DiscordServerConfig();
+
   const discordServer = alreadyDiscordServer || new DiscordServer();
   discordServer.id = interaction.guildId;
+
+  discordServerConfig.discordServerId = interaction.guildId;
   if (
     currentConfig.network !== "mainnet" &&
     currentConfig.network !== "goerli"
   ) {
     throw new Error("Wrong network config");
   }
-  discordServer.starknetNetwork = currentConfig.network;
+  discordServerConfig.starknetNetwork = currentConfig.network;
   if (!currentConfig.roleId) {
     throw new Error("Wrong role config");
   }
-  discordServer.discordRoleId = currentConfig.roleId;
+  discordServerConfig.discordRoleId = currentConfig.roleId;
   if (
     !currentConfig.moduleType ||
     !(currentConfig.moduleType in starkyModules)
   ) {
     throw new Error("Wrong module config");
   }
-  discordServer.starkyModuleType = currentConfig.moduleType;
+  discordServerConfig.starkyModuleType = currentConfig.moduleType;
 
-  discordServer.starkyModuleConfig = currentConfig.moduleConfig || {};
+  discordServerConfig.starkyModuleConfig = currentConfig.moduleConfig || {};
 
   await DiscordServerRepository.save(discordServer);
+  await DiscordServerConfigRepository.save(discordServerConfig);
 
   delete ongoingConfigurationsCache[interaction.guildId];
 
