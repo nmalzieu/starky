@@ -1,6 +1,8 @@
-import { Client } from "discord.js";
 import { REST } from "@discordjs/rest";
+import { Client } from "discord.js";
+
 import config from "../../config";
+
 import {
   handleConfigCancelCommand,
   handleConfigConfirmCommand,
@@ -10,16 +12,14 @@ import {
   handleNetworkConfigCommand,
   handleRoleConfigCommand,
 } from "./addConfigCommand";
-
-import {
-  handleDeleteConfigCommand,
-  handleDeleteConfigConfirmCommand,
-} from "./deleteConfigCommand";
-
 import {
   handleConnectCommand,
   handleUserNetworkConfigCommand,
 } from "./connectCommand";
+import {
+  handleDeleteConfigCommand,
+  handleDeleteConfigConfirmCommand,
+} from "./deleteConfigCommand";
 import {
   handleDisconnectCommand,
   handleDisconnectConfirmCommand,
@@ -34,7 +34,7 @@ export const setupInteractions = (client: Client) => {
       interaction.isChatInputCommand() &&
       interaction.commandName === "starky-add-config";
 
-    const deleteConfig =
+    const isDeleteConfig =
       interaction.isChatInputCommand() &&
       interaction.commandName === "starky-delete-config";
 
@@ -87,7 +87,7 @@ export const setupInteractions = (client: Client) => {
       return handleUserNetworkConfigCommand(interaction, client, restClient);
     } else if (isInitialConfig) {
       return handleInitialConfigCommand(interaction, client, restClient);
-    } else if (deleteConfig) {
+    } else if (isDeleteConfig) {
       return handleDeleteConfigCommand(interaction, client, restClient);
     } else if (isNetworkConfig) {
       return handleNetworkConfigCommand(interaction, client, restClient);

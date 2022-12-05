@@ -1,7 +1,3 @@
-import { DiscordMember } from "../db/entity/DiscordMember";
-import { DiscordServerConfig } from "../db/entity/DiscordServerConfig";
-import { configName } from "./erc721";
-
 export type StarkyModuleField = {
   id: string;
   question: string;

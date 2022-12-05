@@ -1,7 +1,7 @@
-import { AppDataSource } from "./data-source";
 import { DiscordMember } from "./entity/DiscordMember";
 import { DiscordServer } from "./entity/DiscordServer";
 import { DiscordServerConfig } from "./entity/DiscordServerConfig";
+import { AppDataSource } from "./data-source";
 import { setupMigrations } from "./setup-migrations";
 
 export const setupDb = async () => {

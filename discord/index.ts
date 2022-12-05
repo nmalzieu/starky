@@ -1,4 +1,5 @@
 import config from "../config";
+
 import { createDiscordClient } from "./client";
 import { setupInteractions } from "./interactions";
 import { registerSlashCommands } from "./slashCommands";

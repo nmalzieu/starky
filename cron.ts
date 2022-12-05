@@ -1,17 +1,18 @@
 import { IsNull, Not } from "typeorm";
+
+import { DiscordMember } from "./db/entity/DiscordMember";
+import { DiscordServer } from "./db/entity/DiscordServer";
+import { DiscordServerConfig } from "./db/entity/DiscordServerConfig";
+import { restDiscordClient } from "./discord/client";
+import { addRole, removeRole } from "./discord/role";
+import { StarkyModule } from "./starkyModules/types";
 import config from "./config";
 import {
   DiscordMemberRepository,
   DiscordServerConfigRepository,
   DiscordServerRepository,
 } from "./db";
-import { DiscordMember } from "./db/entity/DiscordMember";
-import { DiscordServerConfig } from "./db/entity/DiscordServerConfig";
-import { DiscordServer } from "./db/entity/DiscordServer";
-import { restDiscordClient } from "./discord/client";
-import { addRole, removeRole } from "./discord/role";
 import modules from "./starkyModules";
-import { StarkyModule } from "./starkyModules/types";
 
 const refreshDiscordServers = async () => {
   const discordServers = await DiscordServerRepository.find();

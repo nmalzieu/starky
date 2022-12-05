@@ -1,11 +1,12 @@
 import {
-  Entity,
   Column,
-  ManyToOne,
   DeleteDateColumn,
-  PrimaryGeneratedColumn,
+  Entity,
   Index,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from "typeorm";
+
 import { DiscordServer } from "./DiscordServer";
 
 @Entity()

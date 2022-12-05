@@ -1,9 +1,8 @@
 import {
+  ActionRowBuilder,
   ChatInputCommandInteraction,
   Client,
   REST,
-  Snowflake,
-  ActionRowBuilder,
   SelectMenuBuilder,
   SelectMenuInteraction,
 } from "discord.js";
@@ -57,6 +56,7 @@ export const handleConnectCommand = async (
 
   if (alreadyDiscordMembers.length > 0) {
     if (alreadyConnectedOnBothNetworks) {
+      // Connected to Goerli & Mainnet
       await interaction.reply({
         content:
           "You have already linked a Starknet wallet to this Discord server on both networks. Use `/starky-disconnect` first if you want to link a new one",
@@ -66,6 +66,7 @@ export const handleConnectCommand = async (
       alreadyDiscordMembers[0].starknetWalletAddress &&
       alreadyDiscordMembers.length == 1
     ) {
+      // Finished setup on one network
       const newDiscordMember = new DiscordMember();
 
       newDiscordMember.discordMemberId =
@@ -79,15 +80,14 @@ export const handleConnectCommand = async (
 
       await interaction.reply({
         content: `
-        You already connected on this Network : ${
+You already connected on this Network : ${
           alreadyDiscordMembers[0].starknetNetwork
         } 
-        Go to this link : 
-            ${config.BASE_URL}/verify/${guildId}/${userId}/${
+Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
           newDiscordMember.customLink
         } and verify your Starknet identity on ${otherNetwork(
           alreadyDiscordMembers[0].starknetNetwork
-        )} !`,
+        )}!`,
         ephemeral: true,
       });
     } else if (
@@ -95,8 +95,7 @@ export const handleConnectCommand = async (
       !alreadyDiscordMembers[0].starknetWalletAddress
     ) {
       await interaction.reply({
-        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[0].starknetNetwork} !
-        You can start over by using  /starky-disconnect command. `,
+        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[0].starknetNetwork} ! You can start over by using  /starky-disconnect command. `,
         ephemeral: true,
       });
     } else if (
@@ -105,8 +104,7 @@ export const handleConnectCommand = async (
       !alreadyDiscordMembers[1].starknetWalletAddress
     ) {
       await interaction.reply({
-        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[1].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[1].starknetNetwork}!
-         You can start over by using  /starky-disconnect command.`,
+        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[1].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[1].starknetNetwork}! You can start over by using  /starky-disconnect command.`,
         ephemeral: true,
       });
     }

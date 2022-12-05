@@ -1,12 +1,14 @@
-import "reflect-metadata";
 import { createServer as createHttpServer } from "http";
 import { createServer as createHttpsServer } from "http";
-import { parse } from "url";
 import next from "next";
-import { launchBot } from "./discord";
-import { setupDb } from "./db";
-import launchCron from "./cron";
+import { parse } from "url";
+
+import "reflect-metadata";
+
 import config from "./config";
+import launchCron from "./cron";
+import { setupDb } from "./db";
+import { launchBot } from "./discord";
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev, hostname: config.HOST, port: config.PORT });

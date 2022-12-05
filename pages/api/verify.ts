@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { typedData } from "starknet";
+
 import { refreshDiscordMember } from "../../cron";
 import { DiscordMemberRepository, setupDb } from "../../db";
+import { DiscordServerConfigRepository } from "../../db/index";
 import messageToSign from "../../starknet/message";
 import { verifySignature } from "../../starknet/verifySignature";
-import { DiscordServerConfigRepository } from "../../db/index";
 import modules from "../../starkyModules";
 
 type Data = {
@@ -28,7 +29,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   ) {
     res.status(400).json({
       message:
-        "Missing body: account, signature, DiscordServerId, discordMemberId, customLink & network required",
+        "Missing body: account, signature, discordServerId, discordMemberId, customLink & network required",
     });
     return;
   }

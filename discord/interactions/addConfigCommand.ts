@@ -15,17 +15,17 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
-import { assertAdmin } from "./permissions";
-import { IsNull, Not } from "typeorm";
-import { DiscordServerConfig } from "../../db/entity/DiscordServerConfig";
-import { DiscordServer } from "../../db/entity/DiscordServer";
 
 import {
   DiscordServerConfigRepository,
   DiscordServerRepository,
 } from "../../db";
-import { getRoles, isBotRole } from "../role";
+import { DiscordServer } from "../../db/entity/DiscordServer";
+import { DiscordServerConfig } from "../../db/entity/DiscordServerConfig";
 import starkyModules from "../../starkyModules";
+import { getRoles, isBotRole } from "../role";
+
+import { assertAdmin } from "./permissions";
 
 type OngoingConfiguration = {
   network?: string;

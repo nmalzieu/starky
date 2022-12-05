@@ -1,6 +1,6 @@
-import { SlashCommandBuilder, Routes } from "discord.js";
-
 import { REST } from "@discordjs/rest";
+import { Routes, SlashCommandBuilder } from "discord.js";
+
 import config from "../config";
 
 export const registerSlashCommands = async () => {

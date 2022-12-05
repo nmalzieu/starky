@@ -1,9 +1,12 @@
-import "reflect-metadata";
 import { DataSource } from "typeorm";
-import { DiscordMember } from "./entity/DiscordMember";
-import { DiscordServerConfig } from "./entity/DiscordServerConfig";
-import { DiscordServer } from "./entity/DiscordServer";
+
+import "reflect-metadata";
+
 import config from "../config";
+
+import { DiscordMember } from "./entity/DiscordMember";
+import { DiscordServer } from "./entity/DiscordServer";
+import { DiscordServerConfig } from "./entity/DiscordServerConfig";
 
 export const AppDataSource = new DataSource({
   type: "postgres",

@@ -1,6 +1,8 @@
 import type { NextPage } from "next";
+
 import Logo from "../components/Logo";
 import SocialLinks from "../components/SocialLinks";
+
 import styles from "../styles/Home.module.scss";
 
 const Home: NextPage = () => (

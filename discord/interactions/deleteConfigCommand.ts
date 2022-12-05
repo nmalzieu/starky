@@ -1,32 +1,16 @@
 import {
   ActionRowBuilder,
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
   ChatInputCommandInteraction,
   Client,
-  ModalActionRowComponentBuilder,
-  ModalBuilder,
-  ModalSubmitInteraction,
   REST,
   SelectMenuBuilder,
-  SelectMenuComponentOptionData,
   SelectMenuInteraction,
-  TextInputBuilder,
-  TextInputStyle,
 } from "discord.js";
-import { assertAdmin } from "./permissions";
 
-import { DiscordServerConfig } from "../../db/entity/DiscordServerConfig";
-import {
-  DiscordServerConfigRepository,
-  DiscordMemberRepository,
-} from "../../db";
-import { getRoles, isBotRole } from "../role";
-import starkyModules from "../../starkyModules";
-import config from "../../config";
+import { DiscordServerConfigRepository } from "../../db";
 import { configName } from "../../starkyModules/erc721";
-import { StarkyModule, StarkyModuleConfig } from "../../starkyModules/types";
+
+import { assertAdmin } from "./permissions";
 
 export const handleDeleteConfigCommand = async (
   interaction: ChatInputCommandInteraction,

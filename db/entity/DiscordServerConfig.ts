@@ -1,13 +1,8 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  DeleteDateColumn,
-  Index,
-  Relation,
-} from "typeorm";
+import type { Relation } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+
 import type { StarkyModuleConfig } from "../../starkyModules/types";
+
 import { DiscordServer } from "./DiscordServer";
 
 @Entity()
@@ -31,5 +26,5 @@ export class DiscordServerConfig {
   starkyModuleConfig: StarkyModuleConfig;
 
   @ManyToOne((type) => DiscordServer, (server) => server.serverConfigs)
-  discordServer: DiscordServer;
+  discordServer: Relation<DiscordServer>;
 }

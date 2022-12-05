@@ -1,4 +1,5 @@
 import { Client, GatewayIntentBits, REST } from "discord.js";
+
 import config from "../config";
 
 export const createDiscordClient = (): Promise<Client> =>

@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryColumn, OneToMany } from "typeorm";
+import { Entity, OneToMany, PrimaryColumn } from "typeorm";
+
 import { DiscordMember } from "./DiscordMember";
 import { DiscordServerConfig } from "./DiscordServerConfig";
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import styles from "../styles/Logo.module.scss";
 
 const Logo = () => {

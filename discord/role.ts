@@ -1,5 +1,6 @@
-import { Role, Routes } from "discord.js";
 import { REST } from "@discordjs/rest";
+import { Role, Routes } from "discord.js";
+
 import config from "../config";
 
 export const isBotRole = (role: Role): boolean => {

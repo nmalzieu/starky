@@ -1,17 +1,19 @@
-import axios from "axios";
+import { useCallback, useState } from "react";
 import {
   connect as starknetConnect,
   IStarknetWindowObject,
 } from "@argent/get-starknet";
-import { getDiscordServerName } from "../../../../discord/utils";
-import { useCallback, useState } from "react";
-import { Signature } from "starknet";
-import messageToSign from "../../../../starknet/message";
+import axios from "axios";
 import { useRouter } from "next/router";
-import { DiscordMemberRepository, setupDb } from "../../../../db";
-import styles from "../../../../styles/Verify.module.scss";
+import { Signature } from "starknet";
+
 import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
+import { DiscordMemberRepository, setupDb } from "../../../../db";
+import { getDiscordServerName } from "../../../../discord/utils";
+import messageToSign from "../../../../starknet/message";
+
+import styles from "../../../../styles/Verify.module.scss";
 
 type Props = {
   discordServerName: string;
@@ -71,7 +73,13 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
         setUnverifiedSignature(true);
       }
     },
-    [customLink, discordMemberId, discordServerId, starknet?.account?.address]
+    [
+      customLink,
+      discordMemberId,
+      discordServerId,
+      starknet?.account?.address,
+      starknetNetwork,
+    ]
   );
 
   const sign = useCallback(async () => {

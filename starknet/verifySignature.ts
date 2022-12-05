@@ -1,4 +1,3 @@
-import { toBN } from "starknet/utils/number";
 import { callContract } from "./call";
 
 export const verifySignature = async (

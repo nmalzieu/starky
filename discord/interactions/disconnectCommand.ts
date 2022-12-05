@@ -7,11 +7,12 @@ import {
   Client,
   REST,
 } from "discord.js";
+
 import {
   DiscordMemberRepository,
   DiscordServerConfigRepository,
 } from "../../db";
-import { removeRole, getRoles } from "../role";
+import { removeRole } from "../role";
 
 export const handleDisconnectConfirmCommand = async (
   interaction: ButtonInteraction,

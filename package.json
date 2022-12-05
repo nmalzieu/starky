@@ -18,6 +18,8 @@
     "discord-api-types": "^0.37.1",
     "discord.js": "^14.1.2",
     "dotenv": "^16.0.1",
+    "eslint-plugin-simple-import-sort": "^8.0.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
     "nanoid": "3.3.4",
     "next": "12.2.4",
     "pg": "^8.7.3",

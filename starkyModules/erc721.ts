@@ -1,7 +1,8 @@
-import { stringify } from "querystring";
 import { uint256ToBN } from "starknet/dist/utils/uint256";
+
 import { callContract } from "../starknet/call";
-import { StarkyModuleConfig, StarkyModuleField, StarkyModule } from "./types";
+
+import { StarkyModuleConfig, StarkyModuleField } from "./types";
 
 export const name = "ERC-721";
 
@@ -16,8 +17,7 @@ export const configName = (
   starknetNetwork: string,
   starkyModuleConfig: StarkyModuleConfig
 ): string => {
-  console.log(starkyModuleConfig);
-  return starknetNetwork + " - ERC-721 - " + Object.values(starkyModuleConfig);
+  return `${starknetNetwork} - ERC-721 - ${starkyModuleConfig.contractAddress}`;
 };
 
 export const shouldHaveRole = async (
