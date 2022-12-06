@@ -12,7 +12,7 @@ Don’t hesitate to join our Telegram group to ask any questions related to Star
 
 Starky is a Discord bot. To use Starky, a Discord server admin can install the Starky application. This application takes the form of a bot that lives inside your Discord server, and implements a few [application commands](https://discord.com/developers/docs/interactions/application-commands).
 
-The first application command is `/starky-configure` and can be used only by the admin. With this command, the admin can configure Starky, namely:
+The first application command is `/starky-add-config` and can be used only by the admin. With this command, the admin can configure Starky, namely:
 
 - the Starknet network to use Starky on (Goerli or Mainnet)
 - the Discord role to assign to the discord users who match the criteria
@@ -24,6 +24,11 @@ Then, discord users can use the `/starky-connect` command to link their Starknet
 Once a user’s Starknet identity has been linked to the discord server, the Starky backend checks, on a regular basis, if the user’s Starknet wallet matches the Starky module’s specific conditions. For the ERC-721 Starky module, for instance, Starky checks if the user owns at least 1 NFT from the collection.
 
 If the user matches the conditions, Starky gives the configured role to the user. If not, it removes the role from the user.
+
+Other commands available:
+
+- `/starky-disconnect` for a user to unlink his Starknet wallet to the Discord server
+- `/starky-delete-config` for the admin to remove one of the Starky configurations setup on the Discord server
 
 # Starky technical components
 
@@ -161,7 +166,7 @@ event - compiled client and server successfully in 221 ms (179 modules)
 
 ## Step 7: configure Starky on your Discord server
 
-Just enter `/starky-configure` and follow instructions!
+Just enter `/starky-add-config` and follow instructions!
 
 # Developing your own Starky module
 
