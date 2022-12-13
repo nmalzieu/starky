@@ -35,7 +35,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const [wrongStarknetNetwork, setWrongStarknetNetwork] = useState(false);
   const [verifyingSignature, setVerifyingSignature] = useState(false);
   const [verifiedSignature, setVerifiedSignature] = useState(false);
-  const [unverifiedSignature, setUnverifiedSignature] = useState(false);
+  const [unverifiedSignature, setUnverifiedSignature] = useState("");
 
   const connectToStarknet = useCallback(async () => {
     const strk = await starknetConnect();
@@ -54,7 +54,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
 
   const verifySignature = useCallback(
     async (signature: Signature) => {
-      setUnverifiedSignature(false);
+      setUnverifiedSignature("");
       setVerifyingSignature(true);
       try {
         await axios.post("/api/verify", {
@@ -67,10 +67,13 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
         });
         setVerifiedSignature(true);
         setVerifyingSignature(false);
-      } catch (e) {
-        console.error(e);
+      } catch (e: any) {
+        console.error(
+          "Signature verification failed with data",
+          e.response?.data
+        );
         setVerifyingSignature(false);
-        setUnverifiedSignature(true);
+        setUnverifiedSignature(e.response?.data?.error || "ERROR");
       }
     },
     [
@@ -121,7 +124,9 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       )}
       {unverifiedSignature && (
         <div className="danger">
-          your signature could not be verified, please try again
+          {unverifiedSignature === "StarknetErrorCode.UNINITIALIZED_CONTRACT"
+            ? "please deploy your wallet on-chain so we can verify your signature"
+            : "your signature could not be verified, please try again"}
         </div>
       )}
     </div>

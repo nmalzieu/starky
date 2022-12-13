@@ -10,6 +10,7 @@ import modules from "../../starkyModules";
 
 type Data = {
   message: string;
+  error?: string;
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
@@ -54,14 +55,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   });
 
   const messageHexHash = typedData.getMessageHash(messageToSign, body.account);
-  const signatureVerified = await verifySignature(
+  const { signatureValid, error } = await verifySignature(
     body.account,
     messageHexHash,
     body.signature,
     body.network
   );
-  if (!signatureVerified) {
-    return res.status(400).json({ message: "Signature is invalid" });
+  if (!signatureValid) {
+    return res.status(400).json({ message: "Signature is invalid", error });
   } else {
     discordMember.starknetWalletAddress = body.account;
 

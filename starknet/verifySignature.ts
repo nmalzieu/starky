@@ -1,11 +1,16 @@
 import { callContract } from "./call";
 
+type SignatureVerify = {
+  signatureValid: boolean;
+  error?: string;
+};
+
 export const verifySignature = async (
   accountAddress: string,
   hexHash: string,
   signature: string[],
   starknetNetwork: string
-): Promise<boolean> => {
+): Promise<SignatureVerify> => {
   // We can verify this message hash against the signature generated in the frontend
   // by calling the is_valid_signature method on the Account contract
   try {
@@ -16,9 +21,10 @@ export const verifySignature = async (
       calldata: [hexHash, `${signature.length}`, ...signature],
     });
 
-    return result[0] === "0x1";
-  } catch (e) {
-    console.error(e);
-    return false;
+    const signatureValid = result[0] === "0x1";
+
+    return { signatureValid };
+  } catch (e: any) {
+    return { signatureValid: false, error: e.errorCode || e.message };
   }
 };
