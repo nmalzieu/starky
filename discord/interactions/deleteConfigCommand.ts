@@ -23,6 +23,13 @@ export const handleDeleteConfigCommand = async (
   const configurations = await DiscordServerConfigRepository.findBy({
     discordServerId: interaction.guildId,
   });
+  if (configurations.length === 0) {
+    await interaction.reply({
+      content: "You don't have any configuration setup right now.",
+      ephemeral: true,
+    });
+    return;
+  }
   // Showing configurations
   const options = configurations.map((config) => ({
     label: starkyModules[config.starkyModuleType].configName(
