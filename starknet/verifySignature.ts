@@ -25,6 +25,9 @@ export const verifySignature = async (
 
     return { signatureValid };
   } catch (e: any) {
+    console.log("Error while verifying signature for");
+    console.log({ accountAddress, hexHash, signature, starknetNetwork });
+    console.log(e);
     return { signatureValid: false, error: e.errorCode || e.message };
   }
 };
