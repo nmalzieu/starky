@@ -2,6 +2,7 @@ export type StarkyModuleField = {
   id: string;
   question: string;
   textarea?: boolean;
+  placeholder?: string;
 };
 
 export type StarkyModule = {

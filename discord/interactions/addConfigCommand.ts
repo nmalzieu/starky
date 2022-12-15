@@ -251,6 +251,7 @@ export const handleModuleTypeConfigCommand = async (
         .setStyle(
           moduleField.textarea ? TextInputStyle.Paragraph : TextInputStyle.Short
         )
+        .setPlaceholder(moduleField.placeholder ? moduleField.placeholder : "")
     )
   );
   modal.addComponents(...rows);
