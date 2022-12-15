@@ -1,10 +1,10 @@
 import * as erc721 from "./erc721";
-import * as metedataRoles from "./metadataRoles";
+import * as erc721Metadata from "./erc721Metadata";
 import { StarkyModules } from "./types";
 
 const modules: StarkyModules = {
   erc721,
-  metedataRoles,
+  erc721Metadata,
 };
 
 export default modules;
