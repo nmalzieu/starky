@@ -6,8 +6,8 @@ export const name = "ERC-721 Metadata";
 
 export const fields: StarkyModuleField[] = [
   {
-    id: "patternName",
-    question: "What's the name of your pattern?",
+    id: "configName",
+    question: "What's the name of your configuration?",
   },
   {
     id: "contractAddress",
@@ -26,7 +26,7 @@ export const configName = (
   starknetNetwork: string,
   starkyModuleConfig: StarkyModuleConfig
 ): string => {
-  return `${starkyModuleConfig.patternName} - ERC-721 Metadata - ${starknetNetwork}`;
+  return `${starkyModuleConfig.configName} - ERC-721 Metadata - ${starknetNetwork}`;
 };
 
 const tryParseJSONObject = (jsonString: string): boolean | any[] => {
