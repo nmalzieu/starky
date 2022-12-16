@@ -22,7 +22,7 @@ export const configName = (
   starknetNetwork: string,
   starkyModuleConfig: StarkyModuleConfig
 ): string => {
-  return `${starknetNetwork} - ERC-721 Metadata - ${starkyModuleConfig.contractAddress}`;
+  return `${starkyModuleConfig.conditionPattern} - ERC-721 Metadata - ${starknetNetwork}`;
 };
 
 const tryParseJSONObject = (jsonString: string): boolean | any[] => {
