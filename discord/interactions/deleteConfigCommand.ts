@@ -20,8 +20,11 @@ export const handleDeleteConfigCommand = async (
   await assertAdmin(interaction);
   if (!interaction.guildId) return;
 
-  const configurations = await DiscordServerConfigRepository.findBy({
-    discordServerId: interaction.guildId,
+  const configurations = await DiscordServerConfigRepository.find({
+    where: {
+      discordServerId: interaction.guildId,
+    },
+    order: { id: "ASC" },
   });
   if (configurations.length === 0) {
     await interaction.reply({
@@ -32,10 +35,7 @@ export const handleDeleteConfigCommand = async (
   }
   // Showing configurations
   const options = configurations.map((config) => ({
-    label: starkyModules[config.starkyModuleType].configName(
-      config.starknetNetwork,
-      config.starkyModuleConfig
-    ),
+    label: starkyModules[config.starkyModuleType].configName(config),
     value: config.id.toString(),
   }));
 

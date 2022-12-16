@@ -104,8 +104,7 @@ export const handleRoleConfigCommand = async (
       content: `❌ You already have setup a Starky configuration for the selected role: \`${starkyModules[
         alreadyDiscordServerConfigForRole.starkyModuleType
       ].configName(
-        alreadyDiscordServerConfigForRole.starknetNetwork,
-        alreadyDiscordServerConfigForRole.starkyModuleConfig
+        alreadyDiscordServerConfigForRole
       )}\`. If you want to setup a new configuration for this role, please first delete the existing one with \`/starky-delete-config\``,
       components: [],
     });

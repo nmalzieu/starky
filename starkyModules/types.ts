@@ -1,3 +1,5 @@
+import { DiscordServerConfig } from "../db/entity/DiscordServerConfig";
+
 export type StarkyModuleField = {
   id: string;
   question: string;
@@ -13,10 +15,7 @@ export type StarkyModule = {
     starknetNetwork: "mainnet" | "goerli",
     starkyModuleConfig: StarkyModuleConfig
   ) => Promise<boolean>;
-  configName: (
-    starknetNetwork: "mainnet" | "goerli",
-    starkyModuleConfig: StarkyModuleConfig
-  ) => string;
+  configName: (config: DiscordServerConfig) => string;
 };
 
 export type StarkyModules = {
