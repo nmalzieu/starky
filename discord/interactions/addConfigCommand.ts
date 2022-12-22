@@ -58,6 +58,15 @@ export const handleInitialConfigCommand = async (
       value: role.id,
     }));
 
+  if (options.length === 0) {
+    await interaction.reply({
+      content:
+        "There are no roles setup on this Discord server. Please create a role first.",
+      ephemeral: true,
+    });
+    return;
+  }
+
   const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
     new SelectMenuBuilder()
       .setCustomId("starky-config-role")

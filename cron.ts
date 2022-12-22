@@ -40,6 +40,7 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
   // optimize using a pool in parallel.
 
   for (let discordMember of discordMembers) {
+    let deleteDiscordMember = !!discordMember.deletedAt;
     for (let discordConfig of discordConfigs) {
       const starkyModule = modules[discordConfig.starkyModuleType];
       if (!starkyModule) {
@@ -50,13 +51,21 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
       }
       try {
         await refreshDiscordMember(discordConfig, discordMember, starkyModule);
-      } catch (e) {
-        console.error(
-          `Could not refresh discord member ${discordMember.discordMemberId} with configuration ${discordConfig.id} in server : ${discordConfig.discordServerId} ${e}`
-        );
+      } catch (e: any) {
+        if (e?.code === 10007) {
+          // This user is no longer a member of this discord server, we should just remove it
+          deleteDiscordMember = true;
+          console.log(
+            `Discord member ${discordMember.discordMemberId} does not exist in Discord server ${discordConfig.discordServerId} and will be deleted`
+          );
+        } else {
+          console.error(
+            `Could not refresh discord member ${discordMember.discordMemberId} with configuration ${discordConfig.id} in server : ${discordConfig.discordServerId} ${e}`
+          );
+        }
       }
     }
-    if (discordMember.deletedAt) {
+    if (deleteDiscordMember) {
       await DiscordMemberRepository.remove(discordMember);
     }
   }
