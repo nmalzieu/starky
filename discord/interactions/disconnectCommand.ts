@@ -42,8 +42,7 @@ export const handleDisconnectConfirmCommand = async (
   await DiscordMemberRepository.softRemove(alreadyDiscordMember);
 
   for (let serverConfig of serverConfigs) {
-    if (userRoles && serverConfig.discordRoleId in userRoles)
-      removeRole(restClient, guildId, userId, serverConfig.discordRoleId);
+    removeRole(restClient, guildId, userId, serverConfig.discordRoleId);
   }
 
   await interaction.update({
