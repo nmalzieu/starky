@@ -52,9 +52,12 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
         await refreshDiscordMember(discordConfig, discordMember, starkyModule);
       } catch (e) {
         console.error(
-          `Could not refresh discord member ${discordMember.discordMemberId} with configuration ${discordConfig.id} in servr : ${discordConfig.discordServerId} ${e}`
+          `Could not refresh discord member ${discordMember.discordMemberId} with configuration ${discordConfig.id} in server : ${discordConfig.discordServerId} ${e}`
         );
       }
+    }
+    if (discordMember.deletedAt) {
+      await DiscordMemberRepository.remove(discordMember);
     }
   }
 };
@@ -93,10 +96,6 @@ export const refreshDiscordMember = async (
       discordMember.discordMemberId,
       discordServerConfig.discordRoleId
     );
-  }
-
-  if (discordMember.deletedAt) {
-    await DiscordMemberRepository.remove(discordMember);
   }
 };
 
