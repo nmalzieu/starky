@@ -28,6 +28,8 @@ export const handleConnectCommand = async (
 ) => {
   if (!interaction.member) return;
 
+  console.log("Received a connect command");
+
   const guildId = interaction.guildId;
   const userId = interaction.member?.user?.id;
   if (!guildId || !userId) {
@@ -35,11 +37,12 @@ export const handleConnectCommand = async (
     return;
   }
 
-  var alreadyDiscordServer = await DiscordServerRepository.findOneBy({
+  let alreadyDiscordServer = await DiscordServerRepository.findOneBy({
     id: guildId,
   });
 
   if (alreadyDiscordServer === null) {
+    console.log("Creating discord server");
     alreadyDiscordServer = new DiscordServer();
     alreadyDiscordServer.id = guildId;
     await DiscordServerRepository.save(alreadyDiscordServer);
@@ -62,6 +65,7 @@ export const handleConnectCommand = async (
           "You have already linked a Starknet wallet to this Discord server on both networks. Use `/starky-disconnect` first if you want to link a new one",
         ephemeral: true,
       });
+      return;
     } else if (
       alreadyDiscordMembers[0].starknetWalletAddress &&
       alreadyDiscordMembers.length == 1
@@ -90,6 +94,7 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
         )}!`,
         ephemeral: true,
       });
+      return;
     } else if (
       alreadyDiscordMembers.length == 1 &&
       !alreadyDiscordMembers[0].starknetWalletAddress
@@ -98,6 +103,7 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
         content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[0].starknetNetwork} ! You can start over by using  /starky-disconnect command. `,
         ephemeral: true,
       });
+      return;
     } else if (
       alreadyDiscordMembers.length == 2 &&
       alreadyDiscordMembers[0].starknetWalletAddress &&
@@ -107,6 +113,7 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
         content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[1].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[1].starknetNetwork}! You can start over by using  /starky-disconnect command.`,
         ephemeral: true,
       });
+      return;
     }
   } else {
     const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
@@ -132,7 +139,20 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
       components: [row],
       ephemeral: true,
     });
+    return;
   }
+
+  console.log("An error occured in Starky connect", {
+    guildId,
+    userId,
+    alreadyDiscordMembers,
+    alreadyDiscordServer,
+  });
+
+  await interaction.reply({
+    content: "An error occured in /starky-connect",
+    ephemeral: true,
+  });
 };
 
 export const handleUserNetworkConfigCommand = async (

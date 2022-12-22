@@ -211,11 +211,18 @@ export const finishUpConfiguration = async (
       .setStyle(ButtonStyle.Primary)
   );
 
-  await interaction.reply({
-    content: summaryContent,
-    components: [row],
-    ephemeral: true,
-  });
+  if (interaction.replied) {
+    await interaction.editReply({
+      content: summaryContent,
+      components: [row],
+    });
+  } else {
+    await interaction.reply({
+      content: summaryContent,
+      components: [row],
+      ephemeral: true,
+    });
+  }
 };
 
 export const handleModuleTypeConfigCommand = async (
@@ -231,6 +238,10 @@ export const handleModuleTypeConfigCommand = async (
   if (!starkyModule) return;
 
   if (starkyModule.fields.length === 0) {
+    await interaction.update({
+      content: "Thanks, following up...",
+      components: [],
+    });
     await finishUpConfiguration(interaction, client, restClient);
     return;
   }
