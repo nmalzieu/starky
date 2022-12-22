@@ -28,8 +28,6 @@ export const handleConnectCommand = async (
 ) => {
   if (!interaction.member) return;
 
-  console.log("Received a connect command");
-
   const guildId = interaction.guildId;
   const userId = interaction.member?.user?.id;
   if (!guildId || !userId) {
@@ -111,6 +109,16 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
     ) {
       await interaction.reply({
         content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[1].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[1].starknetNetwork}! You can start over by using  /starky-disconnect command.`,
+        ephemeral: true,
+      });
+      return;
+    } else if (
+      alreadyDiscordMembers.length == 2 &&
+      !alreadyDiscordMembers[0].starknetWalletAddress &&
+      alreadyDiscordMembers[1].starknetWalletAddress
+    ) {
+      await interaction.reply({
+        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[0].starknetNetwork}! You can start over by using  /starky-disconnect command.`,
         ephemeral: true,
       });
       return;
