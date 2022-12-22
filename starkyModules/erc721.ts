@@ -1,6 +1,5 @@
 import { uint256ToBN } from "starknet/dist/utils/uint256";
 
-import { DiscordServerConfig } from "../db/entity/DiscordServerConfig";
 import { callContract } from "../starknet/call";
 
 import { StarkyModuleConfig, StarkyModuleField } from "./types";
@@ -13,10 +12,6 @@ export const fields: StarkyModuleField[] = [
     question: "What's the ERC-721 contract address?",
   },
 ];
-
-export const configName = (config: DiscordServerConfig): string => {
-  return `${config.id} - ${config.starknetNetwork} - ERC-721 - ${config.starkyModuleConfig.contractAddress}`;
-};
 
 export const shouldHaveRole = async (
   starknetWalletAddress: string,

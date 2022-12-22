@@ -1,5 +1,4 @@
 import { retrieveAssets } from "../aspect/retrieveAssets";
-import { DiscordServerConfig } from "../db/entity/DiscordServerConfig";
 
 import { StarkyModuleConfig, StarkyModuleField } from "./types";
 
@@ -18,10 +17,6 @@ export const fields: StarkyModuleField[] = [
       '[{"path": "attributes.trait_type.Trait", "pattern":"^Value$"}]',
   },
 ];
-
-export const configName = (config: DiscordServerConfig): string => {
-  return `${config.id} - ${config.starknetNetwork} - ERC-721 Metadata - ${config.starkyModuleConfig.contractAddress}`;
-};
 
 const tryParseJSONObject = (jsonString: string): boolean | any[] => {
   try {

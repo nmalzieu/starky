@@ -85,7 +85,7 @@ You already connected on this Network : ${
         } 
 Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
           newDiscordMember.customLink
-        } and verify your Starknet identity on ${otherNetwork(
+        } and verify your Starknet identity on network: ${otherNetwork(
           alreadyDiscordMembers[0].starknetNetwork
         )}!`,
         ephemeral: true,

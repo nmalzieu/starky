@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 
 import { DiscordServerConfigRepository } from "../../db";
-import starkyModules from "../../starkyModules";
+import { getRoleName } from "../role";
 
 import { assertAdmin } from "./permissions";
 
@@ -34,10 +34,17 @@ export const handleDeleteConfigCommand = async (
     return;
   }
   // Showing configurations
-  const options = configurations.map((config) => ({
-    label: starkyModules[config.starkyModuleType].configName(config),
-    value: config.id.toString(),
-  }));
+  const options: { label: string; value: string }[] = [];
+  for (let config of configurations) {
+    options.push({
+      label: `${config.id} - ${await getRoleName(
+        restClient,
+        config.discordServerId,
+        config.discordRoleId
+      )} (${config.starkyModuleType})`.slice(0, 99),
+      value: config.id.toString(),
+    });
+  }
 
   const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
     new SelectMenuBuilder()
