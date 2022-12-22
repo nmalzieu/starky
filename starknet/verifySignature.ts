@@ -25,6 +25,21 @@ export const verifySignature = async (
 
     return { signatureValid };
   } catch (e: any) {
+    if (e.errorCode === "StarknetErrorCode.TRANSACTION_FAILED") {
+      // Let's see if the contract is missing public key
+      try {
+        const publicKeyResult = await callContract({
+          starknetNetwork: starknetNetwork === "mainnet" ? "mainnet" : "goerli",
+          contractAddress: accountAddress,
+          entrypoint: "getPublicKey",
+          calldata: [],
+        });
+        const emptyPublicKey = publicKeyResult[0] === "0x0";
+        if (emptyPublicKey) {
+          return { signatureValid: false, error: "EMPTY_PUBLIC_KEY" };
+        }
+      } catch (e) {}
+    }
     console.log("Error while verifying signature for");
     console.log({ accountAddress, hexHash, signature, starknetNetwork });
     console.log(e);

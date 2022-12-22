@@ -25,6 +25,19 @@ const chainIdByNetwork = {
   mainnet: "0x534e5f4d41494e",
 };
 
+const getSignatureErrorMessage = (error: string): string => {
+  switch (error) {
+    case "StarknetErrorCode.UNINITIALIZED_CONTRACT":
+      return "please deploy your wallet on-chain so we can verify your signature";
+
+    case "EMPTY_PUBLIC_KEY":
+      return "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it";
+
+    default:
+      return "your signature could not be verified, please try again";
+  }
+};
+
 const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const router = useRouter();
   const { discordServerId, discordMemberId, customLink } = router.query;
@@ -124,9 +137,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       )}
       {unverifiedSignature && (
         <div className="danger">
-          {unverifiedSignature === "StarknetErrorCode.UNINITIALIZED_CONTRACT"
-            ? "please deploy your wallet on-chain so we can verify your signature"
-            : "your signature could not be verified, please try again"}
+          {getSignatureErrorMessage(unverifiedSignature)}
         </div>
       )}
     </div>
