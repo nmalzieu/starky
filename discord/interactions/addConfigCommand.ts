@@ -175,7 +175,7 @@ export const handleNetworkConfigCommand = async (
       .addOptions(...modulesOptions)
   );
   await interaction.followUp({
-    content: "What Starky module do you want to use (only ERC-721 for now)?",
+    content: "What Starky module do you want to use?",
     components: [row],
     ephemeral: true,
   });
