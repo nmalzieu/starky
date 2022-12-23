@@ -40,11 +40,11 @@ export const shouldHaveRole = async (
 
   const conditions = tryParseJSONObject(starkyModuleConfig.conditionPattern);
   if (conditions && typeof conditions === "object") {
-    let isFulfilled = false;
+    let hasOneOfTheConditions = false;
     ownedAssets.forEach((asset: any) => {
-      let isMatched = true;
-      for (const c of conditions) {
-        const pathElements = c.path.split(".");
+      let conditionMatched = true;
+      for (const condition of conditions) {
+        const pathElements = condition.path.split(".");
         let currentData = asset;
 
         // traverse the asset object to get the value at the specified path
@@ -61,25 +61,25 @@ export const shouldHaveRole = async (
               (attribute) => attribute[pathElements[i]] === pathElements[i + 1]
             );
             currentData = (foundData && foundData.value) || null;
-            if (!currentData) isMatched = false;
+            if (!currentData) conditionMatched = false;
             break;
           } else {
             // path does not exist in the asset object
-            isMatched = false;
+            conditionMatched = false;
             break;
           }
         }
 
         // check if the value at the specified path matches the regex
-        const regex = new RegExp(c.pattern);
+        const regex = new RegExp(condition.pattern);
         if (!regex.test(currentData)) {
-          isMatched = false;
+          conditionMatched = false;
           break;
         }
       }
-      if (isMatched) isFulfilled = true;
+      if (conditionMatched) hasOneOfTheConditions = true;
     });
-    return isFulfilled;
+    return hasOneOfTheConditions;
   } else {
     return false;
   }

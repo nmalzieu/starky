@@ -1,3 +1,5 @@
+import axios from "axios";
+
 type RetrieveAssetsParameters = {
   starknetNetwork: "mainnet" | "goerli";
   contractAddress: string;
@@ -9,15 +11,22 @@ export const retrieveAssets = async ({
   contractAddress,
   ownerAddress,
 }: RetrieveAssetsParameters) => {
+  console.log(
+    `[AspectAPI] Retrieving assets for ${ownerAddress} and contract ${contractAddress} on ${starknetNetwork}...`
+  );
   const network = starknetNetwork === "mainnet" ? "api" : "api-testnet";
-  const url = `https://${network}.aspect.co/api/v0/assets?contract_address=${contractAddress}&owner_address=${ownerAddress}`;
+  let next_url = `https://${network}.aspect.co/api/v0/assets?contract_address=${contractAddress}&owner_address=${ownerAddress}&limit=50`;
+  const assets = [];
 
-  const data = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }).then((res) => res.json());
+  while (next_url) {
+    const { data } = await axios.get(next_url);
+    assets.push(...data.assets);
+    next_url = data.next_url;
+  }
 
-  return data.assets;
+  console.log(
+    `[AspectAPI] Retrieved assets for ${ownerAddress}: ${assets.length}`
+  );
+
+  return assets;
 };
