@@ -67,16 +67,26 @@ export const handleInitialConfigCommand = async (
     return;
   }
 
+  // slice only first 25 roles
   const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
     new SelectMenuBuilder()
       .setCustomId("starky-config-role")
       .setPlaceholder("Role to assign")
-      .addOptions(...options)
+      .addOptions(...options.slice(0, 25))
   );
+
+// slice only next 25 roles
+  const row2 = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+    new SelectMenuBuilder()
+      .setCustomId("starky-config-role")
+      .setPlaceholder("Role to assign")
+      .addOptions(...options.slice(25, 50))
+  );
+
   await interaction.reply({
     content:
       "What role do you want to assign to people matching your criteria?",
-    components: [row],
+    components: [row, row2],
     ephemeral: true,
   });
 };
@@ -102,19 +112,21 @@ export const handleRoleConfigCommand = async (
     return;
   }
 
-  const alreadyDiscordServerConfigForRole =
-    await DiscordServerConfigRepository.findOneBy({
-      discordServerId: interaction.guildId,
-      discordRoleId: selectedRole.id,
-    });
 
-  if (alreadyDiscordServerConfigForRole) {
-    await interaction.update({
-      content: `❌ You already have setup a Starky configuration for the selected role. If you want to setup a new configuration for this role, please first delete the existing one with \`/starky-delete-config\``,
-      components: [],
-    });
-    return;
-  }
+  // The following is removed to allow multiple configurations for the same role
+  // const alreadyDiscordServerConfigForRole =
+  //   await DiscordServerConfigRepository.findOneBy({
+  //     discordServerId: interaction.guildId,
+  //     discordRoleId: selectedRole.id,
+  //   });
+
+  // if (alreadyDiscordServerConfigForRole) {
+  //   await interaction.update({
+  //     content: `❌ You already have setup a Starky configuration for the selected role. If you want to setup a new configuration for this role, please first delete the existing one with \`/starky-delete-config\``,
+  //     components: [],
+  //   });
+  //   return;
+  // }
 
   ongoingConfigurationsCache[interaction.guildId].roleId =
     interaction.values[0];
