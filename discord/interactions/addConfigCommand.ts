@@ -56,8 +56,8 @@ export const handleInitialConfigCommand = async (
     .map((role) => ({
       label: role.name,
       value: role.id,
-    }));
-
+    }))
+    .slice(0, 25);
   if (options.length === 0) {
     await interaction.reply({
       content:
@@ -67,18 +67,23 @@ export const handleInitialConfigCommand = async (
     return;
   }
 
-  const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
-    new SelectMenuBuilder()
-      .setCustomId("starky-config-role")
-      .setPlaceholder("Role to assign")
-      .addOptions(...options)
-  );
-  await interaction.reply({
-    content:
-      "What role do you want to assign to people matching your criteria?",
-    components: [row],
-    ephemeral: true,
-  });
+  try {
+    const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
+      new SelectMenuBuilder()
+        .setCustomId("starky-config-role")
+        .setPlaceholder("Role to assign")
+        .addOptions(...options)
+    );
+    await interaction.reply({
+      content:
+        "What role do you want to assign to people matching your criteria? (showing first 25)",
+      components: [row],
+      ephemeral: true,
+    });
+  } catch (e) {
+    console.log("Error while displaying the list of roles:", e);
+    throw e;
+  }
 };
 
 export const handleRoleConfigCommand = async (
