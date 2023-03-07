@@ -11,9 +11,6 @@ export const retrieveAssets = async ({
   contractAddress,
   ownerAddress,
 }: RetrieveAssetsParameters) => {
-  console.log(
-    `[AspectAPI] Retrieving assets for ${ownerAddress} and contract ${contractAddress} on ${starknetNetwork}...`
-  );
   const network = starknetNetwork === "mainnet" ? "api" : "api-testnet";
   let next_url = `https://${network}.aspect.co/api/v0/assets?contract_address=${contractAddress}&owner_address=${ownerAddress}&limit=50`;
   const assets = [];
@@ -23,10 +20,6 @@ export const retrieveAssets = async ({
     assets.push(...data.assets);
     next_url = data.next_url;
   }
-
-  console.log(
-    `[AspectAPI] Retrieved assets for ${ownerAddress}: ${assets.length}`
-  );
 
   return assets;
 };
