@@ -13,7 +13,8 @@ import { launchBot } from "./discord";
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev, hostname: config.HOST, port: config.PORT });
 const handle = app.getRequestHandler();
-
+// console.log(process.env);
+// process.exit(1);
 const launchServer = async () => {
   // Setup the database
   await setupDb();

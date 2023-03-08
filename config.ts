@@ -22,7 +22,7 @@ const config = {
   NEXT_PUBLIC_DISCORD_CLIENT_ID:
     process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID || "",
   DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN || "",
-  BASE_URL: process.env.BASE_URL || "http://localhost:8080",
+  BASE_URL: process.env.BASE_URL || "https://starky-discord-app.fly.dev",
   DB_HOST,
   DB_PORT,
   DB_USERNAME,

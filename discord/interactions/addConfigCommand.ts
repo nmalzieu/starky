@@ -75,18 +75,18 @@ export const handleInitialConfigCommand = async (
       .addOptions(...options.slice(0, 25))
   );
 
-// slice only next 25 roles
+  // slice only next 25 roles
   const row2 = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
     new SelectMenuBuilder()
       .setCustomId("starky-config-role")
       .setPlaceholder("Role to assign")
-      .addOptions(...options.slice(25, 50))
+      .addOptions(...options.slice(10, 35))
   );
 
   await interaction.reply({
     content:
       "What role do you want to assign to people matching your criteria?",
-    components: [row, row2],
+    components: [row2],
     ephemeral: true,
   });
 };
@@ -111,7 +111,6 @@ export const handleRoleConfigCommand = async (
     });
     return;
   }
-
 
   // The following is removed to allow multiple configurations for the same role
   // const alreadyDiscordServerConfigForRole =

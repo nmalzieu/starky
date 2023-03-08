@@ -35,12 +35,13 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
   const discordConfigs = await DiscordServerConfigRepository.findBy({
     discordServerId: discordServer.id,
   });
-
+  //console.log(discordMembers);
   // Refreshing each member one by one. We could
   // optimize using a pool in parallel.
 
   for (let discordMember of discordMembers) {
     let deleteDiscordMember = !!discordMember.deletedAt;
+    let hasAtLeastOneRole = new Map();
     for (let discordConfig of discordConfigs) {
       const starkyModule = modules[discordConfig.starkyModuleType];
       if (!starkyModule) {
@@ -50,8 +51,27 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
         continue;
       }
       try {
-        await refreshDiscordMember(discordConfig, discordMember, starkyModule);
+        let hasRole = await refreshDiscordMember(
+          discordConfig,
+          discordMember,
+          starkyModule
+        );
+        if (!hasAtLeastOneRole.get(discordConfig.discordRoleId)) {
+          hasAtLeastOneRole.set(discordConfig.discordRoleId, {
+            server: discordConfig.discordServerId,
+            hasRole: [hasRole],
+          });
+        } else {
+          hasAtLeastOneRole.set(discordConfig.discordRoleId, {
+            ...hasAtLeastOneRole.get(discordConfig.discordRoleId),
+            hasRole: [
+              ...hasAtLeastOneRole.get(discordConfig.discordRoleId).hasRole,
+              hasRole,
+            ],
+          });
+        }
       } catch (e: any) {
+        console.log(e);
         if (e?.code === 10007) {
           // This user is no longer a member of this discord server, we should just remove it
           deleteDiscordMember = true;
@@ -64,9 +84,38 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
           );
         }
       }
+      if (deleteDiscordMember) {
+        try {
+          await DiscordMemberRepository.remove(discordMember);
+        } catch (e) {
+          console.error(
+            `Could not delete discord member ${discordMember.discordMemberId} in server ${discordConfig.discordServerId} ${e}`
+          );
+        }
+      }
     }
-    if (deleteDiscordMember) {
-      await DiscordMemberRepository.remove(discordMember);
+
+    //@ts-ignore
+    // for each role and value of the map
+
+    for (let [role, value] of Array.from(hasAtLeastOneRole.entries())) {
+      let hasOneRoleArray = value.hasRole.filter(Boolean);
+
+      if (0 === hasOneRoleArray.length) {
+        await removeRole(
+          restDiscordClient,
+          value.server,
+          discordMember.discordMemberId,
+          role
+        );
+        continue;
+      }
+      await addRole(
+        restDiscordClient,
+        value.server,
+        discordMember.discordMemberId,
+        role
+      );
     }
   }
 };
@@ -91,21 +140,7 @@ export const refreshDiscordMember = async (
           : "goerli",
         discordServerConfig?.starkyModuleConfig
       );
-  if (shouldHaveRole) {
-    await addRole(
-      restDiscordClient,
-      discordServerConfig.discordServerId,
-      discordMember.discordMemberId,
-      discordServerConfig.discordRoleId
-    );
-  } else {
-    await removeRole(
-      restDiscordClient,
-      discordServerConfig.discordServerId,
-      discordMember.discordMemberId,
-      discordServerConfig.discordRoleId
-    );
-  }
+  return shouldHaveRole;
 };
 
 const cronInterval = async () => {
