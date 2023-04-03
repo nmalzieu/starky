@@ -40,15 +40,15 @@ export const setupInteractions = (client: Client) => {
       interaction.commandName === "starky-delete-config";
 
     const isNetworkConfig =
-      interaction.isSelectMenu() &&
+      interaction.isStringSelectMenu() &&
       interaction.customId === "starky-config-network";
 
     const isRoleConfig =
-      interaction.isSelectMenu() &&
+      interaction.isStringSelectMenu() &&
       interaction.customId === "starky-config-role";
 
     const isModuleTypeConfig =
-      interaction.isSelectMenu() &&
+      interaction.isStringSelectMenu() &&
       interaction.customId === "starky-config-module-type";
 
     const isModuleConfig =
@@ -68,7 +68,7 @@ export const setupInteractions = (client: Client) => {
       interaction.commandName === "starky-connect";
 
     const isUserNetworkConfig =
-      interaction.isSelectMenu() &&
+      interaction.isStringSelectMenu() &&
       interaction.customId === "user-config-network";
 
     const isUserDisonnect =
@@ -79,7 +79,7 @@ export const setupInteractions = (client: Client) => {
       interaction.isButton() && interaction.customId === "disconnect-confirm";
 
     const isUserDeleteConfigConfirm =
-      interaction.isSelectMenu() &&
+      interaction.isStringSelectMenu() &&
       interaction.customId === "delete-config-confirm";
 
     if (isUserConnect) {
