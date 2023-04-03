@@ -1,10 +1,10 @@
+import { REST } from "@discordjs/rest";
 import {
   ActionRowBuilder,
   ChatInputCommandInteraction,
   Client,
-  REST,
-  SelectMenuBuilder,
-  SelectMenuInteraction,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
 } from "discord.js";
 
 import { DiscordServerConfigRepository } from "../../db";
@@ -46,8 +46,8 @@ export const handleDeleteConfigCommand = async (
     });
   }
 
-  const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
-    new SelectMenuBuilder()
+  const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+    new StringSelectMenuBuilder()
       .setCustomId("delete-config-confirm")
       .setPlaceholder("Configurations to be deleted ")
       .addOptions(...options)
@@ -60,7 +60,7 @@ export const handleDeleteConfigCommand = async (
 };
 
 export const handleDeleteConfigConfirmCommand = async (
-  interaction: SelectMenuInteraction,
+  interaction: StringSelectMenuInteraction,
   client: Client,
   restClient: REST
 ) => {

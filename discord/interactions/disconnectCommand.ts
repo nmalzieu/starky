@@ -1,3 +1,4 @@
+import { REST } from "@discordjs/rest";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -5,7 +6,6 @@ import {
   ButtonStyle,
   ChatInputCommandInteraction,
   Client,
-  REST,
 } from "discord.js";
 
 import {
@@ -20,7 +20,6 @@ export const handleDisconnectConfirmCommand = async (
   restClient: REST
 ) => {
   const userId = interaction.member?.user?.id;
-  const userRoles = interaction.member?.roles;
   const guildId = interaction.guildId;
   if (!userId || !guildId) return;
   const alreadyDiscordMember = await DiscordMemberRepository.find({
@@ -31,16 +30,13 @@ export const handleDisconnectConfirmCommand = async (
     relations: ["discordServer"],
   });
   if (!alreadyDiscordMember) return;
-
   const serverConfigs = await DiscordServerConfigRepository.find({
     where: {
       discordServerId: guildId,
     },
     relations: ["discordServer"],
   });
-
   await DiscordMemberRepository.softRemove(alreadyDiscordMember);
-
   for (let serverConfig of serverConfigs) {
     removeRole(restClient, guildId, userId, serverConfig.discordRoleId);
   }

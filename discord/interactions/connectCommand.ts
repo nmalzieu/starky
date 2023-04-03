@@ -1,10 +1,10 @@
+import { REST } from "@discordjs/rest";
 import {
   ActionRowBuilder,
   ChatInputCommandInteraction,
   Client,
-  REST,
-  SelectMenuBuilder,
-  SelectMenuInteraction,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
 } from "discord.js";
 import { nanoid } from "nanoid";
 
@@ -124,8 +124,8 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
       return;
     }
   } else {
-    const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
-      new SelectMenuBuilder()
+    const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+      new StringSelectMenuBuilder()
         .setCustomId("user-config-network")
         .setPlaceholder("Starknet Network")
         .addOptions(
@@ -164,7 +164,7 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
 };
 
 export const handleUserNetworkConfigCommand = async (
-  interaction: SelectMenuInteraction,
+  interaction: StringSelectMenuInteraction,
   client: Client,
   restClient: REST
 ) => {

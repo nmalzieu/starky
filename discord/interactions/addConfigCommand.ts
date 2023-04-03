@@ -1,3 +1,4 @@
+import { REST } from "@discordjs/rest";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -8,10 +9,9 @@ import {
   ModalActionRowComponentBuilder,
   ModalBuilder,
   ModalSubmitInteraction,
-  REST,
-  SelectMenuBuilder,
   SelectMenuComponentOptionData,
-  SelectMenuInteraction,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
@@ -68,8 +68,8 @@ export const handleInitialConfigCommand = async (
   }
 
   try {
-    const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
-      new SelectMenuBuilder()
+    const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+      new StringSelectMenuBuilder()
         .setCustomId("starky-config-role")
         .setPlaceholder("Role to assign")
         .addOptions(...options)
@@ -87,7 +87,7 @@ export const handleInitialConfigCommand = async (
 };
 
 export const handleRoleConfigCommand = async (
-  interaction: SelectMenuInteraction,
+  interaction: StringSelectMenuInteraction,
   client: Client,
   restClient: REST
 ) => {
@@ -128,8 +128,8 @@ export const handleRoleConfigCommand = async (
     components: [],
   });
 
-  const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
-    new SelectMenuBuilder()
+  const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+    new StringSelectMenuBuilder()
       .setCustomId("starky-config-network")
       .setPlaceholder("Starknet Network")
       .addOptions(
@@ -154,7 +154,7 @@ export const handleRoleConfigCommand = async (
 };
 
 export const handleNetworkConfigCommand = async (
-  interaction: SelectMenuInteraction,
+  interaction: StringSelectMenuInteraction,
   client: Client,
   restClient: REST
 ) => {
@@ -178,8 +178,8 @@ export const handleNetworkConfigCommand = async (
     });
   }
 
-  const row = new ActionRowBuilder<SelectMenuBuilder>().addComponents(
-    new SelectMenuBuilder()
+  const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+    new StringSelectMenuBuilder()
       .setCustomId("starky-config-module-type")
       .setPlaceholder("Starky module to use")
       .addOptions(...modulesOptions)
@@ -192,7 +192,7 @@ export const handleNetworkConfigCommand = async (
 };
 
 export const finishUpConfiguration = async (
-  interaction: ModalSubmitInteraction | SelectMenuInteraction,
+  interaction: ModalSubmitInteraction | StringSelectMenuInteraction,
   client: Client,
   restClient: REST
 ) => {
@@ -240,7 +240,7 @@ export const finishUpConfiguration = async (
 };
 
 export const handleModuleTypeConfigCommand = async (
-  interaction: SelectMenuInteraction,
+  interaction: StringSelectMenuInteraction,
   client: Client,
   restClient: REST
 ) => {

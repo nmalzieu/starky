@@ -1,4 +1,5 @@
-import { Client, GatewayIntentBits, REST } from "discord.js";
+import { REST } from "@discordjs/rest";
+import { Client, GatewayIntentBits } from "discord.js";
 
 import config from "../config";
 
