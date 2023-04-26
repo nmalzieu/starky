@@ -11,7 +11,7 @@
     "postinstall": "husky install"
   },
   "dependencies": {
-    "@argent/get-starknet": "^4.6.3",
+    "@argent/get-starknet": "^5.3.20",
     "@discordjs/rest": "^1.0.1",
     "axios": "^0.27.2",
     "bn.js": "^5.2.1",
