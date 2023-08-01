@@ -6,20 +6,8 @@ import { DiscordServerConfig } from "./db/entity/DiscordServerConfig";
 import { restDiscordClient } from "./discord/client";
 import { addRole, removeRole } from "./discord/role";
 import { StarkyModule } from "./starkyModules/types";
-import config from "./config";
-import {
-  DiscordMemberRepository,
-  DiscordServerConfigRepository,
-  DiscordServerRepository,
-} from "./db";
+import { DiscordMemberRepository, DiscordServerConfigRepository } from "./db";
 import modules from "./starkyModules";
-
-const refreshDiscordServers = async () => {
-  const discordServers = await DiscordServerRepository.find();
-  for (let discordServer of discordServers) {
-    await refreshDiscordServer(discordServer);
-  }
-};
 
 export const refreshDiscordServer = async (discordServer: DiscordServer) => {
   console.log(`[Cron] Refreshing discord server ${discordServer.id}`);
@@ -107,14 +95,3 @@ export const refreshDiscordMember = async (
     );
   }
 };
-
-const cronInterval = async () => {
-  try {
-    await refreshDiscordServers();
-  } catch (e) {
-    console.error(e);
-  }
-  setTimeout(cronInterval, config.UPDATE_STATUS_EVERY_SECONDS * 1000);
-};
-
-export default cronInterval;

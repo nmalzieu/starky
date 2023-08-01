@@ -1,0 +1,10 @@
+[
+  {
+    "name": "mainnet",
+    "url": "mainnet.starknet.a5a.ch"
+  },
+  {
+    "name": "goerli",
+    "url": "goerli.starknet.a5a.ch"
+  }
+]
