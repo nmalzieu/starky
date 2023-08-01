@@ -107,7 +107,7 @@ export const launchIndexer = async (
         if (blockNumber) {
           if (parseInt(blockNumber) % 50 == 0) {
             writeFileSync(blockFileName, blockNumber);
-            console.log(`[Indexer] ${networkName} Block: ${blockNumber}`);
+            console.log(`[Indexer] ${networkName} block: ${blockNumber}`);
           }
         }
       }
