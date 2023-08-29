@@ -112,21 +112,6 @@ export const handleRoleConfigCommand = async (
     return;
   }
 
-  // The following is removed to allow multiple configurations for the same role
-  // const alreadyDiscordServerConfigForRole =
-  //   await DiscordServerConfigRepository.findOneBy({
-  //     discordServerId: interaction.guildId,
-  //     discordRoleId: selectedRole.id,
-  //   });
-
-  // if (alreadyDiscordServerConfigForRole) {
-  //   await interaction.update({
-  //     content: `❌ You already have setup a Starky configuration for the selected role. If you want to setup a new configuration for this role, please first delete the existing one with \`/starky-delete-config\``,
-  //     components: [],
-  //   });
-  //   return;
-  // }
-
   ongoingConfigurationsCache[interaction.guildId].roleId =
     interaction.values[0];
   await interaction.update({

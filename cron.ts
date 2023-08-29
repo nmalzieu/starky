@@ -35,7 +35,7 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
   const discordConfigs = await DiscordServerConfigRepository.findBy({
     discordServerId: discordServer.id,
   });
-  //console.log(discordMembers);
+
   // Refreshing each member one by one. We could
   // optimize using a pool in parallel.
 
@@ -71,7 +71,6 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
           });
         }
       } catch (e: any) {
-        console.log(e);
         if (e?.code === 10007) {
           // This user is no longer a member of this discord server, we should just remove it
           deleteDiscordMember = true;
