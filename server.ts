@@ -7,6 +7,7 @@ import "reflect-metadata";
 
 import launchIndexers from "./indexer/indexer";
 import config from "./config";
+import launchCron from "./cron";
 import { setupDb } from "./db";
 import { launchBot } from "./discord";
 
@@ -44,6 +45,8 @@ const launchServer = async () => {
     } catch (e) {
       throw new Error(`[Starky Discord Bot Error] ${e}`);
     }
+    // Launch the cron
+    launchCron();
     // Launch the Indexer
     launchIndexers();
   });

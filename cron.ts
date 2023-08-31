@@ -6,10 +6,27 @@ import { DiscordServerConfig } from "./db/entity/DiscordServerConfig";
 import { restDiscordClient } from "./discord/client";
 import { addRole, removeRole } from "./discord/role";
 import { StarkyModule } from "./starkyModules/types";
-import { DiscordMemberRepository, DiscordServerConfigRepository } from "./db";
+import config from "./config";
+import {
+  DiscordMemberRepository,
+  DiscordServerConfigRepository,
+  DiscordServerRepository,
+} from "./db";
 import modules from "./starkyModules";
 
-export const refreshDiscordServer = async (discordServer: DiscordServer) => {
+const refreshDiscordServers = async () => {
+  const discordServers = await DiscordServerRepository.find();
+  for (let discordServer of discordServers) {
+    await refreshDiscordServer(discordServer, {
+      walletDetector: modules.walletDetector,
+    });
+  }
+};
+
+export const refreshDiscordServer = async (
+  discordServer: DiscordServer,
+  targetModules = modules
+) => {
   console.log(`[Cron] Refreshing discord server ${discordServer.id}`);
 
   const discordMembers = await DiscordMemberRepository.find({
@@ -30,13 +47,8 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
   for (let discordMember of discordMembers) {
     let deleteDiscordMember = !!discordMember.deletedAt;
     for (let discordConfig of discordConfigs) {
-      const starkyModule = modules[discordConfig.starkyModuleType];
-      if (!starkyModule) {
-        console.error(
-          `Server configuration ${discordConfig.id} uses module ${discordConfig.starkyModuleType} which does not exist`
-        );
-        continue;
-      }
+      const starkyModule = targetModules[discordConfig.starkyModuleType];
+      if (!starkyModule) continue;
       try {
         await refreshDiscordMember(discordConfig, discordMember, starkyModule);
       } catch (e: any) {
@@ -95,3 +107,14 @@ export const refreshDiscordMember = async (
     );
   }
 };
+
+const cronInterval = async () => {
+  try {
+    await refreshDiscordServers();
+  } catch (e) {
+    console.error(e);
+  }
+  setTimeout(cronInterval, config.UPDATE_STATUS_EVERY_SECONDS * 1000);
+};
+
+export default cronInterval;
