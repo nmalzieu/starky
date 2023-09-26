@@ -8,6 +8,7 @@ let DB_PORT = process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432;
 let DB_USERNAME = process.env.DB_USERNAME || "postgres";
 let DB_PASSWORD = process.env.DB_PASSWORD || "postgres";
 let DB_DATABASE = process.env.DB_DATABASE || "starky";
+let STARKSCAN_API_KEY = process.env.STARKSCAN_API_KEY || "";
 
 if (process.env.DATABASE_URL) {
   const parsedUrl = parseDatabaseUrl(process.env.DATABASE_URL);
@@ -33,6 +34,7 @@ const config = {
     : 5 * 60,
   HOST: process.env.HOST || "localhost",
   PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : 8080,
+  STARKSCAN_API_KEY,
 };
 
 export default config;

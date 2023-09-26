@@ -1,4 +1,4 @@
-import { retrieveAssets } from "../aspect/retrieveAssets";
+import { retrieveAssets } from "../starkscan/retrieveAssets";
 
 import { StarkyModuleConfig, StarkyModuleField } from "./types";
 
