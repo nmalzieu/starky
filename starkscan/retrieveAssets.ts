@@ -25,7 +25,7 @@ export const retrieveAssets = async ({
           "x-api-key": apiKey,
         },
       });
-      assets.push(...data.assets);
+      assets.push(...data.data);
       nextUrl = data.next_url;
     } catch (e) {
       console.log(`Failed to retrieve assets from ${nextUrl} - ${e}`);
