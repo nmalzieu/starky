@@ -21,8 +21,8 @@ export const handleRefreshCommand = async (
   client: Client<boolean>,
   restClient: REST
 ) => {
+  // Check
   if (!interaction.member) return;
-
   const guildId = interaction.guildId;
   const userId = interaction.member?.user?.id;
   if (!guildId || !userId) {
@@ -39,6 +39,8 @@ export const handleRefreshCommand = async (
     });
     return;
   }
+  // Refresh
+  await interaction.deferReply({ ephemeral: true });
   let updated = 0;
   for (let index = 0; index < discordConfigs.length; index++) {
     const discordConfig = discordConfigs[index];
@@ -58,15 +60,14 @@ export const handleRefreshCommand = async (
       );
     }
   }
+  // Reply
   if (!updated) {
-    await interaction.reply({
+    await interaction.editReply({
       content: "You haven't connected your wallet to this server.",
-      ephemeral: true,
     });
     return;
   }
-  await interaction.reply({
+  await interaction.editReply({
     content: `Successfully refreshed your roles`,
-    ephemeral: true,
   });
 };
