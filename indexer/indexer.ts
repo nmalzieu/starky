@@ -16,7 +16,7 @@ require("dotenv").config();
 
 type NetworkName = "mainnet" | "goerli";
 
-const launcherIndexers = async () => {
+const launchIndexers = async () => {
   // Get networks from this path :
   const path = "./indexer/networks.json";
   const file = readFileSync(path);
@@ -29,7 +29,7 @@ const launcherIndexers = async () => {
   }
 };
 
-export default launcherIndexers;
+export default launchIndexers;
 
 export const launchIndexer = async (
   networkName: NetworkName,
@@ -105,6 +105,7 @@ export const launchIndexer = async (
         }
         // Save block number
         if (blockNumber) {
+          console.log(`[Indexer] ${networkName} block: ${blockNumber}`);
           if (parseInt(blockNumber) % 50 == 0) {
             writeFileSync(blockFileName, blockNumber);
             console.log(`[Indexer] ${networkName} block: ${blockNumber}`);
