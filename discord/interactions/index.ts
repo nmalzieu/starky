@@ -10,7 +10,6 @@ import {
   handleModuleConfigCommand,
   handleModuleTypeConfigCommand,
   handleNetworkConfigCommand,
-  handleRoleConfigCommand,
 } from "./addConfigCommand";
 import {
   handleConnectCommand,
@@ -97,8 +96,6 @@ export const setupInteractions = (client: Client) => {
       return handleDeleteConfigCommand(interaction, client, restClient);
     } else if (isNetworkConfig) {
       return handleNetworkConfigCommand(interaction, client, restClient);
-    } else if (isRoleConfig) {
-      return handleRoleConfigCommand(interaction, client, restClient);
     } else if (isModuleTypeConfig) {
       return handleModuleTypeConfigCommand(interaction, client, restClient);
     } else if (isModuleConfig) {
