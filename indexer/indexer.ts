@@ -17,14 +17,20 @@ require("dotenv").config();
 type NetworkName = "mainnet" | "goerli";
 
 const launchIndexers = async () => {
+  console.log("[Indexer] Launching indexers");
   // Get networks from this path :
   const path = "./indexer/networks.json";
   const file = readFileSync(path);
+  if (!file) {
+    throw new Error(`[Indexer] Cannot find file ${path}`);
+  }
   const networks = JSON.parse(file.toString());
+  console.log(`[Indexer] Found ${networks.length} networks`);
   // For each network, launch an indexer
   for (let network of networks) {
     const networkName = network.name;
     const networkUrl = network.url;
+    console.log(`[Indexer] Launching ${networkName} indexer`);
     launchIndexer(networkName, networkUrl);
   }
 };
@@ -69,7 +75,7 @@ export const launchIndexer = async (
     finality: v1alpha2.DataFinality.DATA_STATUS_ACCEPTED,
     cursor,
   });
-  console.log(`[Indexer] Starting stream - ${networkName}`);
+  console.log(`[Indexer] Starting stream for ${networkName}`);
   for await (const message of client) {
     if (message.data?.data) {
       for (let item of message.data.data) {
