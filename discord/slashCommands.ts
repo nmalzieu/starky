@@ -19,7 +19,15 @@ export const registerSlashCommands = async () => {
       ),
     new SlashCommandBuilder()
       .setName("starky-add-config")
-      .setDescription("Add a starky configuration to this server"),
+      .setDescription("Add a starky configuration to this server")
+      .addRoleOption((option) =>
+        option
+          .setName("role")
+          .setDescription(
+            "What role do you want to assign to people matching your criteria?"
+          )
+          .setRequired(true)
+      ),
     new SlashCommandBuilder()
       .setName("starky-delete-config")
       .setDescription("Delete a Starky configuration from this server"),

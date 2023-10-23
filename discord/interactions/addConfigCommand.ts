@@ -48,61 +48,18 @@ export const handleInitialConfigCommand = async (
   await assertAdmin(interaction);
   if (!interaction.guildId) return;
   ongoingConfigurationsCache[interaction.guildId] = {};
-
-  const roles = await getRoles(restClient, interaction.guildId);
-  // Showing roles, excluding everyone and the bot's role
-  const options = roles
-    .filter((role) => role.name !== "@everyone" && !isBotRole(role))
-    .map((role) => ({
-      label: role.name,
-      value: role.id,
-    }))
-    .slice(0, 25);
-  if (options.length === 0) {
-    await interaction.reply({
-      content:
-        "There are no roles setup on this Discord server. Please create a role first.",
-      ephemeral: true,
-    });
-    return;
-  }
-
-  try {
-    const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId("starky-config-role")
-        .setPlaceholder("Role to assign")
-        .addOptions(...options)
-    );
-    await interaction.reply({
-      content:
-        "What role do you want to assign to people matching your criteria? (showing first 25)",
-      components: [row],
-      ephemeral: true,
-    });
-  } catch (e) {
-    console.log("Error while displaying the list of roles:", e);
-    throw e;
-  }
-};
-
-export const handleRoleConfigCommand = async (
-  interaction: StringSelectMenuInteraction,
-  client: Client,
-  restClient: REST
-) => {
-  await assertAdmin(interaction);
-  if (!interaction.guildId) return;
+  // Get role from options
+  const selectedRole = interaction.options.getRole("role");
   const roles = await getRoles(restClient, interaction.guildId);
   const botRole = roles.find((role) => isBotRole(role));
-  const selectedRole = roles.find((role) => role.id === interaction.values[0]);
 
   if (!botRole || !selectedRole) return;
   // Bot role position must be bigger (= higher on the list) than the selected role so we can assign
   if (botRole.position <= selectedRole.position) {
-    await interaction.update({
+    await interaction.reply({
       content: `❌ You have selected a role that the bot cannot control. Please place the role \`${botRole.name}\` above the role \`${selectedRole.name}\` in Server Settings > Roles and try again.`,
       components: [],
+      ephemeral: true,
     });
     return;
   }
@@ -114,18 +71,19 @@ export const handleRoleConfigCommand = async (
     });
 
   if (alreadyDiscordServerConfigForRole) {
-    await interaction.update({
+    await interaction.reply({
       content: `❌ You already have setup a Starky configuration for the selected role. If you want to setup a new configuration for this role, please first delete the existing one with \`/starky-delete-config\``,
       components: [],
+      ephemeral: true,
     });
     return;
   }
 
-  ongoingConfigurationsCache[interaction.guildId].roleId =
-    interaction.values[0];
-  await interaction.update({
+  ongoingConfigurationsCache[interaction.guildId].roleId = selectedRole.id;
+  await interaction.reply({
     content: "Thanks, following up...",
     components: [],
+    ephemeral: true,
   });
 
   const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -146,10 +104,9 @@ export const handleRoleConfigCommand = async (
       )
   );
 
-  await interaction.followUp({
+  await interaction.editReply({
     content: "On what Starknet network do you want to set up Starky?",
     components: [row],
-    ephemeral: true,
   });
 };
 
