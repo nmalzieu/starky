@@ -12,23 +12,18 @@ import { refreshDiscordMember } from "../cron";
 import { DiscordMemberRepository, DiscordServerConfigRepository } from "../db";
 import modules from "../starkyModules";
 
+import networks from "./networks.json";
+
 require("dotenv").config();
 
 type NetworkName = "mainnet" | "goerli";
 
 const launchIndexers = async () => {
   console.log("[Indexer] Launching indexers");
-  // Get networks from this path :
-  const path = "./indexer/networks.json";
-  const file = readFileSync(path);
-  if (!file) {
-    throw new Error(`[Indexer] Cannot find file ${path}`);
-  }
-  const networks = JSON.parse(file.toString());
   console.log(`[Indexer] Found ${networks.length} networks`);
   // For each network, launch an indexer
   for (let network of networks) {
-    const networkName = network.name;
+    const networkName = network.name as NetworkName;
     const networkUrl = network.url;
     console.log(`[Indexer] Launching ${networkName} indexer`);
     launchIndexer(networkName, networkUrl);
