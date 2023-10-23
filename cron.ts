@@ -17,11 +17,16 @@ import modules from "./starkyModules";
 const refreshDiscordServers = async () => {
   const discordServers = await DiscordServerRepository.find();
   for (let discordServer of discordServers) {
-    await refreshDiscordServer(discordServer);
+    await refreshDiscordServer(discordServer, {
+      walletDetector: modules.walletDetector,
+    });
   }
 };
 
-export const refreshDiscordServer = async (discordServer: DiscordServer) => {
+export const refreshDiscordServer = async (
+  discordServer: DiscordServer,
+  targetModules = modules
+) => {
   console.log(`[Cron] Refreshing discord server ${discordServer.id}`);
 
   const discordMembers = await DiscordMemberRepository.find({
@@ -42,13 +47,8 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
   for (let discordMember of discordMembers) {
     let deleteDiscordMember = !!discordMember.deletedAt;
     for (let discordConfig of discordConfigs) {
-      const starkyModule = modules[discordConfig.starkyModuleType];
-      if (!starkyModule) {
-        console.error(
-          `Server configuration ${discordConfig.id} uses module ${discordConfig.starkyModuleType} which does not exist`
-        );
-        continue;
-      }
+      const starkyModule = targetModules[discordConfig.starkyModuleType];
+      if (!starkyModule) continue;
       try {
         await refreshDiscordMember(discordConfig, discordMember, starkyModule);
       } catch (e: any) {

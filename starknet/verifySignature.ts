@@ -17,7 +17,7 @@ export const verifySignature = async (
     const result = await callContract({
       starknetNetwork: starknetNetwork === "mainnet" ? "mainnet" : "goerli",
       contractAddress: accountAddress,
-      entrypoint: "is_valid_signature",
+      entrypoint: "isValidSignature",
       calldata: [hexHash, `${signature.length}`, ...signature],
     });
 

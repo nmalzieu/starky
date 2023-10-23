@@ -24,6 +24,7 @@ import {
   handleDisconnectCommand,
   handleDisconnectConfirmCommand,
 } from "./disconnectCommand";
+import { handleRefreshCommand } from "./refreshCommand";
 
 export const restClient = new REST({ version: "10" }).setToken(
   config.DISCORD_BOT_TOKEN
@@ -82,6 +83,10 @@ export const setupInteractions = (client: Client) => {
       interaction.isStringSelectMenu() &&
       interaction.customId === "delete-config-confirm";
 
+    const isRefreshCommand =
+      interaction.isChatInputCommand() &&
+      interaction.commandName === "starky-refresh";
+
     if (isUserConnect) {
       return handleConnectCommand(interaction, client, restClient);
     } else if (isUserNetworkConfig) {
@@ -108,6 +113,8 @@ export const setupInteractions = (client: Client) => {
       return handleDisconnectConfirmCommand(interaction, client, restClient);
     } else if (isUserDeleteConfigConfirm) {
       return handleDeleteConfigConfirmCommand(interaction, client, restClient);
+    } else if (isRefreshCommand) {
+      return handleRefreshCommand(interaction, client, restClient);
     }
   });
 

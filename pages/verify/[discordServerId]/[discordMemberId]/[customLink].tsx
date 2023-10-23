@@ -57,7 +57,8 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       return;
     }
     await strk.enable();
-    const chainId = strk.provider.chainId;
+    const chainId =
+      (strk.account as any).provider.chainId || strk.provider.chainId;
     if (chainId !== chainIdByNetwork[starknetNetwork]) {
       setWrongStarknetNetwork(true);
     } else {
@@ -100,7 +101,6 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
 
   const sign = useCallback(async () => {
     if (!starknet?.isConnected) return;
-
     try {
       const signature = await starknet.account.signMessage(messageToSign);
       await verifySignature(signature);

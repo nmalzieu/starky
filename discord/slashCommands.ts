@@ -23,6 +23,9 @@ export const registerSlashCommands = async () => {
     new SlashCommandBuilder()
       .setName("starky-delete-config")
       .setDescription("Delete a Starky configuration from this server"),
+    new SlashCommandBuilder()
+      .setName("starky-refresh")
+      .setDescription("Refresh your Starky roles on this server"),
   ].map((command) => command.toJSON());
   console.log("> Registering Discord slash commands...");
   await restDiscordClient.put(

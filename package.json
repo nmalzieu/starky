@@ -11,6 +11,8 @@
     "postinstall": "husky install"
   },
   "dependencies": {
+    "@apibara/protocol": "^0.4.8",
+    "@apibara/starknet": "^0.3.0",
     "@argent/get-starknet": "^4.6.3",
     "@discordjs/rest": "^1.0.1",
     "axios": "^0.27.2",

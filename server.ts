@@ -5,6 +5,7 @@ import { parse } from "url";
 
 import "reflect-metadata";
 
+import launchIndexers from "./indexer/indexer";
 import config from "./config";
 import launchCron from "./cron";
 import { setupDb } from "./db";
@@ -46,6 +47,8 @@ const launchServer = async () => {
     }
     // Launch the cron
     launchCron();
+    // Launch the Indexer
+    launchIndexers();
   });
 };
 
