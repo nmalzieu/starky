@@ -1,5 +1,4 @@
-import { Provider, RawCalldata } from "starknet";
-import { BigNumberish, toBN } from "starknet/utils/number";
+import { number, Provider, RawCalldata } from "starknet";
 
 type CallContractParameters = {
   starknetNetwork: "mainnet" | "goerli";
@@ -8,9 +7,9 @@ type CallContractParameters = {
   calldata?: any[];
 };
 
-const getRawCallData = (d: any): BigNumberish => {
+const getRawCallData = (d: any): number.BigNumberish => {
   if ((typeof d === "string" || d instanceof String) && d.startsWith("0x")) {
-    return toBN(d.slice(2), "hex").toString();
+    return number.toBN(d.slice(2), "hex").toString();
   } else if (!isNaN(d)) {
     return `${d}`;
   }
@@ -24,8 +23,11 @@ export const callContract = async ({
   calldata,
 }: CallContractParameters) => {
   const provider = new Provider({
-    network: starknetNetwork === "mainnet" ? "mainnet-alpha" : "goerli-alpha",
+    sequencer: {
+      network: starknetNetwork === "mainnet" ? "mainnet-alpha" : "goerli-alpha",
+    },
   });
+
   const rawCalldata: RawCalldata = [];
   calldata?.forEach((d) => rawCalldata.push(getRawCallData(d)));
   const response = await provider.callContract({

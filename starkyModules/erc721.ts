@@ -1,4 +1,4 @@
-import { uint256ToBN } from "starknet/dist/utils/uint256";
+import { uint256 } from "starknet";
 
 import { callContract } from "../starknet/call";
 
@@ -24,7 +24,8 @@ export const shouldHaveRole = async (
     entrypoint: "balanceOf",
     calldata: [starknetWalletAddress],
   });
-  const balance = uint256ToBN({ low: result[0], high: result[1] });
+  const balance = uint256.uint256ToBN({ low: result[0], high: result[1] });
+  console.log(balance);
   if (balance >= 1) {
     return true;
   }

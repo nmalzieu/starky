@@ -51,16 +51,21 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const [unverifiedSignature, setUnverifiedSignature] = useState("");
 
   const connectToStarknet = useCallback(async () => {
+    console.log("connecting to starknet...");
     const strk = await starknetConnect();
+    console.log("connected !");
     if (!strk) {
       setNotStarknetWallet(true);
       return;
     }
     await strk.enable();
+    console.log("enabled !");
     const chainId = strk.provider.chainId;
     if (chainId !== chainIdByNetwork[starknetNetwork]) {
+      console.log("wrong network");
       setWrongStarknetNetwork(true);
     } else {
+      console.log("good network");
       setStarknet(strk);
     }
   }, [starknetNetwork]);
@@ -102,7 +107,9 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
     if (!starknet?.isConnected) return;
 
     try {
+      console.log("signing message...");
       const signature = await starknet.account.signMessage(messageToSign);
+      console.log("message signed !", { signature });
       await verifySignature(signature);
     } catch (e) {
       console.log(e);
