@@ -5,11 +5,14 @@ import {
   StarkNetCursor,
   v1alpha2 as starknet,
 } from "@apibara/starknet";
-import { existsSync, readFileSync, writeFileSync } from "fs";
 import { hash } from "starknet";
 
 import { refreshDiscordMember } from "../cron";
-import { DiscordMemberRepository, DiscordServerConfigRepository } from "../db";
+import {
+  DiscordMemberRepository,
+  DiscordServerConfigRepository,
+  NetworkStatusRepository,
+} from "../db";
 import modules from "../starkyModules";
 
 import networks from "./networks.json";
@@ -54,15 +57,24 @@ export const launchIndexer = async (
     .encode();
 
   // Read block number from file
-  const blockFileName = `blockNumber-${networkName}.txt`;
-  const blockNumber = parseInt(
-    existsSync(blockFileName)
-      ? readFileSync(blockFileName).toString()
-      : process.env[
+  const networkStatusExists = await NetworkStatusRepository.findOneBy({
+    network: networkName,
+  });
+  if (!networkStatusExists) {
+    NetworkStatusRepository.save({
+      network: networkName,
+      lastBlockNumber: parseInt(
+        process.env[
           `APIBARA_DEFAULT_BLOCK_NUMBER_${networkName.toUpperCase()}`
         ] || "0"
-  );
-  const cursor = StarkNetCursor.createWithBlockNumber(blockNumber);
+      ),
+    });
+  }
+  const { lastBlockNumber } = (await NetworkStatusRepository.findOneBy({
+    network: networkName,
+  })) || { lastBlockNumber: 0 };
+
+  const cursor = StarkNetCursor.createWithBlockNumber(lastBlockNumber);
 
   client.configure({
     filter,
@@ -106,9 +118,11 @@ export const launchIndexer = async (
         }
         // Save block number
         if (blockNumber) {
-          console.log(`[Indexer] ${networkName} block: ${blockNumber}`);
           if (parseInt(blockNumber) % 50 == 0) {
-            writeFileSync(blockFileName, blockNumber);
+            NetworkStatusRepository.save({
+              network: networkName,
+              lastBlockNumber: parseInt(blockNumber),
+            });
             console.log(`[Indexer] ${networkName} block: ${blockNumber}`);
           }
         }
