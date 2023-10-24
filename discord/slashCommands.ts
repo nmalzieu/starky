@@ -34,6 +34,15 @@ export const registerSlashCommands = async () => {
     new SlashCommandBuilder()
       .setName("starky-refresh")
       .setDescription("Refresh your Starky roles on this server"),
+    new SlashCommandBuilder()
+      .setName("starky-view-config")
+      .setDescription("View your Starky configurations on this server")
+      .addRoleOption((option) =>
+        option
+          .setName("role")
+          .setDescription("The role of the configuration you want to check.")
+          .setRequired(true)
+      ),
   ].map((command) => command.toJSON());
   console.log("> Registering Discord slash commands...");
   await restDiscordClient.put(

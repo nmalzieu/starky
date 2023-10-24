@@ -24,6 +24,7 @@ import {
   handleDisconnectConfirmCommand,
 } from "./disconnectCommand";
 import { handleRefreshCommand } from "./refreshCommand";
+import { handleViewConfigCommand } from "./viewConfig";
 
 export const restClient = new REST({ version: "10" }).setToken(
   config.DISCORD_BOT_TOKEN
@@ -42,10 +43,6 @@ export const setupInteractions = (client: Client) => {
     const isNetworkConfig =
       interaction.isStringSelectMenu() &&
       interaction.customId === "starky-config-network";
-
-    const isRoleConfig =
-      interaction.isStringSelectMenu() &&
-      interaction.customId === "starky-config-role";
 
     const isModuleTypeConfig =
       interaction.isStringSelectMenu() &&
@@ -86,6 +83,10 @@ export const setupInteractions = (client: Client) => {
       interaction.isChatInputCommand() &&
       interaction.commandName === "starky-refresh";
 
+    const isViewConfigCommand =
+      interaction.isChatInputCommand() &&
+      interaction.commandName === "starky-view-config";
+
     if (isUserConnect) {
       return handleConnectCommand(interaction, client, restClient);
     } else if (isUserNetworkConfig) {
@@ -112,6 +113,8 @@ export const setupInteractions = (client: Client) => {
       return handleDeleteConfigConfirmCommand(interaction, client, restClient);
     } else if (isRefreshCommand) {
       return handleRefreshCommand(interaction, client, restClient);
+    } else if (isViewConfigCommand) {
+      return handleViewConfigCommand(interaction, client, restClient);
     }
   });
 
