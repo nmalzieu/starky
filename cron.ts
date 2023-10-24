@@ -16,6 +16,7 @@ import modules from "./starkyModules";
 
 const refreshDiscordServers = async () => {
   const discordServers = await DiscordServerRepository.find();
+  console.log(`[Cron] Refreshing ${discordServers.length} discord servers`);
   for (let discordServer of discordServers) {
     await refreshDiscordServer(discordServer, {
       walletDetector: modules.walletDetector,
@@ -27,8 +28,6 @@ export const refreshDiscordServer = async (
   discordServer: DiscordServer,
   targetModules = modules
 ) => {
-  console.log(`[Cron] Refreshing discord server ${discordServer.id}`);
-
   const discordMembers = await DiscordMemberRepository.find({
     where: {
       discordServerId: discordServer.id,
