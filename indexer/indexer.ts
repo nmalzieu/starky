@@ -107,7 +107,7 @@ const launchIndexer = async (networkName: NetworkName, networkUrl: string) => {
           membersToRefresh.length
         } members on ${networkName}. Processing blocks from ${
           lastBlockNumber - chunkSize
-        } to ${lastBlockNumber}. ${chunksToRefresh.length - 1} chunks in queue.`
+        } to ${lastBlockNumber}.`
       );
       for (let member of membersToRefresh) {
         const discordConfigs = await DiscordServerConfigRepository.findBy({
@@ -165,12 +165,14 @@ const launchIndexer = async (networkName: NetworkName, networkUrl: string) => {
         // Save block number
         if (blockNumber) {
           if (parseInt(blockNumber) % chunkSize == 0) {
-            console.log(`[Indexer] ${networkName} block: ${blockNumber}.`);
             chunksToRefresh.push(chunk);
             chunk = {
               lastBlockNumber: parseInt(blockNumber),
               discordMembers: [],
             };
+            console.log(
+              `[Indexer] ${networkName} block: ${blockNumber}. ${chunksToRefresh.length} chunks in queue.`
+            );
           }
         }
       }
