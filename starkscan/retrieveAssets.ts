@@ -27,10 +27,7 @@ export const retrieveAssets = async ({
       });
       assets.push(...data.data);
       nextUrl = data.next_url;
-    } catch (e) {
-      console.log(`Failed to retrieve assets from ${nextUrl} - ${e}`);
-      break;
-    }
+    } catch (e) {}
   }
 
   return assets;
