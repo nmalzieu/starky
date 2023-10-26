@@ -41,9 +41,12 @@ const refreshMembers: () => void = async () => {
     const networkName = chunk.networkName;
     // Refresh
     // Remove duplicates
-    let membersToRefresh = chunk.discordMembers.filter(
-      (member, index, self) =>
-        index === self.findIndex((m) => m.id === member.id)
+    let membersToRefresh = chunk.discordMembers;
+    membersToRefresh = membersToRefresh.filter(
+      (v, i, a) =>
+        a.findIndex(
+          (t) => t.id === v.id && t.discordServerId === v.discordServerId
+        ) === i
     );
     console.log(
       `[Indexer] Refreshing ${
