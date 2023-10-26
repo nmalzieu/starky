@@ -28,6 +28,7 @@ export const retrieveAssets = async ({
       assets.push(...data.data);
       nextUrl = data.next_url;
     } catch (e) {
+      console.error(e);
       break;
     }
   }
