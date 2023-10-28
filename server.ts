@@ -6,6 +6,7 @@ import { parse } from "url";
 import "reflect-metadata";
 
 import launchIndexers from "./indexer/indexer";
+import { cleanStacks } from "./utils/execWithRateLimit";
 import config from "./config";
 import launchCron from "./cron";
 import { setupDb } from "./db";
@@ -45,6 +46,8 @@ const launchServer = async () => {
     } catch (e) {
       throw new Error(`[Starky Discord Bot Error] ${e}`);
     }
+    // Launch rate limit cleaner
+    cleanStacks();
     // Launch the cron
     launchCron();
     // Launch the Indexer

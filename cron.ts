@@ -67,12 +67,16 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
     });
     for (let discordConfig of discordConfigs) {
       const starkyModule = modules[discordConfig.starkyModuleType];
-      if (starkyModule.refreshOnTransfer && toRefresh) {
-        await refreshDiscordMember(discordConfig, discordMember, starkyModule);
-        refreshedFromTransfer++;
-      }
-      if (!starkyModule || !starkyModule.refreshInCron) continue;
       try {
+        if (starkyModule.refreshOnTransfer && toRefresh) {
+          await refreshDiscordMember(
+            discordConfig,
+            discordMember,
+            starkyModule
+          );
+          refreshedFromTransfer++;
+        }
+        if (!starkyModule || !starkyModule.refreshInCron) continue;
         await refreshDiscordMember(discordConfig, discordMember, starkyModule);
       } catch (e: any) {
         if (e?.code === 10007) {
@@ -134,6 +138,7 @@ const cronInterval = async () => {
   try {
     await refreshDiscordServers();
   } catch (e) {
+    console.log("[Cron] Error while refreshing discord servers");
     console.error(e);
   }
   setTimeout(cronInterval, config.UPDATE_STATUS_EVERY_SECONDS * 1000);
