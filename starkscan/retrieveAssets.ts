@@ -1,6 +1,7 @@
 import axios from "axios";
 
 import config from "../config";
+import { execWithRateLimit } from "../utils/execWithRateLimit";
 
 type RetrieveAssetsParameters = {
   starknetNetwork: "mainnet" | "goerli";
@@ -19,11 +20,16 @@ export const retrieveAssets = async ({
   const assets = [];
   while (nextUrl) {
     try {
-      const { data } = await axios.get(nextUrl, {
-        headers: {
-          "x-api-key": apiKey,
-        },
-      });
+      const { data } = await execWithRateLimit(
+        async () =>
+          await axios.get(nextUrl, {
+            headers: {
+              "x-api-key": apiKey,
+            },
+          }),
+        "starkscan"
+      );
+
       assets.push(...data.data);
       nextUrl = data.next_url;
     } catch (e) {

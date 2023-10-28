@@ -7,10 +7,9 @@ import {
 } from "@apibara/starknet";
 import { hash } from "starknet";
 
+import networks from "../configs/networks.json";
 import { AddressToRefreshRepository, NetworkStatusRepository } from "../db";
 import { DiscordMember } from "../db/entity/DiscordMember";
-
-import networks from "./networks.json";
 
 require("dotenv").config();
 
