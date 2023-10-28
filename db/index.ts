@@ -1,3 +1,4 @@
+import { AddressToRefresh } from "./entity/AddressToRefresh";
 import { DiscordMember } from "./entity/DiscordMember";
 import { DiscordServer } from "./entity/DiscordServer";
 import { DiscordServerConfig } from "./entity/DiscordServerConfig";
@@ -24,3 +25,6 @@ export const DiscordMemberRepository =
 
 export const NetworkStatusRepository =
   AppDataSource.getRepository(NetworkStatus);
+
+export const AddressToRefreshRepository =
+  AppDataSource.getRepository(AddressToRefresh);

@@ -3,6 +3,8 @@ import { callContract } from "../starknet/call";
 import { StarkyModuleConfig, StarkyModuleField } from "./types";
 
 export const name = "Wallet detector (Argent only)";
+export const refreshInCron = true;
+export const refreshOnTransfer = false;
 
 // TODO => add field to ask for Argent or Braavos
 // we need to be able to validate config first

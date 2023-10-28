@@ -2,9 +2,11 @@ import { uint256ToBN } from "starknet/dist/utils/uint256";
 
 import { callContract } from "../starknet/call";
 
-import { StarkyModuleConfig, StarkyModuleField } from "./types";
+import { ShouldHaveRole, StarkyModuleField } from "./types";
 
 export const name = "ERC-721";
+export const refreshInCron = false;
+export const refreshOnTransfer = true;
 
 export const fields: StarkyModuleField[] = [
   {
@@ -13,11 +15,11 @@ export const fields: StarkyModuleField[] = [
   },
 ];
 
-export const shouldHaveRole = async (
-  starknetWalletAddress: string,
-  starknetNetwork: "mainnet" | "goerli",
-  starkyModuleConfig: StarkyModuleConfig
-): Promise<boolean> => {
+export const shouldHaveRole: ShouldHaveRole = async (
+  starknetWalletAddress,
+  starknetNetwork,
+  starkyModuleConfig
+) => {
   const result = await callContract({
     starknetNetwork,
     contractAddress: starkyModuleConfig.contractAddress,
@@ -25,8 +27,6 @@ export const shouldHaveRole = async (
     calldata: [starknetWalletAddress],
   });
   const balance = uint256ToBN({ low: result[0], high: result[1] });
-  if (balance >= 1) {
-    return true;
-  }
+  if (balance >= 1) return true;
   return false;
 };

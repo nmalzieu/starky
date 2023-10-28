@@ -7,14 +7,8 @@ import {
 } from "@apibara/starknet";
 import { hash } from "starknet";
 
-import { refreshDiscordMember } from "../cron";
-import {
-  DiscordMemberRepository,
-  DiscordServerConfigRepository,
-  NetworkStatusRepository,
-} from "../db";
+import { AddressToRefreshRepository, NetworkStatusRepository } from "../db";
 import { DiscordMember } from "../db/entity/DiscordMember";
-import modules from "../starkyModules";
 
 import networks from "./networks.json";
 
@@ -22,65 +16,10 @@ require("dotenv").config();
 
 type NetworkName = "mainnet" | "goerli";
 
-type MemberChunk = {
+export type MemberChunk = {
   lastBlockNumber: number;
   networkName: NetworkName;
   discordMembers: DiscordMember[];
-};
-
-const chunkSize = 1;
-const chunksToRefresh: MemberChunk[] = [];
-const refreshMembers: () => void = async () => {
-  try {
-    const chunk = chunksToRefresh[0];
-    if (!chunk) {
-      setTimeout(refreshMembers, 5000);
-      return;
-    }
-    const lastBlockNumber = chunk.lastBlockNumber;
-    const networkName = chunk.networkName;
-    // Refresh
-    // Remove duplicates
-    let membersToRefresh = chunk.discordMembers;
-    membersToRefresh = membersToRefresh.filter(
-      (v, i, a) =>
-        a.findIndex(
-          (t) => t.id === v.id && t.discordServerId === v.discordServerId
-        ) === i
-    );
-    console.log(
-      `[Indexer] Refreshing ${
-        membersToRefresh.length
-      } members on ${networkName}. Processing blocks from ${
-        lastBlockNumber - chunkSize + 1
-      } to ${lastBlockNumber}.`
-    );
-    for (let member of membersToRefresh) {
-      const discordConfigs = await DiscordServerConfigRepository.findBy({
-        discordServerId: member.discordServerId,
-        starknetNetwork: networkName,
-      });
-      for (let discordConfig of discordConfigs) {
-        await refreshDiscordMember(
-          discordConfig,
-          member,
-          modules[discordConfig.starkyModuleType]
-        ).catch((e) => {});
-      }
-    }
-    chunksToRefresh.shift();
-    console.log(
-      `[Indexer] Saved block number ${lastBlockNumber} for ${networkName}`
-    );
-    // Save progress in db
-    await NetworkStatusRepository.update(
-      { network: networkName },
-      { lastBlockNumber: lastBlockNumber }
-    );
-    refreshMembers();
-  } catch (e) {
-    console.log(`[Indexer] Error in queue`, e);
-  }
 };
 
 const launchIndexers = () => {
@@ -93,7 +32,6 @@ const launchIndexers = () => {
     console.log(`[Indexer] Launching ${networkName} indexer`);
     launchIndexer(networkName, networkUrl);
   }
-  refreshMembers();
 };
 
 export default launchIndexers;
@@ -108,11 +46,13 @@ const launchIndexer = async (networkName: NetworkName, networkUrl: string) => {
     token: AUTH_TOKEN,
   });
 
-  const keys = [FieldElement.fromBigInt(hash.getSelectorFromName("Transfer"))];
+  const transferKey = [
+    FieldElement.fromBigInt(hash.getSelectorFromName("Transfer")),
+  ];
 
   const filter = Filter.create()
     .withHeader({ weak: true })
-    .addEvent((ev) => ev.withKeys(keys))
+    .addEvent((ev) => ev.withKeys(transferKey))
     .encode();
 
   // Read block number from file
@@ -145,11 +85,7 @@ const launchIndexer = async (networkName: NetworkName, networkUrl: string) => {
   });
   console.log(`[Indexer] Starting stream for ${networkName}`);
 
-  let chunk: MemberChunk = {
-    lastBlockNumber: lastBlockNumber,
-    discordMembers: [],
-    networkName: networkName,
-  };
+  let transferEventsCount = 0;
   for await (const message of client) {
     if (message.data?.data) {
       for (let item of message.data.data) {
@@ -159,40 +95,55 @@ const launchIndexer = async (networkName: NetworkName, networkUrl: string) => {
         // Transfer events
         for (let e of block.events) {
           const event = e.event;
-          if (event?.data) {
-            // Transfer event
-            if (event.data[0]) {
-              const from = FieldElement.toBigInt(event.data[0]);
-              const to = FieldElement.toBigInt(event.data[1]);
-              const fromMembers = await findUsers(from, networkName);
-              const toMembers = await findUsers(to, networkName);
-              chunk.discordMembers.push(...fromMembers, ...toMembers);
+          const receipt = e.receipt;
+          const txHash = receipt?.transactionHash;
+          const tx = e.transaction;
+          if (event?.data && txHash && (tx?.invokeV0 || tx?.invokeV1)) {
+            // Transfer event from invoke transaction
+            if (event.data[0] && event.data[1]) {
+              const from = convertToStringAddress(event.data[0]);
+              const to = convertToStringAddress(event.data[1]);
+              const zeroAddress = "0x0";
+              // Save addresses to refresh
+              if (from !== zeroAddress)
+                await InsertAddressIfNotInDB(networkName, from);
+              if (to !== zeroAddress)
+                await InsertAddressIfNotInDB(networkName, to);
+              transferEventsCount++;
             }
           }
         }
         // Save block number
         if (blockNumber) {
-          if (parseInt(blockNumber) % chunkSize == 0) {
-            chunksToRefresh.push(chunk);
-            chunk = {
-              lastBlockNumber: parseInt(blockNumber),
-              discordMembers: [],
-              networkName: networkName,
-            };
-            console.log(
-              `[Indexer] ${networkName} block: ${blockNumber}. ${chunksToRefresh.length} chunks in queue.`
-            );
-          }
+          console.log(
+            `[Indexer] Saving block number ${blockNumber} for ${networkName}. ${transferEventsCount} transfer events found`
+          );
+          await NetworkStatusRepository.save({
+            network: networkName,
+            lastBlockNumber: parseInt(blockNumber),
+          });
         }
       }
     }
   }
 };
 
-const findUsers = async (address: bigint, networkName: NetworkName) =>
-  await DiscordMemberRepository.find({
-    where: {
-      starknetWalletAddress: "0x" + address.toString(16),
-      starknetNetwork: networkName,
-    },
+const InsertAddressIfNotInDB = async (
+  networkName: NetworkName,
+  walletAddress: string
+) => {
+  const exists = await AddressToRefreshRepository.findOneBy({
+    network: networkName,
+    walletAddress,
   });
+  if (!exists) {
+    await AddressToRefreshRepository.insert({
+      network: networkName,
+      walletAddress,
+    });
+  }
+};
+
+const convertToStringAddress = (address: starknet.IFieldElement) => {
+  return "0x" + FieldElement.toBigInt(address).toString(16);
+};
