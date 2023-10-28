@@ -1,4 +1,4 @@
-import { IsNull, Not } from "typeorm";
+import { IsNull, LessThanOrEqual, Not } from "typeorm";
 
 import { DiscordMember } from "./db/entity/DiscordMember";
 import { DiscordServer } from "./db/entity/DiscordServer";
@@ -8,6 +8,7 @@ import { addRole, removeRole } from "./discord/role";
 import { StarkyModule } from "./starkyModules/types";
 import config from "./config";
 import {
+  AddressToRefreshRepository,
   DiscordMemberRepository,
   DiscordServerConfigRepository,
   DiscordServerRepository,
@@ -17,17 +18,28 @@ import modules from "./starkyModules";
 const refreshDiscordServers = async () => {
   const discordServers = await DiscordServerRepository.find();
   console.log(`[Cron] Refreshing ${discordServers.length} discord servers`);
+  let refreshedFromTransfer = 0;
+  // Get last userToRefresh id
+  const lastUserToRefresh = await AddressToRefreshRepository.findOne({
+    where: {},
+    order: {
+      id: "DESC",
+    },
+  });
+  const lastUserToRefreshId = lastUserToRefresh?.id || 0;
   for (let discordServer of discordServers) {
-    await refreshDiscordServer(discordServer, {
-      walletDetector: modules.walletDetector,
-    });
+    refreshedFromTransfer += await refreshDiscordServer(discordServer);
   }
+  // Clear users to refresh
+  await AddressToRefreshRepository.delete({
+    id: LessThanOrEqual(lastUserToRefreshId),
+  });
+  console.log(
+    `[Cron] Refreshed ${refreshedFromTransfer} users involved in transfer events`
+  );
 };
 
-export const refreshDiscordServer = async (
-  discordServer: DiscordServer,
-  targetModules = modules
-) => {
+export const refreshDiscordServer = async (discordServer: DiscordServer) => {
   const discordMembers = await DiscordMemberRepository.find({
     where: {
       discordServerId: discordServer.id,
@@ -40,14 +52,26 @@ export const refreshDiscordServer = async (
     discordServerId: discordServer.id,
   });
 
+  let refreshedFromTransfer = 0;
   // Refreshing each member one by one. We could
   // optimize using a pool in parallel.
-
   for (let discordMember of discordMembers) {
     let deleteDiscordMember = !!discordMember.deletedAt;
+    const walletAddress = discordMember.starknetWalletAddress;
+    if (!walletAddress) continue;
+    const network = discordMember.starknetNetwork;
+    if (!network) continue;
+    const toRefresh = await AddressToRefreshRepository.findOneBy({
+      network,
+      walletAddress,
+    });
     for (let discordConfig of discordConfigs) {
-      const starkyModule = targetModules[discordConfig.starkyModuleType];
-      if (!starkyModule) continue;
+      const starkyModule = modules[discordConfig.starkyModuleType];
+      if (starkyModule.refreshOnTransfer && toRefresh) {
+        await refreshDiscordMember(discordConfig, discordMember, starkyModule);
+        refreshedFromTransfer++;
+      }
+      if (!starkyModule || !starkyModule.refreshInCron) continue;
       try {
         await refreshDiscordMember(discordConfig, discordMember, starkyModule);
       } catch (e: any) {
@@ -68,22 +92,21 @@ export const refreshDiscordServer = async (
       await DiscordMemberRepository.remove(discordMember);
     }
   }
+  return refreshedFromTransfer;
 };
 
 export const refreshDiscordMember = async (
   discordServerConfig: DiscordServerConfig,
   discordMember: DiscordMember,
-  starkyModule?: StarkyModule
+  starkyModule: StarkyModule
 ) => {
   if (!discordMember.starknetWalletAddress) return;
   if (discordMember.starknetNetwork !== discordServerConfig.starknetNetwork)
     return;
-  const starkyMod =
-    starkyModule || modules[discordServerConfig.starkyModuleType];
   // Always remove role for deleted users
   const shouldHaveRole = discordMember.deletedAt
     ? false
-    : await starkyMod.shouldHaveRole(
+    : await starkyModule.shouldHaveRole(
         discordMember.starknetWalletAddress,
         discordServerConfig.starknetNetwork === "mainnet"
           ? "mainnet"

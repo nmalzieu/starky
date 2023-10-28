@@ -5,14 +5,18 @@ export type StarkyModuleField = {
   placeholder?: string;
 };
 
+export type ShouldHaveRole = (
+  starknetWalletAddress: string,
+  starknetNetwork: "mainnet" | "goerli",
+  starkyModuleConfig: StarkyModuleConfig
+) => Promise<boolean>;
+
 export type StarkyModule = {
   name: string;
   fields: StarkyModuleField[];
-  shouldHaveRole: (
-    starknetWalletAddress: string,
-    starknetNetwork: "mainnet" | "goerli",
-    starkyModuleConfig: StarkyModuleConfig
-  ) => Promise<boolean>;
+  shouldHaveRole: ShouldHaveRole;
+  refreshInCron: boolean;
+  refreshOnTransfer: boolean;
 };
 
 export type StarkyModules = {

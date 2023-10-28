@@ -17,7 +17,6 @@ export const retrieveAssets = async ({
   let nextUrl = `https://${network}.starkscan.co/api/v0/nfts?owner_address=${ownerAddress}&contract_address=${contractAddress}&limit=100`;
   const apiKey = config.STARKSCAN_API_KEY;
   const assets = [];
-
   while (nextUrl) {
     try {
       const { data } = await axios.get(nextUrl, {
@@ -28,10 +27,8 @@ export const retrieveAssets = async ({
       assets.push(...data.data);
       nextUrl = data.next_url;
     } catch (e) {
-      console.log(`Failed to retrieve assets from ${nextUrl} - ${e}`);
       break;
     }
   }
-
   return assets;
 };

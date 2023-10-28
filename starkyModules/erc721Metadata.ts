@@ -3,6 +3,8 @@ import { retrieveAssets } from "../starkscan/retrieveAssets";
 import { StarkyModuleConfig, StarkyModuleField } from "./types";
 
 export const name = "ERC-721 Metadata";
+export const refreshInCron = false;
+export const refreshOnTransfer = true;
 
 export const fields: StarkyModuleField[] = [
   {

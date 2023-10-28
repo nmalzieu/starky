@@ -4,6 +4,7 @@ import "reflect-metadata";
 
 import config from "../config";
 
+import { AddressToRefresh } from "./entity/AddressToRefresh";
 import { DiscordMember } from "./entity/DiscordMember";
 import { DiscordServer } from "./entity/DiscordServer";
 import { DiscordServerConfig } from "./entity/DiscordServerConfig";
@@ -18,7 +19,13 @@ export const AppDataSource = new DataSource({
   database: config.DB_DATABASE,
   synchronize: false,
   logging: false,
-  entities: [DiscordServer, DiscordServerConfig, DiscordMember, NetworkStatus],
+  entities: [
+    DiscordServer,
+    DiscordServerConfig,
+    DiscordMember,
+    NetworkStatus,
+    AddressToRefresh,
+  ],
   migrations: [__dirname + "/migration/**/*.{js,ts}"],
   migrationsTableName: "migrations",
   subscribers: [],
