@@ -53,6 +53,7 @@ const launchIndexer = async (networkName: NetworkName, networkUrl: string) => {
     url: networkUrl,
     token: AUTH_TOKEN,
     onReconnect,
+    timeout: 1000 * 60 * 5, // 5 minutes
   });
 
   const transferKey = [
@@ -88,7 +89,7 @@ const launchIndexer = async (networkName: NetworkName, networkUrl: string) => {
 
   client.configure({
     filter,
-    batchSize: 10,
+    batchSize: 1,
     finality: v1alpha2.DataFinality.DATA_STATUS_ACCEPTED,
     cursor,
   });
