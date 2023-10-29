@@ -1,4 +1,4 @@
-import { IsNull, LessThanOrEqual, Not } from "typeorm";
+import { IsNull, Not } from "typeorm";
 
 import { DiscordMember } from "./db/entity/DiscordMember";
 import { DiscordServer } from "./db/entity/DiscordServer";
@@ -8,7 +8,6 @@ import { addRole, removeRole } from "./discord/role";
 import { StarkyModule } from "./starkyModules/types";
 import config from "./config";
 import {
-  AddressToRefreshRepository,
   DiscordMemberRepository,
   DiscordServerConfigRepository,
   DiscordServerRepository,
@@ -18,25 +17,9 @@ import modules from "./starkyModules";
 const refreshDiscordServers = async () => {
   const discordServers = await DiscordServerRepository.find();
   console.log(`[Cron] Refreshing ${discordServers.length} discord servers`);
-  let refreshedFromTransfer = 0;
-  // Get last userToRefresh id
-  const lastUserToRefresh = await AddressToRefreshRepository.findOne({
-    where: {},
-    order: {
-      id: "DESC",
-    },
-  });
-  const lastUserToRefreshId = lastUserToRefresh?.id || 0;
   for (let discordServer of discordServers) {
-    refreshedFromTransfer += await refreshDiscordServer(discordServer);
+    await refreshDiscordServer(discordServer);
   }
-  // Clear users to refresh
-  await AddressToRefreshRepository.delete({
-    id: LessThanOrEqual(lastUserToRefreshId),
-  });
-  console.log(
-    `[Cron] Refreshed ${refreshedFromTransfer} users involved in transfer events. Last address to check id: ${lastUserToRefreshId}`
-  );
 };
 
 export const refreshDiscordServer = async (discordServer: DiscordServer) => {
@@ -52,7 +35,6 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
     discordServerId: discordServer.id,
   });
 
-  let refreshedFromTransfer = 0;
   // Refreshing each member one by one. We could
   // optimize using a pool in parallel.
   for (let discordMember of discordMembers) {
@@ -61,23 +43,15 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
     if (!walletAddress) continue;
     const network = discordMember.starknetNetwork;
     if (!network) continue;
-    const toRefresh = await AddressToRefreshRepository.findOneBy({
-      network,
-      walletAddress,
-    });
     for (let discordConfig of discordConfigs) {
       const starkyModule = modules[discordConfig.starkyModuleType];
       try {
-        if (starkyModule.refreshOnTransfer && toRefresh) {
+        if (starkyModule.refreshInCron)
           await refreshDiscordMember(
             discordConfig,
             discordMember,
             starkyModule
           );
-          refreshedFromTransfer++;
-        }
-        if (!starkyModule || !starkyModule.refreshInCron) continue;
-        await refreshDiscordMember(discordConfig, discordMember, starkyModule);
       } catch (e: any) {
         if (e?.code === 10007) {
           // This user is no longer a member of this discord server, we should just remove it
@@ -96,7 +70,6 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
       await DiscordMemberRepository.remove(discordMember);
     }
   }
-  return refreshedFromTransfer;
 };
 
 export const refreshDiscordMember = async (

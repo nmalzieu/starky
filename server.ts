@@ -8,7 +8,6 @@ import "reflect-metadata";
 import launchIndexers from "./indexer/indexer";
 import { cleanStacks } from "./utils/execWithRateLimit";
 import config from "./config";
-import launchCron from "./cron";
 import { setupDb } from "./db";
 import { launchBot } from "./discord";
 
@@ -49,7 +48,8 @@ const launchServer = async () => {
     // Launch rate limit cleaner
     cleanStacks();
     // Launch the cron
-    launchCron();
+    // Unused for now
+    //launchCron();
     // Launch the Indexer
     launchIndexers();
   });

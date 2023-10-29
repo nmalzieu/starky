@@ -4,7 +4,8 @@ import { execWithRateLimit } from "../utils/execWithRateLimit";
 import { StarkyModuleConfig, StarkyModuleField } from "./types";
 
 export const name = "Wallet detector (Argent only)";
-export const refreshInCron = true;
+// Only refreshing when connecting the wallet or when using the /starky-refresh command
+export const refreshInCron = false;
 export const refreshOnTransfer = false;
 
 // TODO => add field to ask for Argent or Braavos
