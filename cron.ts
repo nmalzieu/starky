@@ -35,7 +35,7 @@ const refreshDiscordServers = async () => {
     id: LessThanOrEqual(lastUserToRefreshId),
   });
   console.log(
-    `[Cron] Refreshed ${refreshedFromTransfer} users involved in transfer events`
+    `[Cron] Refreshed ${refreshedFromTransfer} users involved in transfer events. Last address to check id: ${lastUserToRefreshId}`
   );
 };
 
