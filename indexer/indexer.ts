@@ -8,12 +8,13 @@ import {
 import { hash } from "starknet";
 
 import networks from "../configs/networks.json";
-import { AddressToRefreshRepository, NetworkStatusRepository } from "../db";
+import { DiscordMemberRepository, NetworkStatusRepository } from "../db";
 import { DiscordMember } from "../db/entity/DiscordMember";
+import { NetworkName } from "../types/starknet";
+
+import BlockStack, { Block } from "./blockStack";
 
 require("dotenv").config();
-
-type NetworkName = "mainnet" | "goerli";
 
 export type MemberChunk = {
   lastBlockNumber: number;
@@ -24,12 +25,13 @@ export type MemberChunk = {
 const launchIndexers = () => {
   console.log("[Indexer] Launching indexers");
   console.log(`[Indexer] Found ${networks.length} networks`);
+  const blockStack = new BlockStack();
   // For each network, launch an indexer
   for (let network of networks) {
     const networkName = network.name as NetworkName;
     const networkUrl = network.url;
     console.log(`[Indexer] Launching ${networkName} indexer`);
-    launchIndexer(networkName, networkUrl);
+    launchIndexer(networkName, networkUrl, blockStack);
   }
 };
 
@@ -43,7 +45,11 @@ const onReconnect: OnReconnect = (err, retryCount) => {
   return { reconnect: true };
 };
 
-const launchIndexer = async (networkName: NetworkName, networkUrl: string) => {
+const launchIndexer = async (
+  networkName: NetworkName,
+  networkUrl: string,
+  blockStack: BlockStack
+) => {
   // Read token from environment
   const AUTH_TOKEN =
     process.env[`APIBARA_AUTH_TOKEN_${networkName.toUpperCase()}`];
@@ -102,6 +108,7 @@ const launchIndexer = async (networkName: NetworkName, networkUrl: string) => {
         // Block
         const block = starknet.Block.decode(item);
         const blockNumber = block.header?.blockNumber?.toString();
+        const blockUsers: DiscordMember[] = [];
         // Transfer events
         for (let e of block.events) {
           const event = e.event;
@@ -113,44 +120,37 @@ const launchIndexer = async (networkName: NetworkName, networkUrl: string) => {
             if (event.data[0] && event.data[1]) {
               const from = convertToStringAddress(event.data[0]);
               const to = convertToStringAddress(event.data[1]);
-              const zeroAddress = "0x0";
-              // Save addresses to refresh
-              if (from !== zeroAddress)
-                await InsertAddressIfNotInDB(networkName, from);
-              if (to !== zeroAddress)
-                await InsertAddressIfNotInDB(networkName, to);
+              const users = await DiscordMemberRepository.find({
+                where: [
+                  {
+                    starknetWalletAddress: from,
+                    starknetNetwork: networkName,
+                  },
+                  {
+                    starknetWalletAddress: to,
+                    starknetNetwork: networkName,
+                  },
+                ],
+              });
+              blockUsers.push(...users);
               transferEventsCount++;
             }
           }
         }
-        // Save block number
+        // Insert block
         if (blockNumber) {
-          console.log(
-            `[Indexer] Saving block number ${blockNumber} for ${networkName}. ${transferEventsCount} transfer events found`
+          const parsedBlock: Block = new Block(
+            parseInt(blockNumber),
+            blockUsers,
+            networkName
           );
-          await NetworkStatusRepository.save({
-            network: networkName,
-            lastBlockNumber: parseInt(blockNumber),
-          });
+          blockStack.push(parsedBlock);
+          console.log(
+            `[Indexer] Adding block ${blockNumber} for ${networkName} in stack - size: ${blockStack.size()}. ${transferEventsCount} transfer events found`
+          );
         }
       }
     }
-  }
-};
-
-const InsertAddressIfNotInDB = async (
-  networkName: NetworkName,
-  walletAddress: string
-) => {
-  const exists = await AddressToRefreshRepository.findOneBy({
-    network: networkName,
-    walletAddress,
-  });
-  if (!exists) {
-    await AddressToRefreshRepository.insert({
-      network: networkName,
-      walletAddress,
-    });
   }
 };
 
