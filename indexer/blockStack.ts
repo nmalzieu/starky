@@ -51,16 +51,15 @@ const processBlocks = async (stack: BlockStack) => {
           console.log(
             `Discord member ${member.discordMemberId} does not exist in Discord server ${discordConfig.discordServerId} and will be deleted`
           );
+        } else if (e?.code === 10011) {
+          // The role no longer exists, we should just remove the config
+          await DiscordServerConfigRepository.remove(discordConfig);
+          console.log(
+            `Discord role ${discordConfig.discordRoleId} does not exist and config will be deleted`
+          );
         } else {
           console.error(
             `Could not refresh discord member ${member.discordMemberId} with configuration ${discordConfig.id} in server : ${discordConfig.discordServerId} ${e}`
-          );
-        }
-        if (e?.code === 10013) {
-          // The discord server no longer exists, we should just remove the config
-          await DiscordServerConfigRepository.remove(discordConfig);
-          console.log(
-            `Discord server ${discordConfig.discordServerId} does not exist and will be deleted`
           );
         }
       }
