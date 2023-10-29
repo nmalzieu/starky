@@ -1,4 +1,4 @@
-import { StreamClient, v1alpha2 } from "@apibara/protocol";
+import { OnReconnect, StreamClient, v1alpha2 } from "@apibara/protocol";
 import {
   FieldElement,
   Filter,
@@ -35,14 +35,24 @@ const launchIndexers = () => {
 
 export default launchIndexers;
 
+const onReconnect: OnReconnect = (err, retryCount) => {
+  // handle error
+  console.log(`[Indexer] Error: ${err}`);
+  console.log(`[Indexer] Retry count: ${retryCount}`);
+  // decide to reconnect or not
+  return { reconnect: true };
+};
+
 const launchIndexer = async (networkName: NetworkName, networkUrl: string) => {
   // Read token from environment
   const AUTH_TOKEN =
     process.env[`APIBARA_AUTH_TOKEN_${networkName.toUpperCase()}`];
+
   // Use token when streaming data
   const client = new StreamClient({
     url: networkUrl,
     token: AUTH_TOKEN,
+    onReconnect,
   });
 
   const transferKey = [
@@ -78,7 +88,7 @@ const launchIndexer = async (networkName: NetworkName, networkUrl: string) => {
 
   client.configure({
     filter,
-    batchSize: 1,
+    batchSize: 10,
     finality: v1alpha2.DataFinality.DATA_STATUS_ACCEPTED,
     cursor,
   });
