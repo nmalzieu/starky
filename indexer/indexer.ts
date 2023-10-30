@@ -12,7 +12,11 @@ import networks from "../configs/networks.json";
 import { DiscordMemberRepository, NetworkStatusRepository } from "../db";
 import { BlockMember } from "../types/indexer";
 import { NetworkName } from "../types/starknet";
-import { execIfStackNotFull } from "../utils/execWithRateLimit";
+import {
+  execIfStackNotFull,
+  execWithRateLimit,
+} from "../utils/execWithRateLimit";
+import { retrieveTx } from "../utils/starkscan/retrieveTx";
 import { convertFieldEltToStringHex } from "../utils/string";
 
 import BlockStack, { Block } from "./blockStack";
@@ -158,6 +162,20 @@ const launchIndexer = async (
                   if (contractAddressField) {
                     contractAddress = contractAddressField.toString();
                     contractAddresses[txHashString] = contractAddress;
+                  } else {
+                    const txData = await execWithRateLimit(
+                      async () =>
+                        await retrieveTx({
+                          starknetNetwork: networkName,
+                          txHash: txHashString,
+                        }),
+                      "starkscan"
+                    );
+                    const contractAddressField = txData?.calldata[1];
+                    if (contractAddressField) {
+                      contractAddress = contractAddressField.toString();
+                      contractAddresses[txHashString] = contractAddress;
+                    }
                   }
                 }
               }
