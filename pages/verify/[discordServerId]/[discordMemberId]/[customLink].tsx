@@ -11,7 +11,7 @@ import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerName } from "../../../../discord/utils";
-import messageToSign from "../../../../starknet/message";
+import messageToSign from "../../../../utils/starknet/message";
 
 import styles from "../../../../styles/Verify.module.scss";
 

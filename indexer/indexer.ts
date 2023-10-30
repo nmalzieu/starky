@@ -5,22 +5,19 @@ import {
   StarkNetCursor,
   v1alpha2 as starknet,
 } from "@apibara/starknet";
+import { Provider } from "starknet";
 import { hash } from "starknet";
 
 import networks from "../configs/networks.json";
 import { DiscordMemberRepository, NetworkStatusRepository } from "../db";
-import { DiscordMember } from "../db/entity/DiscordMember";
+import { BlockMember } from "../types/indexer";
 import { NetworkName } from "../types/starknet";
+import { execIfStackNotFull } from "../utils/execWithRateLimit";
+import { convertFieldEltToStringHex } from "../utils/string";
 
 import BlockStack, { Block } from "./blockStack";
 
 require("dotenv").config();
-
-export type MemberChunk = {
-  lastBlockNumber: number;
-  networkName: NetworkName;
-  discordMembers: DiscordMember[];
-};
 
 const launchIndexers = () => {
   console.log("[Indexer] Launching indexers");
@@ -37,14 +34,6 @@ const launchIndexers = () => {
 
 export default launchIndexers;
 
-const onReconnect: OnReconnect = (err, retryCount) => {
-  // handle error
-  console.log(`[Indexer] Error: ${err}`);
-  console.log(`[Indexer] Retry count: ${retryCount}`);
-  // decide to reconnect or not
-  return { reconnect: true };
-};
-
 const launchIndexer = async (
   networkName: NetworkName,
   networkUrl: string,
@@ -54,12 +43,28 @@ const launchIndexer = async (
   const AUTH_TOKEN =
     process.env[`APIBARA_AUTH_TOKEN_${networkName.toUpperCase()}`];
 
+  const onReconnect: OnReconnect = async (err, retryCount) => {
+    // handle error
+    console.log(`[Indexer] Error in ${networkName} : ${err}`);
+    console.log(`[Indexer] Retry count: ${retryCount}`);
+    // wait 30 seconds before reconnecting
+    await new Promise((resolve) => setTimeout(resolve, 1000 * 30));
+    console.log(`[Indexer] Reconnecting ${networkName} indexer`);
+    // decide to reconnect or not
+    return { reconnect: true };
+  };
+
   // Use token when streaming data
   const client = new StreamClient({
     url: networkUrl,
     token: AUTH_TOKEN,
     onReconnect,
     timeout: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Starknet provider
+  const provider = new Provider({
+    network: networkName === "mainnet" ? "mainnet-alpha" : "goerli-alpha",
   });
 
   const transferKey = [
@@ -88,7 +93,8 @@ const launchIndexer = async (
   let { lastBlockNumber } = (await NetworkStatusRepository.findOneBy({
     network: networkName,
   })) || { lastBlockNumber: 0 };
-  if (lastBlockNumber < configFirstBlockNumber)
+  const resetBlockNumbers = process.env[`APIBARA_RESET_BLOCK_NUMBERS`];
+  if (lastBlockNumber < configFirstBlockNumber || resetBlockNumbers)
     lastBlockNumber = configFirstBlockNumber;
 
   const cursor = StarkNetCursor.createWithBlockNumber(lastBlockNumber);
@@ -108,7 +114,8 @@ const launchIndexer = async (
         // Block
         const block = starknet.Block.decode(item);
         const blockNumber = block.header?.blockNumber?.toString();
-        const blockUsers: DiscordMember[] = [];
+        const blockMembers: BlockMember[] = [];
+        const contractAddresses: { [key: string]: string } = {};
         // Transfer events
         for (let e of block.events) {
           const event = e.event;
@@ -118,9 +125,10 @@ const launchIndexer = async (
           if (event?.data && txHash && (tx?.invokeV0 || tx?.invokeV1)) {
             // Transfer event from invoke transaction
             if (event.data[0] && event.data[1]) {
-              const from = convertToStringAddress(event.data[0]);
-              const to = convertToStringAddress(event.data[1]);
-              const users = await DiscordMemberRepository.find({
+              transferEventsCount++;
+              const from = convertFieldEltToStringHex(event.data[0]);
+              const to = convertFieldEltToStringHex(event.data[1]);
+              const discordMembers = await DiscordMemberRepository.find({
                 where: [
                   {
                     starknetWalletAddress: from,
@@ -132,11 +140,38 @@ const launchIndexer = async (
                   },
                 ],
               });
-              for (let user of users) {
-                if (!blockUsers.find((u) => u.id === user.id))
-                  blockUsers.push(user);
+              if (discordMembers.length === 0) continue;
+              // We try to get the tx contract address so that we don't have to refresh every configs for nothing
+              let contractAddress = "";
+              if (discordMembers.length > 0) {
+                const txHashString = convertFieldEltToStringHex(txHash);
+                if (contractAddresses[txHashString]) {
+                  contractAddress = contractAddresses[txHashString];
+                } else {
+                  const trace = await execIfStackNotFull(
+                    async () =>
+                      await provider.getTransactionTrace(txHashString),
+                    "starknet"
+                  );
+                  const contractAddressField =
+                    trace?.validate_invocation?.calldata[1];
+                  if (contractAddressField) {
+                    contractAddress = contractAddressField.toString();
+                    contractAddresses[txHashString] = contractAddress;
+                  }
+                }
               }
-              transferEventsCount++;
+              for (let discordMember of discordMembers) {
+                if (
+                  !blockMembers.find(
+                    (u) => u.discordMember.id === discordMember.discordMemberId
+                  )
+                )
+                  blockMembers.push({
+                    discordMember,
+                    contractAddress: contractAddress,
+                  });
+              }
             }
           }
         }
@@ -144,19 +179,17 @@ const launchIndexer = async (
         if (blockNumber) {
           const parsedBlock: Block = new Block(
             parseInt(blockNumber),
-            blockUsers,
+            blockMembers,
             networkName
           );
           blockStack.push(parsedBlock);
           console.log(
-            `[Indexer] Adding block ${blockNumber} for ${networkName} in stack - size: ${blockStack.size()}. ${transferEventsCount} transfer events found`
+            `[Indexer] Adding block ${blockNumber} for ${networkName} in stack - size: ${blockStack.size()}. ${
+              blockMembers.length
+            } members found, for a total of ${transferEventsCount} transfer events`
           );
         }
       }
     }
   }
-};
-
-const convertToStringAddress = (address: starknet.IFieldElement) => {
-  return "0x" + FieldElement.toBigInt(address).toString(16);
 };

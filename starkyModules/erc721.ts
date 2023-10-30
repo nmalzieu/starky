@@ -1,8 +1,8 @@
 import { uint256ToBN } from "starknet/dist/utils/uint256";
 
-import { callContract } from "../starknet/call";
 import { ShouldHaveRole, StarkyModuleField } from "../types/starkyModules";
 import { execWithRateLimit } from "../utils/execWithRateLimit";
+import { callContract } from "../utils/starknet/call";
 
 export const name = "ERC-721";
 export const refreshInCron = false;

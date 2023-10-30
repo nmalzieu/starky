@@ -4,9 +4,9 @@ import { typedData } from "starknet";
 import { refreshDiscordMember } from "../../cron";
 import { DiscordMemberRepository, setupDb } from "../../db";
 import { DiscordServerConfigRepository } from "../../db/index";
-import messageToSign from "../../starknet/message";
-import { verifySignature } from "../../starknet/verifySignature";
 import modules from "../../starkyModules";
+import messageToSign from "../../utils/starknet/message";
+import { verifySignature } from "../../utils/starknet/verifySignature";
 
 type Data = {
   message: string;
