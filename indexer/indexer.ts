@@ -34,14 +34,6 @@ const launchIndexers = () => {
 
 export default launchIndexers;
 
-const onReconnect: OnReconnect = (err, retryCount) => {
-  // handle error
-  console.log(`[Indexer] Error: ${err}`);
-  console.log(`[Indexer] Retry count: ${retryCount}`);
-  // decide to reconnect or not
-  return { reconnect: true };
-};
-
 const launchIndexer = async (
   networkName: NetworkName,
   networkUrl: string,
@@ -50,6 +42,17 @@ const launchIndexer = async (
   // Read token from environment
   const AUTH_TOKEN =
     process.env[`APIBARA_AUTH_TOKEN_${networkName.toUpperCase()}`];
+
+  const onReconnect: OnReconnect = async (err, retryCount) => {
+    // handle error
+    console.log(`[Indexer] Error in ${networkName} : ${err}`);
+    console.log(`[Indexer] Retry count: ${retryCount}`);
+    // wait 30 seconds before reconnecting
+    await new Promise((resolve) => setTimeout(resolve, 1000 * 30));
+    console.log(`[Indexer] Reconnecting ${networkName} indexer`);
+    // decide to reconnect or not
+    return { reconnect: true };
+  };
 
   // Use token when streaming data
   const client = new StreamClient({
@@ -90,7 +93,8 @@ const launchIndexer = async (
   let { lastBlockNumber } = (await NetworkStatusRepository.findOneBy({
     network: networkName,
   })) || { lastBlockNumber: 0 };
-  if (lastBlockNumber < configFirstBlockNumber)
+  const resetBlockNumbers = process.env[`APIBARA_RESET_BLOCK_NUMBERS`];
+  if (lastBlockNumber < configFirstBlockNumber || resetBlockNumbers)
     lastBlockNumber = configFirstBlockNumber;
 
   const cursor = StarkNetCursor.createWithBlockNumber(lastBlockNumber);
