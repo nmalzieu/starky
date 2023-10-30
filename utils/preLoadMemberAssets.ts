@@ -3,6 +3,7 @@ import { DiscordServerConfig } from "../db/entity/DiscordServerConfig";
 import { NetworkName } from "../types/starknet";
 
 import { retrieveAssets } from "./starkscan/retrieveAssets";
+import { compareTwoHexStrings } from "./string";
 
 const loadAssets = async (
   walletAddress: string,
@@ -38,7 +39,7 @@ const preLoadMemberAssets = async (
   const walletAddress = member.starknetWalletAddress;
   if (!walletAddress) return {};
   const filter = contractAddress
-    ? (address: string) => address === contractAddress
+    ? (address: string) => compareTwoHexStrings(address, contractAddress)
     : (address: string) => !!address;
   return await loadAssets(walletAddress, networkName, transferConfigs, filter);
 };

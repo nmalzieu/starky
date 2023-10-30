@@ -149,11 +149,12 @@ const launchIndexer = async (
                   contractAddress = contractAddresses[txHashString];
                 } else {
                   const trace = await execIfStackNotFull(
-                    async () => await provider.getTransactionTrace(txHash),
+                    async () =>
+                      await provider.getTransactionTrace(txHashString),
                     "starknet"
                   );
                   const contractAddressField =
-                    trace?.function_invocation?.contract_address;
+                    trace?.validate_invocation?.calldata[1];
                   if (contractAddressField) {
                     contractAddress = contractAddressField.toString();
                     contractAddresses[txHashString] = contractAddress;
