@@ -184,7 +184,9 @@ const launchIndexer = async (
           );
           blockStack.push(parsedBlock);
           console.log(
-            `[Indexer] Adding block ${blockNumber} for ${networkName} in stack - size: ${blockStack.size()}. ${transferEventsCount} transfer events found`
+            `[Indexer] Adding block ${blockNumber} for ${networkName} in stack - size: ${blockStack.size()}. ${
+              blockMembers.length
+            } members found, for a total of ${transferEventsCount} transfer events`
           );
         }
       }
