@@ -1,6 +1,5 @@
 import { retrieveAssets } from "../starkscan/retrieveAssets";
-
-import { StarkyModuleConfig, StarkyModuleField } from "./types";
+import { ShouldHaveRole, StarkyModuleField } from "../types/starkyModules";
 
 export const name = "ERC-721 Metadata";
 export const refreshInCron = false;
@@ -29,16 +28,19 @@ const tryParseJSONObject = (jsonString: string): boolean | any[] => {
   }
 };
 
-export const shouldHaveRole = async (
-  starknetWalletAddress: string,
-  starknetNetwork: "mainnet" | "goerli",
-  starkyModuleConfig: StarkyModuleConfig
-): Promise<boolean> => {
-  const ownedAssets = await retrieveAssets({
-    starknetNetwork,
-    contractAddress: starkyModuleConfig.contractAddress,
-    ownerAddress: starknetWalletAddress,
-  });
+export const shouldHaveRole: ShouldHaveRole = async (
+  starknetWalletAddress,
+  starknetNetwork,
+  starkyModuleConfig,
+  cachedData = {}
+) => {
+  const ownedAssets = cachedData.assets
+    ? cachedData.assets
+    : await retrieveAssets({
+        starknetNetwork,
+        contractAddress: starkyModuleConfig.contractAddress,
+        ownerAddress: starknetWalletAddress,
+      });
 
   const conditions = tryParseJSONObject(starkyModuleConfig.conditionPattern);
   if (conditions && typeof conditions === "object") {

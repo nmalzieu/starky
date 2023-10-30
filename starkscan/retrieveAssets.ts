@@ -33,6 +33,7 @@ export const retrieveAssets = async ({
       assets.push(...data.data);
       nextUrl = data.next_url;
     } catch (e) {
+      console.log(`[Starkscan] Error while fetching assets: ${e}`);
       break;
     }
   }

@@ -5,7 +5,7 @@ import { DiscordServer } from "./db/entity/DiscordServer";
 import { DiscordServerConfig } from "./db/entity/DiscordServerConfig";
 import { restDiscordClient } from "./discord/client";
 import { addRole, removeRole } from "./discord/role";
-import { StarkyModule } from "./starkyModules/types";
+import { StarkyModule } from "./types/starkyModules";
 import config from "./config";
 import {
   DiscordMemberRepository,
@@ -75,7 +75,8 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
 export const refreshDiscordMember = async (
   discordServerConfig: DiscordServerConfig,
   discordMember: DiscordMember,
-  starkyModule: StarkyModule
+  starkyModule: StarkyModule,
+  cachedData?: { [key: string]: any }
 ) => {
   if (!discordMember.starknetWalletAddress) return;
   if (discordMember.starknetNetwork !== discordServerConfig.starknetNetwork)
@@ -88,7 +89,8 @@ export const refreshDiscordMember = async (
         discordServerConfig.starknetNetwork === "mainnet"
           ? "mainnet"
           : "goerli",
-        discordServerConfig?.starkyModuleConfig
+        discordServerConfig?.starkyModuleConfig,
+        cachedData
       );
   if (shouldHaveRole) {
     await addRole(
