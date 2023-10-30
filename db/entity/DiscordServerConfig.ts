@@ -1,7 +1,7 @@
 import type { Relation } from "typeorm";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
-import type { StarkyModuleConfig } from "../../starkyModules/types";
+import type { StarkyModuleConfig } from "../../types/starkyModules";
 
 import { DiscordServer } from "./DiscordServer";
 

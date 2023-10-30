@@ -132,7 +132,10 @@ const launchIndexer = async (
                   },
                 ],
               });
-              blockUsers.push(...users);
+              for (let user of users) {
+                if (!blockUsers.find((u) => u.id === user.id))
+                  blockUsers.push(user);
+              }
               transferEventsCount++;
             }
           }

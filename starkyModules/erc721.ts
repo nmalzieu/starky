@@ -1,9 +1,8 @@
 import { uint256ToBN } from "starknet/dist/utils/uint256";
 
 import { callContract } from "../starknet/call";
+import { ShouldHaveRole, StarkyModuleField } from "../types/starkyModules";
 import { execWithRateLimit } from "../utils/execWithRateLimit";
-
-import { ShouldHaveRole, StarkyModuleField } from "./types";
 
 export const name = "ERC-721";
 export const refreshInCron = false;
@@ -19,8 +18,15 @@ export const fields: StarkyModuleField[] = [
 export const shouldHaveRole: ShouldHaveRole = async (
   starknetWalletAddress,
   starknetNetwork,
-  starkyModuleConfig
+  starkyModuleConfig,
+  cachedData = {}
 ) => {
+  // If we already have the assets, we can just check if the user has at least one
+  if (cachedData.assets) {
+    const assets = cachedData.assets;
+    if (assets.length >= 1) return true;
+    return false;
+  }
   const result = await execWithRateLimit(async () => {
     return await callContract({
       starknetNetwork,

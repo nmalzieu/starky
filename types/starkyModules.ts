@@ -8,7 +8,8 @@ export type StarkyModuleField = {
 export type ShouldHaveRole = (
   starknetWalletAddress: string,
   starknetNetwork: "mainnet" | "goerli",
-  starkyModuleConfig: StarkyModuleConfig
+  starkyModuleConfig: StarkyModuleConfig,
+  cachedData?: { [key: string]: any }
 ) => Promise<boolean>;
 
 export type StarkyModule = {

@@ -5,6 +5,7 @@ import {
   NetworkStatusRepository,
 } from "../db";
 import { DiscordMember } from "../db/entity/DiscordMember";
+import { retrieveAssets } from "../starkscan/retrieveAssets";
 import modules from "../starkyModules";
 import { NetworkName } from "../types/starknet";
 
@@ -35,15 +36,49 @@ const processBlocks = async (stack: BlockStack) => {
   const { blockNumber, members, networkName } = block;
   for (let index = 0; index < members.length; index++) {
     const member = members[index];
+    const walletAddress = member.starknetWalletAddress;
+    if (!walletAddress) continue;
     const discordConfigs = await DiscordServerConfigRepository.findBy({
       discordServerId: member.discordServerId,
       starknetNetwork: networkName,
     });
-    for (let index = 0; index < discordConfigs.length; index++) {
-      const discordConfig = discordConfigs[index];
+    const transferConfigs = discordConfigs.filter(
+      (config) => modules[config.starkyModuleType].refreshOnTransfer
+    );
+    const contractAddresses = transferConfigs
+      .map((config) => config.starkyModuleConfig.contractAddress)
+      .filter((address) => !!address)
+      // Remove duplicates
+      .filter((value, index, self) => self.indexOf(value) === index);
+    const preLoadedAssets = Object.fromEntries(
+      await Promise.all(
+        contractAddresses.map(async (address) => {
+          const assets = await retrieveAssets({
+            starknetNetwork: networkName,
+            contractAddress: address,
+            ownerAddress: walletAddress,
+          });
+          return [address, assets];
+        })
+      )
+    );
+    for (let index = 0; index < transferConfigs.length; index++) {
+      const discordConfig = transferConfigs[index];
       const starkyModule = modules[discordConfig.starkyModuleType];
+      const assets =
+        preLoadedAssets[discordConfig.starkyModuleConfig.contractAddress];
+      const cachedData = assets
+        ? {
+            assets,
+          }
+        : undefined;
       try {
-        await refreshDiscordMember(discordConfig, member, starkyModule);
+        await refreshDiscordMember(
+          discordConfig,
+          member,
+          starkyModule,
+          cachedData
+        );
       } catch (e: any) {
         if (e?.code === 10007) {
           // This user is no longer a member of this discord server, we should just remove it
@@ -66,7 +101,7 @@ const processBlocks = async (stack: BlockStack) => {
     }
   }
   console.log(
-    `[Indexer] Saving ${members.length} members in block ${blockNumber} for network ${networkName}.`
+    `[Indexer] Refreshed ${members.length} members in block ${blockNumber} - ${networkName} network.`
   );
   await NetworkStatusRepository.save({
     network: networkName,

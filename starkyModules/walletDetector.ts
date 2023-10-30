@@ -1,7 +1,6 @@
 import { callContract } from "../starknet/call";
+import { StarkyModuleConfig, StarkyModuleField } from "../types/starkyModules";
 import { execWithRateLimit } from "../utils/execWithRateLimit";
-
-import { StarkyModuleConfig, StarkyModuleField } from "./types";
 
 export const name = "Wallet detector (Argent only)";
 // Only refreshing when connecting the wallet or when using the /starky-refresh command
