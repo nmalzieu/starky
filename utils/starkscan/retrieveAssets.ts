@@ -1,7 +1,7 @@
 import axios from "axios";
 
-import config from "../config";
-import { execWithRateLimit } from "../utils/execWithRateLimit";
+import config from "../../config";
+import { execWithRateLimit } from "../execWithRateLimit";
 
 type RetrieveAssetsParameters = {
   starknetNetwork: "mainnet" | "goerli";

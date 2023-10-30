@@ -5,22 +5,19 @@ import {
   StarkNetCursor,
   v1alpha2 as starknet,
 } from "@apibara/starknet";
+import { Provider } from "starknet";
 import { hash } from "starknet";
 
 import networks from "../configs/networks.json";
 import { DiscordMemberRepository, NetworkStatusRepository } from "../db";
-import { DiscordMember } from "../db/entity/DiscordMember";
+import { BlockMember } from "../types/indexer";
 import { NetworkName } from "../types/starknet";
+import { execIfStackNotFull } from "../utils/execWithRateLimit";
+import { convertFieldEltToStringHex } from "../utils/string";
 
 import BlockStack, { Block } from "./blockStack";
 
 require("dotenv").config();
-
-export type MemberChunk = {
-  lastBlockNumber: number;
-  networkName: NetworkName;
-  discordMembers: DiscordMember[];
-};
 
 const launchIndexers = () => {
   console.log("[Indexer] Launching indexers");
@@ -60,6 +57,11 @@ const launchIndexer = async (
     token: AUTH_TOKEN,
     onReconnect,
     timeout: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Starknet provider
+  const provider = new Provider({
+    network: networkName === "mainnet" ? "mainnet-alpha" : "goerli-alpha",
   });
 
   const transferKey = [
@@ -108,7 +110,8 @@ const launchIndexer = async (
         // Block
         const block = starknet.Block.decode(item);
         const blockNumber = block.header?.blockNumber?.toString();
-        const blockUsers: DiscordMember[] = [];
+        const blockMembers: BlockMember[] = [];
+        const contractAddresses: { [key: string]: string } = {};
         // Transfer events
         for (let e of block.events) {
           const event = e.event;
@@ -118,9 +121,10 @@ const launchIndexer = async (
           if (event?.data && txHash && (tx?.invokeV0 || tx?.invokeV1)) {
             // Transfer event from invoke transaction
             if (event.data[0] && event.data[1]) {
-              const from = convertToStringAddress(event.data[0]);
-              const to = convertToStringAddress(event.data[1]);
-              const users = await DiscordMemberRepository.find({
+              transferEventsCount++;
+              const from = convertFieldEltToStringHex(event.data[0]);
+              const to = convertFieldEltToStringHex(event.data[1]);
+              const discordMembers = await DiscordMemberRepository.find({
                 where: [
                   {
                     starknetWalletAddress: from,
@@ -132,11 +136,37 @@ const launchIndexer = async (
                   },
                 ],
               });
-              for (let user of users) {
-                if (!blockUsers.find((u) => u.id === user.id))
-                  blockUsers.push(user);
+              if (discordMembers.length === 0) continue;
+              // We try to get the tx contract address so that we don't have to refresh every configs for nothing
+              let contractAddress = "";
+              if (discordMembers.length > 0) {
+                const txHashString = convertFieldEltToStringHex(txHash);
+                if (contractAddresses[txHashString]) {
+                  contractAddress = contractAddresses[txHashString];
+                } else {
+                  const trace = await execIfStackNotFull(
+                    async () => await provider.getTransactionTrace(txHash),
+                    "starknet"
+                  );
+                  const contractAddressField =
+                    trace?.function_invocation?.contract_address;
+                  if (contractAddressField) {
+                    contractAddress = contractAddressField.toString();
+                    contractAddresses[txHashString] = contractAddress;
+                  }
+                }
               }
-              transferEventsCount++;
+              for (let discordMember of discordMembers) {
+                if (
+                  !blockMembers.find(
+                    (u) => u.discordMember.id === discordMember.discordMemberId
+                  )
+                )
+                  blockMembers.push({
+                    discordMember,
+                    contractAddress: contractAddress,
+                  });
+              }
             }
           }
         }
@@ -144,7 +174,7 @@ const launchIndexer = async (
         if (blockNumber) {
           const parsedBlock: Block = new Block(
             parseInt(blockNumber),
-            blockUsers,
+            blockMembers,
             networkName
           );
           blockStack.push(parsedBlock);
@@ -155,8 +185,4 @@ const launchIndexer = async (
       }
     }
   }
-};
-
-const convertToStringAddress = (address: starknet.IFieldElement) => {
-  return "0x" + FieldElement.toBigInt(address).toString(16);
 };

@@ -1,5 +1,5 @@
-import { retrieveAssets } from "../starkscan/retrieveAssets";
 import { ShouldHaveRole, StarkyModuleField } from "../types/starkyModules";
+import { retrieveAssets } from "../utils/starkscan/retrieveAssets";
 
 export const name = "ERC-721 Metadata";
 export const refreshInCron = false;

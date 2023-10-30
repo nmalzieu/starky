@@ -1,4 +1,10 @@
 {
-  "starknet": 9,
-  "starkscan": 15
+  "starknet": {
+    "maxCallsPerSecond": 9,
+    "maxCallStackSize": 100
+  },
+  "starkscan": {
+    "maxCallsPerSecond": 15,
+    "maxCallStackSize": 100
+  }
 }

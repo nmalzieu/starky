@@ -1,7 +1,12 @@
 import apiLimits from "../configs/apiLimits.json";
 
+type Api = {
+  maxCallsPerSecond: number;
+  maxCallStackSize: number;
+};
+
 type ApiLimits = {
-  [key: string]: number;
+  [key: string]: Api;
 };
 
 type CallStacks = {
@@ -13,22 +18,31 @@ type CallStacks = {
 
 const callStacks: CallStacks = {};
 
+export const getCallStack = (apiName: string) => {
+  if (!callStacks[apiName]) callStacks[apiName] = { stack: [], executed: 0 };
+  return callStacks[apiName];
+};
+
+export const getStackSize = (apiName: string) => {
+  const callStack = getCallStack(apiName);
+  return callStack.stack.length;
+};
+
 export const execWithRateLimit = async (fn: Function, apiName: string) => {
-  const limit = (apiLimits as ApiLimits)[apiName];
-  if (!limit) {
+  const maxCallsPerSecond = (apiLimits as ApiLimits)[apiName].maxCallsPerSecond;
+  if (!maxCallsPerSecond) {
     throw new Error(`No limit defined for ${apiName} API`);
   }
-  if (!callStacks[apiName]) callStacks[apiName] = { stack: [], executed: 0 };
-  const callStack = callStacks[apiName];
+  const callStack = getCallStack(apiName);
   const executed = callStack.executed;
-  if (executed < limit) {
+  if (executed < maxCallsPerSecond) {
     callStack.executed++;
     return fn();
   }
   callStack.stack.push(fn);
   return new Promise((resolve) => {
     const interval = setInterval(() => {
-      if (callStack.executed < limit) {
+      if (callStack.executed < maxCallsPerSecond) {
         clearInterval(interval);
         callStack.executed++;
         const fn = callStack.stack.shift();
@@ -36,6 +50,19 @@ export const execWithRateLimit = async (fn: Function, apiName: string) => {
       }
     }, 100);
   });
+};
+
+export const execIfStackNotFull = async (fn: Function, apiName: string) => {
+  const maxCallStackSize = (apiLimits as ApiLimits)[apiName].maxCallStackSize;
+  if (!maxCallStackSize) {
+    throw new Error(`No limit defined for ${apiName} API`);
+  }
+  const callStack = getCallStack(apiName);
+  if (callStack.stack.length < maxCallStackSize) {
+    callStack.stack.push(fn);
+    return execWithRateLimit(fn, apiName);
+  }
+  return null;
 };
 
 export const cleanStacks = () => {
