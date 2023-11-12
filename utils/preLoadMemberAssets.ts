@@ -8,10 +8,10 @@ import { compareTwoHexStrings } from "./string";
 const loadAssets = async (
   walletAddress: string,
   networkName: NetworkName,
-  transferConfigs: DiscordServerConfig[],
+  assetConfigs: DiscordServerConfig[],
   contractFilter: (address: string) => boolean
 ) => {
-  const contractAddresses = transferConfigs
+  const contractAddresses = assetConfigs
     .map((config) => config.starkyModuleConfig.contractAddress)
     .filter(contractFilter)
     // Remove duplicates

@@ -52,6 +52,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   }
   const discordConfigs = await DiscordServerConfigRepository.findBy({
     discordServerId: discordMember.discordServerId,
+    starknetNetwork: body.network,
   });
 
   const messageHexHash = typedData.getMessageHash(messageToSign, body.account);
