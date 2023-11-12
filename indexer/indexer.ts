@@ -63,7 +63,7 @@ const launchIndexer = async (
     url: networkUrl,
     token: AUTH_TOKEN,
     onReconnect,
-    timeout: 1000 * 60 * 5, // 5 minutes
+    timeout: 1000 * 60 * 30, // 30 minutes
   });
 
   // Starknet provider
