@@ -43,6 +43,15 @@ export const registerSlashCommands = async () => {
           .setDescription("The role of the configuration you want to check.")
           .setRequired(true)
       ),
+    new SlashCommandBuilder()
+      .setName("starky-debug-user")
+      .setDescription("Debug a user on this server")
+      .addUserOption((option) =>
+        option
+          .setName("user")
+          .setDescription("The user you want to debug.")
+          .setRequired(true)
+      ),
   ].map((command) => command.toJSON());
   console.log("> Registering Discord slash commands...");
   await restDiscordClient.put(

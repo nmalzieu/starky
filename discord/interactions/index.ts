@@ -15,6 +15,7 @@ import {
   handleConnectCommand,
   handleUserNetworkConfigCommand,
 } from "./connectCommand";
+import { handleDebugUserCommand } from "./debugUser";
 import {
   handleDeleteConfigCommand,
   handleDeleteConfigConfirmCommand,
@@ -87,6 +88,10 @@ export const setupInteractions = (client: Client) => {
       interaction.isChatInputCommand() &&
       interaction.commandName === "starky-view-config";
 
+    const isDebugUserCommand =
+      interaction.isChatInputCommand() &&
+      interaction.commandName === "starky-debug-user";
+
     if (isUserConnect) {
       return handleConnectCommand(interaction, client, restClient);
     } else if (isUserNetworkConfig) {
@@ -115,7 +120,8 @@ export const setupInteractions = (client: Client) => {
       return handleRefreshCommand(interaction, client, restClient);
     } else if (isViewConfigCommand) {
       return handleViewConfigCommand(interaction, client, restClient);
-    }
+    } else if (isDebugUserCommand)
+      return handleDebugUserCommand(interaction, client, restClient);
   });
 
   console.log("> Discord interactions set up successfully");

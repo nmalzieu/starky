@@ -107,6 +107,7 @@ export const refreshDiscordMember = async (
       discordServerConfig.discordRoleId
     );
   }
+  return shouldHaveRole;
 };
 
 const cronInterval = async () => {
