@@ -1,12 +1,11 @@
 import { REST } from "@discordjs/rest";
 import { ChatInputCommandInteraction, Client } from "discord.js";
 
-import { refreshDiscordMember } from "../../cron";
+import { refreshDiscordMemberForAllConfigs } from "../../cron";
 import {
   DiscordMemberRepository,
   DiscordServerConfigRepository,
 } from "../../db";
-import modules from "../../starkyModules";
 
 import { assertManageRoles } from "./permissions";
 
@@ -42,40 +41,26 @@ export const handleDebugUserCommand = async (
   type UpdatedConfig = {
     [network: string]: {
       configs: {
-        shouldHaveRole: boolean;
+        shouldHaveRole: boolean | undefined;
         roleId: string;
       }[];
       walletAddress: string;
     };
   };
-  const updatedConfigs: UpdatedConfig = {};
   const discordMembers = await DiscordMemberRepository.find({
     where: {
       discordServerId: guildId,
       discordMemberId: userId,
     },
   });
+  const updatedConfigs: UpdatedConfig = {};
   for (let index = 0; index < discordMembers.length; index++) {
-    const discordMember = discordMembers[index];
-    for (let index = 0; index < discordConfigs.length; index++) {
-      const discordConfig = discordConfigs[index];
-      if (discordConfig.starknetNetwork !== discordMember.starknetNetwork)
-        continue;
-      if (!updatedConfigs[discordConfig.starknetNetwork])
-        updatedConfigs[discordConfig.starknetNetwork] = {
-          configs: [],
-          walletAddress: discordMember.starknetWalletAddress || "none",
-        };
-
-      updatedConfigs[discordConfig.starknetNetwork].configs.push({
-        shouldHaveRole: !!(await refreshDiscordMember(
-          discordConfig,
-          discordMember,
-          modules[discordConfig.starkyModuleType]
-        )),
-        roleId: discordConfig.discordRoleId,
-      });
-    }
+    const res = await refreshDiscordMemberForAllConfigs(discordMembers[index]);
+    if (!res || !res.length) continue;
+    updatedConfigs[discordMembers[index].starknetNetwork as string] = {
+      configs: res,
+      walletAddress: discordMembers[index].starknetWalletAddress as string,
+    };
   }
   await interaction.followUp({
     content: `Updated configs for user ${selectedUser.username}:

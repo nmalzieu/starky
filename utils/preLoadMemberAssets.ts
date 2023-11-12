@@ -33,7 +33,7 @@ const loadAssets = async (
 const preLoadMemberAssets = async (
   member: DiscordMember,
   networkName: NetworkName,
-  transferConfigs: DiscordServerConfig[],
+  assetConfigs: DiscordServerConfig[],
   contractAddress?: string
 ) => {
   const walletAddress = member.starknetWalletAddress;
@@ -41,7 +41,7 @@ const preLoadMemberAssets = async (
   const filter = contractAddress
     ? (address: string) => compareTwoHexStrings(address, contractAddress)
     : (address: string) => !!address;
-  return await loadAssets(walletAddress, networkName, transferConfigs, filter);
+  return await loadAssets(walletAddress, networkName, assetConfigs, filter);
 };
 
 export default preLoadMemberAssets;
