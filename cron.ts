@@ -113,7 +113,8 @@ export const refreshDiscordMember = async (
 };
 
 export const refreshDiscordMemberForAllConfigs = async (
-  discordMember: DiscordMember
+  discordMember: DiscordMember,
+  assets?: { [key: string]: any }
 ) => {
   if (!discordMember.starknetWalletAddress) return;
   const network = discordMember.starknetNetwork as NetworkName;
@@ -121,11 +122,9 @@ export const refreshDiscordMemberForAllConfigs = async (
     discordServerId: discordMember.discordServerId,
     starknetNetwork: network,
   });
-  const preLoadedAssets = await preLoadMemberAssets(
-    discordMember,
-    network,
-    discordServerConfigs
-  );
+  const preLoadedAssets = assets
+    ? assets
+    : await preLoadMemberAssets(discordMember, network, discordServerConfigs);
   const res = [];
   for (let index = 0; index < discordServerConfigs.length; index++) {
     const discordConfig = discordServerConfigs[index];
