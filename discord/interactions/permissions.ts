@@ -27,3 +27,25 @@ export const assertAdmin = async (
     throw new Error("This command can only be called by an Administrator");
   }
 };
+
+export const assertManageRoles = async (
+  interaction:
+    | ChatInputCommandInteraction
+    | SelectMenuInteraction
+    | ButtonInteraction
+    | ModalSubmitInteraction
+) => {
+  const member = interaction.member;
+  if (
+    !member ||
+    !(member.permissions as PermissionsBitField).has(
+      PermissionsBitField.Flags.ManageRoles
+    )
+  ) {
+    await interaction.reply({
+      content: "❌ This command can only be called by a Moderator",
+      ephemeral: true,
+    });
+    throw new Error("This command can only be called by a Moderator");
+  }
+};

@@ -1,12 +1,11 @@
 import { REST } from "@discordjs/rest";
 import { ChatInputCommandInteraction, Client } from "discord.js";
 
-import { refreshDiscordMember } from "../../cron";
+import { refreshDiscordMemberForAllConfigs } from "../../cron";
 import {
   DiscordMemberRepository,
   DiscordServerConfigRepository,
 } from "../../db";
-import modules from "../../starkyModules";
 
 export const otherNetwork = (network: string) => {
   if (network == "goerli") {
@@ -42,23 +41,15 @@ export const handleRefreshCommand = async (
   // Refresh
   await interaction.deferReply({ ephemeral: true });
   let updated = 0;
-  for (let index = 0; index < discordConfigs.length; index++) {
-    const discordConfig = discordConfigs[index];
-    const discordMember = await DiscordMemberRepository.findOne({
-      where: {
-        discordServerId: guildId,
-        discordMemberId: userId,
-        starknetNetwork: discordConfig.starknetNetwork,
-      },
-    });
-    if (discordMember) {
-      updated++;
-      await refreshDiscordMember(
-        discordConfig,
-        discordMember,
-        modules[discordConfig.starkyModuleType]
-      );
-    }
+  const discordMembers = await DiscordMemberRepository.find({
+    where: {
+      discordServerId: guildId,
+      discordMemberId: userId,
+    },
+  });
+  for (let index = 0; index < discordMembers.length; index++) {
+    const res = await refreshDiscordMemberForAllConfigs(discordMembers[index]);
+    updated += res?.length || 0;
   }
   // Reply
   if (!updated) {

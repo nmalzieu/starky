@@ -3,14 +3,14 @@ import { ChatInputCommandInteraction, Client } from "discord.js";
 
 import { DiscordServerConfigRepository } from "../../db";
 
-import { assertAdmin } from "./permissions";
+import { assertManageRoles } from "./permissions";
 
 export const handleViewConfigCommand = async (
   interaction: ChatInputCommandInteraction,
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
   const selectedRole = interaction.options.getRole("role");
   if (!selectedRole) {

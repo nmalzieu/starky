@@ -1,10 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { typedData } from "starknet";
 
-import { refreshDiscordMember } from "../../cron";
+import { refreshDiscordMemberForAllConfigs } from "../../cron";
 import { DiscordMemberRepository, setupDb } from "../../db";
-import { DiscordServerConfigRepository } from "../../db/index";
-import modules from "../../starkyModules";
 import messageToSign from "../../utils/starknet/message";
 import { verifySignature } from "../../utils/starknet/verifySignature";
 
@@ -50,10 +48,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     });
     return;
   }
-  const discordConfigs = await DiscordServerConfigRepository.findBy({
-    discordServerId: discordMember.discordServerId,
-    starknetNetwork: body.network,
-  });
 
   const messageHexHash = typedData.getMessageHash(messageToSign, body.account);
   const { signatureValid, error } = await verifySignature(
@@ -70,14 +64,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     res.status(200).json({ message: "Successfully verified" });
     // Let's refresh its status immediatly
     DiscordMemberRepository.save(discordMember);
-
-    for (let discordConfig of discordConfigs) {
-      await refreshDiscordMember(
-        discordConfig,
-        discordMember,
-        modules[discordConfig.starkyModuleType]
-      );
-    }
+    await refreshDiscordMemberForAllConfigs(discordMember);
   }
 };
 
