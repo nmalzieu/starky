@@ -132,12 +132,7 @@ export const handleSetConfigCustomApiNext = async (
 
   const modal = new ModalBuilder()
     .setCustomId("set-config-custom-api-modal")
-    .setTitle(
-      `Configure the custom API URI for ${
-        interaction.guild?.roles.cache.get(serverConfigtoEdit.discordRoleId)
-          ?.name
-      }`
-    );
+    .setTitle(`Configure custom API URI`);
   const rows = [
     new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
       new TextInputBuilder()
