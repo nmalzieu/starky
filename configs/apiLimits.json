@@ -6,5 +6,9 @@
   "starkscan": {
     "maxCallsPerSecond": 15,
     "maxCallStackSize": 100
+  },
+  "unknown": {
+    "maxCallsPerSecond": 100,
+    "maxCallStackSize": 100
   }
 }

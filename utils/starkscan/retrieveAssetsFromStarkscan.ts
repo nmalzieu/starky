@@ -9,7 +9,7 @@ type RetrieveAssetsParameters = {
   ownerAddress: string;
 };
 
-export const retrieveAssets = async ({
+export const retrieveAssetsFromStarkscan = async ({
   starknetNetwork,
   contractAddress,
   ownerAddress,

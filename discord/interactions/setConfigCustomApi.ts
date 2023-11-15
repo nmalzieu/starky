@@ -97,8 +97,8 @@ export const handleSetConfigCustomApiSelected = async (
     content: `You will be prompted for the URI in the next step.
 Leave it empty to use the default API URI.
 You can provide a dynamic URI by using the following variables:
-- {ADDRESS_INT} will be replaced by the address of the user in integer format.
 - {ADDRESS_HEX} will be replaced by the address of the user in hex format.
+- {ADDRESS_INT} will be replaced by the address of the user in integer format.
 Example: https://api.starknet.id/addr_to_full_ids?addr={ADDRESS_INT}
 
 You can also provide a parameter name for the assets in the API response.
@@ -154,13 +154,12 @@ export const handleSetConfigCustomApiNext = async (
         .setCustomId("set-config-custom-api-modal-param-name")
         .setLabel("API assets parameter name.")
         .setStyle(TextInputStyle.Paragraph)
-        .setPlaceholder("assets")
+        .setPlaceholder("full_ids")
         .setRequired(false)
     ),
   ];
   modal.addComponents(...rows);
   await interaction.showModal(modal);
-  await interaction.deferReply({ ephemeral: true });
 };
 
 export const handleSetConfigCustomApiModalInput = async (
