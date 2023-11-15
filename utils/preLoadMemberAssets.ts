@@ -14,8 +14,16 @@ const loadAssets = async (
   const moduleConfigs = assetConfigs
     .map((config) => config.starkyModuleConfig)
     .filter((config) => contractFilter(config.contractAddress))
-    // Remove duplicates
-    .filter((value, index, self) => self.indexOf(value) === index);
+    // Group
+    .filter(
+      (config, index, self) =>
+        self.findIndex(
+          (v) =>
+            v.contractAddress === config.contractAddress &&
+            v.customApiUri === config.customApiUri
+        ) === index
+    );
+
   return Object.fromEntries(
     await Promise.all(
       moduleConfigs.map(async (config) => {

@@ -43,7 +43,7 @@ export const retrieveAssets = async ({
         assets.push(...data);
         break;
       }
-      if (data[apiParamName]) {
+      if (![apiParamName]) {
         console.log(
           `[Custom API] Error while fetching assets (field ${apiParamName} not found): ${JSON.stringify(
             data
