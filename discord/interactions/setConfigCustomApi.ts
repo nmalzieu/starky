@@ -164,9 +164,6 @@ export const handleSetConfigCustomApiModalInput = async (
 ) => {
   await assertManageRoles(interaction);
   if (!interaction.guildId) return;
-  await interaction.deferReply({
-    ephemeral: true,
-  });
   const uri = interaction.fields.fields.find(
     (field) => field.customId === "set-config-custom-api-modal-uri"
   )?.value;
@@ -192,5 +189,6 @@ export const handleSetConfigCustomApiModalInput = async (
   await interaction.reply({
     content: "Custom API URI set.",
     components: [],
+    ephemeral: true,
   });
 };
