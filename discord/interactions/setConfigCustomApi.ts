@@ -2,7 +2,6 @@ import { REST } from "@discordjs/rest";
 import {
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonInteraction,
   ButtonStyle,
   ChatInputCommandInteraction,
   Client,
@@ -112,24 +111,24 @@ Leave empty if the API response is already an array of assets, not a dictionary.
 };
 
 export const handleSetConfigCustomApiNext = async (
-  interaction: ButtonInteraction,
+  interaction: any,
   client: Client,
   restClient: REST
 ) => {
   await assertManageRoles(interaction);
-  if (!interaction.guildId) return;
+  if (!interaction.guildId) return interaction.reply("Guild ID not found.");
   const currentConfig = ongoingConfigurationsCache[interaction.guildId];
   const configurationId = currentConfig.configurationId;
-  if (!configurationId) return;
+  if (!configurationId) return interaction.reply("Configuration ID not found.");
 
   const serverConfigtoEdit = await DiscordServerConfigRepository.findOneBy({
     id: configurationId,
   });
-  if (!serverConfigtoEdit) return;
-
-  ongoingConfigurationsCache[interaction.guildId] = {
-    configurationId,
-  };
+  if (!serverConfigtoEdit)
+    return interaction.reply({
+      content: "Configuration not found.",
+      components: [],
+    });
 
   const modal = new ModalBuilder()
     .setCustomId("set-config-custom-api-modal")
@@ -170,6 +169,9 @@ export const handleSetConfigCustomApiModalInput = async (
 ) => {
   await assertManageRoles(interaction);
   if (!interaction.guildId) return;
+  await interaction.deferReply({
+    ephemeral: true,
+  });
   const uri = interaction.fields.fields.find(
     (field) => field.customId === "set-config-custom-api-modal-uri"
   )?.value;
