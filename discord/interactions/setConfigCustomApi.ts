@@ -18,7 +18,7 @@ import {
 import { DiscordServerConfigRepository } from "../../db";
 import { getRoleName } from "../role";
 
-import { assertAdmin } from "./permissions";
+import { assertManageRoles } from "./permissions";
 
 type OngoingConfiguration = {
   configurationId: string;
@@ -35,7 +35,7 @@ export const handleSetConfigCustomApiCommand = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
 
   const configurations = await DiscordServerConfigRepository.find({
@@ -82,6 +82,7 @@ export const handleSetConfigCustomApiSelected = async (
   client: Client,
   restClient: REST
 ) => {
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
   const configurationId = interaction.values[0];
   ongoingConfigurationsCache[interaction.guildId] = {
@@ -115,7 +116,7 @@ export const handleSetConfigCustomApiNext = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
   const currentConfig = ongoingConfigurationsCache[interaction.guildId];
   const configurationId = currentConfig.configurationId;
@@ -167,7 +168,7 @@ export const handleSetConfigCustomApiModalInput = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
   const uri = interaction.fields.fields.find(
     (field) => field.customId === "set-config-custom-api-modal-uri"
