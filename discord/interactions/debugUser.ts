@@ -7,17 +7,16 @@ import {
   DiscordServerConfigRepository,
 } from "../../db";
 import { NetworkName } from "../../types/starknet";
+import { assertModerator } from "../../utils/discord/permissions";
 import { refreshDiscordMemberForAllConfigs } from "../../utils/discord/refreshRoles";
 import preLoadMemberAssets from "../../utils/preLoadMemberAssets";
-
-import { assertManageRoles } from "./permissions";
 
 export const handleDebugUserCommand = async (
   interaction: ChatInputCommandInteraction,
   client: Client,
   restClient: REST
 ) => {
-  await assertManageRoles(interaction);
+  await assertModerator(interaction);
   if (!interaction.guildId) return;
   const selectedUser = interaction.options.getUser("user");
   if (!selectedUser) {

@@ -15,9 +15,8 @@ import {
 } from "discord.js";
 
 import { DiscordServerConfigRepository } from "../../db";
+import { assertManageRoles } from "../../utils/discord/permissions";
 import { getRoleName } from "../role";
-
-import { assertManageRoles } from "./permissions";
 
 type OngoingConfiguration = {
   configurationId: string;

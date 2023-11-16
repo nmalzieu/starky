@@ -2,8 +2,7 @@ import { REST } from "@discordjs/rest";
 import { ChatInputCommandInteraction, Client } from "discord.js";
 
 import { DiscordServerConfigRepository } from "../../db";
-
-import { assertManageRoles } from "./permissions";
+import { assertManageRoles } from "../../utils/discord/permissions";
 
 export const handleViewConfigCommand = async (
   interaction: ChatInputCommandInteraction,

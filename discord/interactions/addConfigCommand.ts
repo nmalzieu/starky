@@ -23,9 +23,8 @@ import {
 import { DiscordServer } from "../../db/entity/DiscordServer";
 import { DiscordServerConfig } from "../../db/entity/DiscordServerConfig";
 import starkyModules from "../../starkyModules";
+import { assertManageRoles } from "../../utils/discord/permissions";
 import { getRoles, isBotRole } from "../role";
-
-import { assertManageRoles } from "./permissions";
 
 type OngoingConfiguration = {
   network?: "mainnet" | "goerli";
