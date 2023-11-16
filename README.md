@@ -28,7 +28,11 @@ If the user matches the conditions, Starky gives the configured role to the user
 Other commands available:
 
 - `/starky-disconnect` for a user to unlink his Starknet wallet to the Discord server
-- `/starky-delete-config` for the admin to remove one of the Starky configurations setup on the Discord server
+- `/starky-delete-config` for an admin to remove one of the Starky configurations setup on the Discord server
+- `/starky-refresh` for refreshing you roles according to the server configurations
+- `/starky-view-config` for an admin to check a configuration's settings
+- `/starky-debug-user` for moderators to refresh a user's roles and collect informations about them and why it may not work
+- `/starky-set-config-custom-api` for an admin to setup an API override. By default Starky is fetching data at Starkscan's API for every configs, but you can use your own.
 
 # Starky technical components
 
@@ -38,6 +42,7 @@ Starky has a few components:
 - a [Next.js application](https://nextjs.org/) to provide a dynamic frontend to connect a Starknet wallet and sign a message
 - a Postgres database to save information about the configured Discord servers and Discord users
 - a cron that checks, on a regular basis, if the configured Discord users match the criteria of the configured Starky module for a given server
+- an Apibara indexer which listen to transactions on Starknet and refresh users roles when needed
 
 # Hosted version
 
@@ -167,6 +172,8 @@ event - compiled client and server successfully in 221 ms (179 modules)
 ## Step 7: configure Starky on your Discord server
 
 Just enter `/starky-add-config` and follow instructions!
+
+Debug any issue using `/starky-debug-user`.
 
 # Developing your own Starky module
 
