@@ -27,3 +27,8 @@ export type StarkyModules = {
 export type StarkyModuleConfig = {
   [key: string]: string;
 };
+
+export type CustomApi = {
+  apiUri: string;
+  paramName: string;
+};

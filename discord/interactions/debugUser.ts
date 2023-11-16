@@ -2,12 +2,12 @@ import { REST } from "@discordjs/rest";
 import { AttachmentBuilder } from "discord.js";
 import { ChatInputCommandInteraction, Client } from "discord.js";
 
-import { refreshDiscordMemberForAllConfigs } from "../../cron";
 import {
   DiscordMemberRepository,
   DiscordServerConfigRepository,
 } from "../../db";
 import { NetworkName } from "../../types/starknet";
+import { refreshDiscordMemberForAllConfigs } from "../../utils/discord/refreshRoles";
 import preLoadMemberAssets from "../../utils/preLoadMemberAssets";
 
 import { assertManageRoles } from "./permissions";

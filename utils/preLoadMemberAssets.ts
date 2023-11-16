@@ -2,8 +2,8 @@ import { DiscordMember } from "../db/entity/DiscordMember";
 import { DiscordServerConfig } from "../db/entity/DiscordServerConfig";
 import { NetworkName } from "../types/starknet";
 
-import { retrieveAssets } from "./starkscan/retrieveAssets";
-import { compareTwoHexStrings } from "./string";
+import { compareTwoHexStrings } from "./data/string";
+import { retrieveAssets } from "./retrieveAsset";
 
 const loadAssets = async (
   walletAddress: string,
@@ -11,20 +11,33 @@ const loadAssets = async (
   assetConfigs: DiscordServerConfig[],
   contractFilter: (address: string) => boolean
 ) => {
-  const contractAddresses = assetConfigs
-    .map((config) => config.starkyModuleConfig.contractAddress)
-    .filter(contractFilter)
-    // Remove duplicates
-    .filter((value, index, self) => self.indexOf(value) === index);
+  const moduleConfigs = assetConfigs
+    .map((config) => config.starkyModuleConfig)
+    .filter((config) => contractFilter(config.contractAddress))
+    // Group
+    .filter(
+      (config, index, self) =>
+        self.findIndex(
+          (v) =>
+            v.contractAddress === config.contractAddress &&
+            v.customApiUri === config.customApiUri
+        ) === index
+    );
+
   return Object.fromEntries(
     await Promise.all(
-      contractAddresses.map(async (address) => {
+      moduleConfigs.map(async (config) => {
         const assets = await retrieveAssets({
           starknetNetwork: networkName,
-          contractAddress: address,
+          contractAddress: config.contractAddress,
           ownerAddress: walletAddress,
+          customApi: {
+            apiUri: config.customApiUri,
+            paramName: config.customApiParamName,
+          },
+          address: walletAddress,
         });
-        return [address, assets];
+        return [config.contractAddress, assets];
       })
     )
   );

@@ -25,6 +25,12 @@ import {
   handleDisconnectConfirmCommand,
 } from "./disconnectCommand";
 import { handleRefreshCommand } from "./refreshCommand";
+import {
+  handleSetConfigCustomApiCommand,
+  handleSetConfigCustomApiModalInput,
+  handleSetConfigCustomApiNext,
+  handleSetConfigCustomApiSelected,
+} from "./setConfigCustomApi";
 import { handleViewConfigCommand } from "./viewConfig";
 
 export const restClient = new REST({ version: "10" }).setToken(
@@ -92,36 +98,64 @@ export const setupInteractions = (client: Client) => {
       interaction.isChatInputCommand() &&
       interaction.commandName === "starky-debug-user";
 
-    if (isUserConnect) {
+    const isSetConfigCustomApiCommand =
+      interaction.isChatInputCommand() &&
+      interaction.commandName === "starky-set-config-custom-api";
+
+    const isSetConfigCustomApiSelected =
+      interaction.isStringSelectMenu() &&
+      interaction.customId === "set-config-custom-api-selected";
+
+    const isSetConfigCustomApiNext =
+      interaction.isButton() &&
+      interaction.customId === "set-config-custom-api-next";
+
+    const isSetConfigCustomApiModalInput =
+      interaction.isModalSubmit() &&
+      interaction.customId === "set-config-custom-api-modal";
+
+    if (isUserConnect)
       return handleConnectCommand(interaction, client, restClient);
-    } else if (isUserNetworkConfig) {
+    else if (isUserNetworkConfig)
       return handleUserNetworkConfigCommand(interaction, client, restClient);
-    } else if (isInitialConfig) {
+    else if (isInitialConfig)
       return handleInitialConfigCommand(interaction, client, restClient);
-    } else if (isDeleteConfig) {
+    else if (isDeleteConfig)
       return handleDeleteConfigCommand(interaction, client, restClient);
-    } else if (isNetworkConfig) {
+    else if (isNetworkConfig)
       return handleNetworkConfigCommand(interaction, client, restClient);
-    } else if (isModuleTypeConfig) {
+    else if (isModuleTypeConfig)
       return handleModuleTypeConfigCommand(interaction, client, restClient);
-    } else if (isModuleConfig) {
+    else if (isModuleConfig)
       return handleModuleConfigCommand(interaction, client, restClient);
-    } else if (isConfigCancel) {
+    else if (isConfigCancel)
       return handleConfigCancelCommand(interaction, client, restClient);
-    } else if (isConfigConfirm) {
+    else if (isConfigConfirm)
       return handleConfigConfirmCommand(interaction, client, restClient);
-    } else if (isUserDisonnect) {
+    else if (isUserDisonnect)
       return handleDisconnectCommand(interaction, client, restClient);
-    } else if (isUserDisconnectConfirm) {
+    else if (isUserDisconnectConfirm)
       return handleDisconnectConfirmCommand(interaction, client, restClient);
-    } else if (isUserDeleteConfigConfirm) {
+    else if (isUserDeleteConfigConfirm)
       return handleDeleteConfigConfirmCommand(interaction, client, restClient);
-    } else if (isRefreshCommand) {
+    else if (isRefreshCommand)
       return handleRefreshCommand(interaction, client, restClient);
-    } else if (isViewConfigCommand) {
+    else if (isViewConfigCommand)
       return handleViewConfigCommand(interaction, client, restClient);
-    } else if (isDebugUserCommand)
+    else if (isDebugUserCommand)
       return handleDebugUserCommand(interaction, client, restClient);
+    else if (isSetConfigCustomApiCommand)
+      return handleSetConfigCustomApiCommand(interaction, client, restClient);
+    else if (isSetConfigCustomApiSelected)
+      return handleSetConfigCustomApiSelected(interaction, client, restClient);
+    else if (isSetConfigCustomApiNext)
+      return handleSetConfigCustomApiNext(interaction, client, restClient);
+    else if (isSetConfigCustomApiModalInput)
+      return handleSetConfigCustomApiModalInput(
+        interaction,
+        client,
+        restClient
+      );
   });
 
   console.log("> Discord interactions set up successfully");

@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { typedData } from "starknet";
 
-import { refreshDiscordMemberForAllConfigs } from "../../cron";
 import { DiscordMemberRepository, setupDb } from "../../db";
+import { refreshDiscordMemberForAllConfigs } from "../../utils/discord/refreshRoles";
 import messageToSign from "../../utils/starknet/message";
 import { verifySignature } from "../../utils/starknet/verifySignature";
 

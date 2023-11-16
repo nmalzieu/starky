@@ -1,5 +1,5 @@
 import { ShouldHaveRole, StarkyModuleField } from "../types/starkyModules";
-import { retrieveAssets } from "../utils/starkscan/retrieveAssets";
+import { retrieveAssets } from "../utils/retrieveAsset";
 
 export const name = "ERC-721 Metadata";
 export const refreshInCron = false;
@@ -40,6 +40,11 @@ export const shouldHaveRole: ShouldHaveRole = async (
         starknetNetwork,
         contractAddress: starkyModuleConfig.contractAddress,
         ownerAddress: starknetWalletAddress,
+        customApi: {
+          apiUri: starkyModuleConfig.customApiUri,
+          paramName: starkyModuleConfig.customApiParamName,
+        },
+        address: starknetWalletAddress,
       });
 
   const conditions = tryParseJSONObject(starkyModuleConfig.conditionPattern);

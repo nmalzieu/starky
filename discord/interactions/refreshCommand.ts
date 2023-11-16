@@ -1,11 +1,11 @@
 import { REST } from "@discordjs/rest";
 import { ChatInputCommandInteraction, Client } from "discord.js";
 
-import { refreshDiscordMemberForAllConfigs } from "../../cron";
 import {
   DiscordMemberRepository,
   DiscordServerConfigRepository,
 } from "../../db";
+import { refreshDiscordMemberForAllConfigs } from "../../utils/discord/refreshRoles";
 
 export const otherNetwork = (network: string) => {
   if (network == "goerli") {

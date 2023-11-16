@@ -25,7 +25,7 @@ import { DiscordServerConfig } from "../../db/entity/DiscordServerConfig";
 import starkyModules from "../../starkyModules";
 import { getRoles, isBotRole } from "../role";
 
-import { assertAdmin } from "./permissions";
+import { assertManageRoles } from "./permissions";
 
 type OngoingConfiguration = {
   network?: "mainnet" | "goerli";
@@ -45,7 +45,7 @@ export const handleInitialConfigCommand = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
   ongoingConfigurationsCache[interaction.guildId] = {};
   // Get role from options
@@ -115,7 +115,7 @@ export const handleNetworkConfigCommand = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
   const network = interaction.values[0];
   if (network !== "mainnet" && network !== "goerli") return;
@@ -153,7 +153,7 @@ export const finishUpConfiguration = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
 
   const currentConfig = ongoingConfigurationsCache[interaction.guildId];
@@ -201,7 +201,7 @@ export const handleModuleTypeConfigCommand = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
   const starkyModuleId = interaction.values[0];
   ongoingConfigurationsCache[interaction.guildId].moduleType = starkyModuleId;
@@ -244,7 +244,7 @@ export const handleModuleConfigCommand = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
 
   const moduleConfig: any = {};
@@ -262,7 +262,7 @@ export const handleConfigCancelCommand = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
 
   delete ongoingConfigurationsCache[interaction.guildId];
@@ -278,7 +278,7 @@ export const handleConfigConfirmCommand = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
 
   const currentConfig = ongoingConfigurationsCache[interaction.guildId];

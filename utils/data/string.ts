@@ -14,3 +14,8 @@ export const compareTwoHexStrings = (hex1: string, hex2: string) => {
     hex2.replace("0x", "").replace(/^0+/, "").toLowerCase()
   );
 };
+
+export function isHexString(str: string): boolean {
+  if (str === "") return true;
+  return /^0x[0123456789abcdefABCDEF]+$/.test(str);
+}

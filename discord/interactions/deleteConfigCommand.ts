@@ -10,14 +10,14 @@ import {
 import { DiscordServerConfigRepository } from "../../db";
 import { getRoleName } from "../role";
 
-import { assertAdmin } from "./permissions";
+import { assertManageRoles } from "./permissions";
 
 export const handleDeleteConfigCommand = async (
   interaction: ChatInputCommandInteraction,
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
 
   const configurations = await DiscordServerConfigRepository.find({
@@ -64,7 +64,7 @@ export const handleDeleteConfigConfirmCommand = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertAdmin(interaction);
+  await assertManageRoles(interaction);
   if (!interaction.guildId) return;
 
   const serverConfigtodelete = await DiscordServerConfigRepository.findOneBy({

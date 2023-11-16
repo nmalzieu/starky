@@ -12,12 +12,12 @@ import networks from "../configs/networks.json";
 import { DiscordMemberRepository, NetworkStatusRepository } from "../db";
 import { BlockMember } from "../types/indexer";
 import { NetworkName } from "../types/starknet";
+import { convertFieldEltToStringHex } from "../utils/data/string";
 import {
   execIfStackNotFull,
   execWithRateLimit,
 } from "../utils/execWithRateLimit";
 import { retrieveTx } from "../utils/starkscan/retrieveTx";
-import { convertFieldEltToStringHex } from "../utils/string";
 
 import BlockStack, { Block } from "./blockStack";
 

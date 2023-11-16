@@ -1,10 +1,10 @@
-import { refreshDiscordMember } from "../cron";
 import {
   DiscordMemberRepository,
   DiscordServerConfigRepository,
   NetworkStatusRepository,
 } from "../db";
 import modules from "../starkyModules";
+import { refreshDiscordMember } from "../utils/discord/refreshRoles";
 import preLoadMemberAssets from "../utils/preLoadMemberAssets";
 
 import BlockStack from "./blockStack";

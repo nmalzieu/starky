@@ -52,6 +52,11 @@ export const registerSlashCommands = async () => {
           .setDescription("The user you want to debug.")
           .setRequired(true)
       ),
+    new SlashCommandBuilder()
+      .setName("starky-set-config-custom-api")
+      .setDescription(
+        "Set a custom API URI for a configuration (Instead of Starkscan)"
+      ),
   ].map((command) => command.toJSON());
   console.log("> Registering Discord slash commands...");
   await restDiscordClient.put(
