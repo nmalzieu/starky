@@ -43,14 +43,11 @@ export const handleViewConfigCommand = async (
 **network:** ${config.starknetNetwork}
 **module type:** ${config.starkyModuleType}
 ${
-  config.starkyModuleConfig.contractAddress
-    ? `**contract address:** ${config.starkyModuleConfig.contractAddress}\n`
-    : ""
-}${
-      config.starkyModuleConfig.conditionPattern
-        ? `**condition pattern (regex):** \`${config.starkyModuleConfig.conditionPattern}\`\n`
-        : ""
-    }`,
+  Object.keys(config.starkyModuleConfig)
+    .sort()
+    .map((key) => `**${key}:** ${config.starkyModuleConfig[key]}`)
+    .join("\n") || "No advanced configuration"
+}`,
     ephemeral: true,
   });
 };
