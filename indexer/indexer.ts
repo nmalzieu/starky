@@ -5,7 +5,6 @@ import {
   StarkNetCursor,
   v1alpha2 as starknet,
 } from "@apibara/starknet";
-import { Provider } from "starknet";
 import { hash } from "starknet";
 
 import networks from "../configs/networks.json";
@@ -13,10 +12,7 @@ import { DiscordMemberRepository, NetworkStatusRepository } from "../db";
 import { BlockMember } from "../types/indexer";
 import { NetworkName } from "../types/starknet";
 import { convertFieldEltToStringHex } from "../utils/data/string";
-import {
-  execIfStackNotFull,
-  execWithRateLimit,
-} from "../utils/execWithRateLimit";
+import { execWithRateLimit } from "../utils/execWithRateLimit";
 import { retrieveTx } from "../utils/starkscan/retrieveTx";
 
 import BlockStack, { Block } from "./blockStack";
@@ -67,10 +63,6 @@ const launchIndexer = async (
   });
 
   // Starknet provider
-  const provider = new Provider({
-    network: networkName === "mainnet" ? "mainnet-alpha" : "goerli-alpha",
-  });
-
   const transferKey = [
     FieldElement.fromBigInt(hash.getSelectorFromName("Transfer")),
   ];
@@ -152,30 +144,18 @@ const launchIndexer = async (
                 if (contractAddresses[txHashString]) {
                   contractAddress = contractAddresses[txHashString];
                 } else {
-                  const trace = await execIfStackNotFull(
+                  const txData = await execWithRateLimit(
                     async () =>
-                      await provider.getTransactionTrace(txHashString),
-                    "starknet"
+                      await retrieveTx({
+                        starknetNetwork: networkName,
+                        txHash: txHashString,
+                      }),
+                    "starkscan"
                   );
-                  const contractAddressField =
-                    trace?.validate_invocation?.calldata[1];
+                  const contractAddressField = txData?.calldata[1];
                   if (contractAddressField) {
                     contractAddress = contractAddressField.toString();
                     contractAddresses[txHashString] = contractAddress;
-                  } else {
-                    const txData = await execWithRateLimit(
-                      async () =>
-                        await retrieveTx({
-                          starknetNetwork: networkName,
-                          txHash: txHashString,
-                        }),
-                      "starkscan"
-                    );
-                    const contractAddressField = txData?.calldata[1];
-                    if (contractAddressField) {
-                      contractAddress = contractAddressField.toString();
-                      contractAddresses[txHashString] = contractAddress;
-                    }
                   }
                 }
               }

@@ -3,7 +3,9 @@ import { Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { DiscordMember } from "./DiscordMember";
 import { DiscordServerConfig } from "./DiscordServerConfig";
 
-@Entity()
+@Entity({
+  name: "discord_server",
+})
 export class DiscordServer {
   @PrimaryColumn()
   id: string;

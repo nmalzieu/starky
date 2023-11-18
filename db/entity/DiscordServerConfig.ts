@@ -5,7 +5,9 @@ import type { StarkyModuleConfig } from "../../types/starkyModules";
 
 import { DiscordServer } from "./DiscordServer";
 
-@Entity()
+@Entity({
+  name: "discord_server_config",
+})
 export class DiscordServerConfig {
   @PrimaryGeneratedColumn("increment")
   id: string;
