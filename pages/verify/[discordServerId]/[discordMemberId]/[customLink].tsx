@@ -20,9 +20,9 @@ type Props = {
   starknetNetwork: "goerli" | "mainnet";
 };
 
-const chainIdByNetwork = {
-  goerli: "0x534e5f474f45524c49",
-  mainnet: "0x534e5f4d41494e",
+const chainAliasByNetwork = {
+  goerli: ["SN_GOERLI", "0x534e5f474f45524c49"],
+  mainnet: ["SN_MAIN", "0x534e5f4d41494e"],
 };
 
 const getSignatureErrorMessage = (error: string): string => {
@@ -57,9 +57,29 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       return;
     }
     await strk.enable();
-    const chainId =
-      (strk.account as any).provider.chainId || strk.provider.chainId;
-    if (chainId !== chainIdByNetwork[starknetNetwork]) {
+    const chain =
+      (strk.account as any).provider.chainId ||
+      strk.provider.chainId ||
+      (strk as any).chainId;
+
+    console.log(
+      strk,
+      chain,
+      (strk.account as any).provider.chainId,
+      Object.keys(chainAliasByNetwork)[
+        Object.values(chainAliasByNetwork).findIndex((aliases) =>
+          aliases.includes(chain)
+        )
+      ]
+    );
+    if (
+      starknetNetwork !==
+      Object.keys(chainAliasByNetwork)[
+        Object.values(chainAliasByNetwork).findIndex((aliases) =>
+          aliases.includes(chain)
+        )
+      ]
+    ) {
       setWrongStarknetNetwork(true);
     } else {
       setStarknet(strk);
