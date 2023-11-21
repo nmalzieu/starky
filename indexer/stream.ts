@@ -1,16 +1,11 @@
 import { StatusObject, StreamClient, v1alpha2 } from "@apibara/protocol";
-import { FieldElement, Filter, StarkNetCursor } from "@apibara/starknet";
-import { hash } from "starknet";
+import { Filter, StarkNetCursor } from "@apibara/starknet";
 
 import { NetworkName } from "../types/starknet";
 
 export const configure = (client: StreamClient, startingBlock: number) => {
   const cursor = StarkNetCursor.createWithBlockNumber(startingBlock);
   // Starknet provider
-  const transferKey = [
-    FieldElement.fromBigInt(hash.getSelectorFromName("Transfer")),
-  ];
-
   const filter = Filter.create()
     .withHeader({ weak: true })
     .addTransaction((tx) => tx.invokeV0())
