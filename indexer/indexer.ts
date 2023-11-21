@@ -60,6 +60,9 @@ const launchIndexer = async (
     token: AUTH_TOKEN,
     onReconnect,
     timeout: 1000 * 60 * 30, // 30 minutes
+    clientOptions: {
+      "grpc.max_receive_message_length": 1024 * 1024 * 1024, // 1GB
+    },
   });
 
   // Starknet provider
