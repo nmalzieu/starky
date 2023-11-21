@@ -40,4 +40,6 @@ COPY --from=build /app/public ./public
 
 EXPOSE 8080
 
-CMD [ "node", "dist-server/server.js" ]
+# Add a swap file to the container if needed
+# This is useful for small VPS with low RAM
+CMD if [[ ! -z "$SWAP" ]]; then fallocate -l $(($(stat -f -c "(%a*%s/10)*7" .))) _swapfile && mkswap _swapfile && swapon _swapfile && ls -hla; fi; free -m; node dist-server/server.js
