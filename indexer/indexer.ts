@@ -1,11 +1,5 @@
-import { OnReconnect, StreamClient, v1alpha2 } from "@apibara/protocol";
-import {
-  FieldElement,
-  Filter,
-  StarkNetCursor,
-  v1alpha2 as starknet,
-} from "@apibara/starknet";
-import { hash } from "starknet";
+import { StreamClient } from "@apibara/protocol";
+import { v1alpha2 as starknet } from "@apibara/starknet";
 
 import networks from "../configs/networks.json";
 import { DiscordMemberRepository, NetworkStatusRepository } from "../db";
@@ -16,6 +10,7 @@ import { execWithRateLimit } from "../utils/execWithRateLimit";
 import { retrieveTx } from "../utils/starkscan/retrieveTx";
 
 import BlockStack, { Block } from "./blockStack";
+import { configure, onStramReconnect } from "./stream";
 
 require("dotenv").config();
 
@@ -39,38 +34,26 @@ const launchIndexer = async (
   networkUrl: string,
   blockStack: BlockStack
 ) => {
+  let lastLoadedBlockNumber = 0;
+
   // Read token from environment
   const AUTH_TOKEN =
     process.env[`APIBARA_AUTH_TOKEN_${networkName.toUpperCase()}`];
 
-  const onReconnect: OnReconnect = async (err, retryCount) => {
-    // handle error
-    console.log(`[Indexer] Error in ${networkName} : ${err}`);
-    console.log(`[Indexer] Retry count: ${retryCount}`);
-    // wait 30 seconds before reconnecting
-    await new Promise((resolve) => setTimeout(resolve, 1000 * 30));
-    console.log(`[Indexer] Reconnecting ${networkName} indexer`);
-    // decide to reconnect or not
-    return { reconnect: true };
-  };
-
   // Use token when streaming data
-  const client = new StreamClient({
+  const client: StreamClient = new StreamClient({
     url: networkUrl,
     token: AUTH_TOKEN,
-    onReconnect,
+    onReconnect: async (err, retryCount) =>
+      onStramReconnect(
+        err,
+        retryCount,
+        networkName,
+        lastLoadedBlockNumber,
+        client
+      ),
     timeout: 1000 * 60 * 30, // 30 minutes
   });
-
-  // Starknet provider
-  const transferKey = [
-    FieldElement.fromBigInt(hash.getSelectorFromName("Transfer")),
-  ];
-
-  const filter = Filter.create()
-    .withHeader({ weak: true })
-    .addEvent((ev) => ev.withKeys(transferKey))
-    .encode();
 
   // Read block number from file
   const networkStatusExists = await NetworkStatusRepository.findOneBy({
@@ -92,15 +75,9 @@ const launchIndexer = async (
   const resetBlockNumbers = process.env[`APIBARA_RESET_BLOCK_NUMBERS`];
   if (lastBlockNumber < configFirstBlockNumber || resetBlockNumbers)
     lastBlockNumber = configFirstBlockNumber;
+  lastLoadedBlockNumber = lastBlockNumber;
 
-  const cursor = StarkNetCursor.createWithBlockNumber(lastBlockNumber);
-
-  client.configure({
-    filter,
-    batchSize: 1,
-    finality: v1alpha2.DataFinality.DATA_STATUS_ACCEPTED,
-    cursor,
-  });
+  configure(client, lastBlockNumber);
   console.log(`[Indexer] Starting stream for ${networkName}`);
 
   let transferEventsCount = 0;
@@ -112,69 +89,75 @@ const launchIndexer = async (
         const blockNumber = block.header?.blockNumber?.toString();
         const blockMembers: BlockMember[] = [];
         const contractAddresses: { [key: string]: string } = {};
-        // Transfer events
-        for (let e of block.events) {
-          const event = e.event;
-          const receipt = e.receipt;
+        // Transactions
+        for (let tx of block.transactions) {
+          const receipt = tx.receipt;
+          const events = receipt?.events;
           const txHash = receipt?.transactionHash;
-          const tx = e.transaction;
-          if (event?.data && txHash && (tx?.invokeV0 || tx?.invokeV1)) {
-            // Transfer event from invoke transaction
-            if (event.data[0] && event.data[1]) {
-              transferEventsCount++;
-              const from = convertFieldEltToStringHex(event.data[0]);
-              const to = convertFieldEltToStringHex(event.data[1]);
-              const discordMembers = await DiscordMemberRepository.find({
-                where: [
-                  {
-                    starknetWalletAddress: from,
-                    starknetNetwork: networkName,
-                  },
-                  {
-                    starknetWalletAddress: to,
-                    starknetNetwork: networkName,
-                  },
-                ],
-              });
-              if (discordMembers.length === 0) continue;
-              // We try to get the tx contract address so that we don't have to refresh every configs for nothing
-              let contractAddress = "";
-              if (discordMembers.length > 0) {
-                const txHashString = convertFieldEltToStringHex(txHash);
-                if (contractAddresses[txHashString]) {
-                  contractAddress = contractAddresses[txHashString];
-                } else {
-                  const txData = await execWithRateLimit(
-                    async () =>
-                      await retrieveTx({
-                        starknetNetwork: networkName,
-                        txHash: txHashString,
-                      }),
-                    "starkscan"
-                  );
-                  const contractAddressField = txData?.calldata[1];
-                  if (contractAddressField) {
-                    contractAddress = contractAddressField.toString();
-                    contractAddresses[txHashString] = contractAddress;
+          if (!events) continue;
+          // Events
+          for (let e of events) {
+            const data = e?.data;
+            if (data && txHash) {
+              // Transfer event from invoke transaction
+              if (data[0] && data[1]) {
+                transferEventsCount++;
+                const from = convertFieldEltToStringHex(data[0]);
+                const to = convertFieldEltToStringHex(data[1]);
+                const discordMembers = await DiscordMemberRepository.find({
+                  where: [
+                    {
+                      starknetWalletAddress: from,
+                      starknetNetwork: networkName,
+                    },
+                    {
+                      starknetWalletAddress: to,
+                      starknetNetwork: networkName,
+                    },
+                  ],
+                });
+                if (discordMembers.length === 0) continue;
+                // We try to get the tx contract address so that we don't have to refresh every configs for nothing
+                let contractAddress = "";
+                if (discordMembers.length > 0) {
+                  const txHashString = convertFieldEltToStringHex(txHash);
+                  if (contractAddresses[txHashString]) {
+                    contractAddress = contractAddresses[txHashString];
+                  } else {
+                    const txData = await execWithRateLimit(
+                      async () =>
+                        await retrieveTx({
+                          starknetNetwork: networkName,
+                          txHash: txHashString,
+                        }),
+                      "starkscan"
+                    );
+                    const contractAddressField = txData?.calldata[1];
+                    if (contractAddressField) {
+                      contractAddress = contractAddressField.toString();
+                      contractAddresses[txHashString] = contractAddress;
+                    }
                   }
                 }
-              }
-              for (let discordMember of discordMembers) {
-                if (
-                  !blockMembers.find(
-                    (u) => u.discordMember.id === discordMember.discordMemberId
+                for (let discordMember of discordMembers) {
+                  if (
+                    !blockMembers.find(
+                      (u) =>
+                        u.discordMember.id === discordMember.discordMemberId
+                    )
                   )
-                )
-                  blockMembers.push({
-                    discordMember,
-                    contractAddress: contractAddress,
-                  });
+                    blockMembers.push({
+                      discordMember,
+                      contractAddress: contractAddress,
+                    });
+                }
               }
             }
           }
         }
         // Insert block
         if (blockNumber) {
+          lastLoadedBlockNumber = parseInt(blockNumber);
           const parsedBlock: Block = new Block(
             parseInt(blockNumber),
             blockMembers,

@@ -31,13 +31,18 @@ RUN yarn build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
+ENV NODE_OPTIONS=--max_old_space_size=4096
 ENV NODE_ENV production
 
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist-server ./dist-server
 COPY --from=build /app/.next ./.next
 COPY --from=build /app/public ./public
+COPY --from=build /app/docker-entrypoint.sh ./docker-entrypoint.sh
 
 EXPOSE 8080
 
-CMD [ "node", "dist-server/server.js" ]
+# Add a swap file to the container if needed
+# This is useful for small VPS with low RAM
+# Start the app
+CMD [ "sh", "docker-entrypoint.sh" ]
