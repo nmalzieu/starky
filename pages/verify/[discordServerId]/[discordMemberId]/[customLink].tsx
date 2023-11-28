@@ -22,12 +22,12 @@ type Props = {
 };
 
 const getSignatureErrorMessage = (error: string): string => {
+  if (error.includes("Contract not found"))
+    return "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it";
+
   switch (error) {
     case "StarknetErrorCode.UNINITIALIZED_CONTRACT":
       return "please deploy your wallet on-chain so we can verify your signature";
-
-    case "EMPTY_PUBLIC_KEY":
-      return "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it";
 
     default:
       return "your signature could not be verified, please try again";
