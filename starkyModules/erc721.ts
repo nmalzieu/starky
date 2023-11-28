@@ -1,5 +1,4 @@
 import { BN } from "bn.js";
-import { uint256ToBN } from "starknet/dist/utils/uint256";
 
 import { ShouldHaveRole, StarkyModuleField } from "../types/starkyModules";
 import { execWithRateLimit } from "../utils/execWithRateLimit";
@@ -36,7 +35,7 @@ export const shouldHaveRole: ShouldHaveRole = async (
       calldata: [starknetWalletAddress],
     });
   }, "starknet");
-  const balance = uint256ToBN({ low: result[0], high: result[1] });
+  const balance = new BN(result?.data?.[0] ?? 0);
   if (balance.gt(new BN(0))) return true;
   return false;
 };

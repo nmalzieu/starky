@@ -30,7 +30,7 @@
     "react-dom": "18.2.0",
     "reflect-metadata": "^0.1.13",
     "sass": "^1.54.5",
-    "starknet": "^3.18.2",
+    "starknet": "^5.24.2",
     "ts-node": "^10.9.1",
     "ts-parse-database-url": "^1.0.3",
     "typeorm": "^0.3.17",

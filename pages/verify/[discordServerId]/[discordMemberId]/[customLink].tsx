@@ -9,6 +9,7 @@ import { Signature } from "starknet";
 
 import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
+import chainAliasByNetwork from "../../../../configs/chainAliasByNetwork.json";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerName } from "../../../../discord/utils";
 import messageToSign from "../../../../utils/starknet/message";
@@ -18,11 +19,6 @@ import styles from "../../../../styles/Verify.module.scss";
 type Props = {
   discordServerName: string;
   starknetNetwork: "goerli" | "mainnet";
-};
-
-const chainAliasByNetwork = {
-  goerli: ["SN_GOERLI", "0x534e5f474f45524c49"],
-  mainnet: ["SN_MAIN", "0x534e5f4d41494e"],
 };
 
 const getSignatureErrorMessage = (error: string): string => {

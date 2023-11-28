@@ -1,5 +1,6 @@
-import { Provider, RawCalldata } from "starknet";
-import { BigNumberish, toBN } from "starknet/utils/number";
+import { BigNumberish, RawCalldata, RpcProvider } from "starknet";
+
+import chainAliasByNetwork from "../../configs/chainAliasByNetwork.json";
 
 type CallContractParameters = {
   starknetNetwork: "mainnet" | "goerli";
@@ -9,9 +10,7 @@ type CallContractParameters = {
 };
 
 const getRawCallData = (d: any): BigNumberish => {
-  if ((typeof d === "string" || d instanceof String) && d.startsWith("0x")) {
-    return toBN(d.slice(2), "hex").toString();
-  } else if (!isNaN(d)) {
+  if (!isNaN(d)) {
     return `${d}`;
   }
   return d;
@@ -23,10 +22,8 @@ export const callContract = async ({
   entrypoint,
   calldata,
 }: CallContractParameters) => {
-  const provider = new Provider({
-    sequencer: {
-      network: starknetNetwork === "mainnet" ? "mainnet-alpha" : "goerli-alpha",
-    },
+  const provider = new RpcProvider({
+    chainId: chainAliasByNetwork[starknetNetwork][1] as any,
   });
   const rawCalldata: RawCalldata = [];
   calldata?.forEach((d) => rawCalldata.push(getRawCallData(d)));
