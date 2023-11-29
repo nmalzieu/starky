@@ -2971,7 +2971,7 @@ starknet@^3.12.3:
     ts-custom-error "^3.2.0"
     url-join "^4.0.1"
 
-starknet@^5.24.2:
+starknet@^5.24.3:
   version "5.24.3"
   resolved "https://registry.npmjs.org/starknet/-/starknet-5.24.3.tgz"
   integrity sha512-v0TuaNc9iNtHdbIRzX372jfQH1vgx2rwBHQDMqK4DqjJbwFEE5dog8Go6rGiZVW750NqRSWrZ7ahqyRNc3bscg==

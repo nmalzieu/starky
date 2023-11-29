@@ -24,6 +24,7 @@ export const callContract = async ({
 }: CallContractParameters) => {
   const provider = new RpcProvider({
     chainId: chainAliasByNetwork[starknetNetwork][1] as any,
+    nodeUrl: chainAliasByNetwork[starknetNetwork][0],
   });
   const rawCalldata: RawCalldata = [];
   calldata?.forEach((d) => rawCalldata.push(getRawCallData(d)));
