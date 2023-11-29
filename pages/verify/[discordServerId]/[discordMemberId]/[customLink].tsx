@@ -21,16 +21,30 @@ type Props = {
   starknetNetwork: "goerli" | "mainnet";
 };
 
-const getSignatureErrorMessage = (error: string): string => {
+const getSignatureErrorMessage = (
+  error: string
+): {
+  short: string;
+  advanced?: string;
+} => {
   if (error.includes("Contract not found"))
-    return "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it";
+    return {
+      short:
+        "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it",
+      advanced: error,
+    };
 
   switch (error) {
     case "StarknetErrorCode.UNINITIALIZED_CONTRACT":
-      return "please deploy your wallet on-chain so we can verify your signature";
+      return {
+        short:
+          "please deploy your wallet on-chain so we can verify your signature",
+      };
 
     default:
-      return "your signature could not be verified, please try again";
+      return {
+        short: "your signature could not be verified, please try again",
+      };
   }
 };
 
@@ -153,7 +167,13 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       )}
       {unverifiedSignature && (
         <div className="danger">
-          {getSignatureErrorMessage(unverifiedSignature)}
+          {getSignatureErrorMessage(unverifiedSignature).short}
+          <br />
+          {getSignatureErrorMessage(unverifiedSignature).advanced && (
+            <span className={styles.advancedErrorMessage}>
+              advanced: {getSignatureErrorMessage(unverifiedSignature).advanced}
+            </span>
+          )}
         </div>
       )}
     </div>

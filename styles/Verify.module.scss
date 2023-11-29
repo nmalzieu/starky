@@ -24,4 +24,13 @@
   .starknetWallet {
     word-wrap: break-word;
   }
+  .advancedErrorMessage {
+    font-size: 12px;
+    color: rgba(128, 128, 128, 0.765);
+  }
+  /* cursor select effect */
+  .advancedErrorMessage::selection {
+    background: black;
+    color: white;
+  }
 }
