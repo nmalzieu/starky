@@ -22,9 +22,14 @@ export const callContract = async ({
   entrypoint,
   calldata,
 }: CallContractParameters) => {
+  const chainId = chainAliasByNetwork[starknetNetwork][1] as any;
+  if (!chainId) throw new Error("Invalid network");
+
+  const nodeUrl = chainAliasByNetwork[starknetNetwork][0];
+  if (!nodeUrl) throw new Error("Invalid network");
   const provider = new RpcProvider({
-    chainId: chainAliasByNetwork[starknetNetwork][1] as any,
-    nodeUrl: chainAliasByNetwork[starknetNetwork][0],
+    chainId,
+    nodeUrl,
   });
   const rawCalldata: RawCalldata = [];
   calldata?.forEach((d) => rawCalldata.push(getRawCallData(d)));
