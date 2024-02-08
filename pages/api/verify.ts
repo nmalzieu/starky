@@ -62,8 +62,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     discordMember.starknetWalletAddress = body.account;
 
     res.status(200).json({ message: "Successfully verified" });
-    // Let's refresh its status immediatly
     DiscordMemberRepository.save(discordMember);
+    // Let's refresh its status immediatly
     await refreshDiscordMemberForAllConfigs(discordMember);
   }
 };

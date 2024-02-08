@@ -52,7 +52,7 @@ const getSignatureErrorMessage = (
 const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const router = useRouter();
   const { discordServerId, discordMemberId, customLink } = router.query;
-  const [starknet, setStarknet] = useState<StarknetWindowObject | undefined>(
+  const [wallet, setWallet] = useState<StarknetWindowObject | undefined>(
     undefined
   );
   const [noStarknetWallet, setNotStarknetWallet] = useState(false);
@@ -80,7 +80,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       ]
     )
       setWrongStarknetNetwork(true);
-    else setStarknet(wallet);
+    else setWallet(wallet);
   }, [starknetNetwork]);
 
   const verifySignature = useCallback(
@@ -89,7 +89,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       setVerifyingSignature(true);
       try {
         await axios.post("/api/verify", {
-          account: starknet?.account?.address,
+          account: wallet?.account?.address,
           signature,
           discordServerId,
           discordMemberId,
@@ -111,24 +111,24 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       customLink,
       discordMemberId,
       discordServerId,
-      starknet?.account?.address,
+      wallet?.account?.address,
       starknetNetwork,
     ]
   );
 
   const sign = useCallback(async () => {
-    if (!starknet?.isConnected) return;
+    if (!wallet?.isConnected) return;
     try {
-      const signature = await starknet.account.signMessage(messageToSign);
+      const signature = await wallet.account.signMessage(messageToSign);
       await verifySignature(signature);
     } catch (e) {
       console.log(e);
     }
-  }, [starknet?.account, starknet?.isConnected, verifySignature]);
+  }, [wallet?.account, wallet?.isConnected, verifySignature]);
 
   let starknetWalletDiv = (
     <div>
-      {!starknet?.isConnected && (
+      {!wallet?.isConnected && (
         <div>
           <a className={styles.connect} onClick={connectToStarknet}>
             connect your Starknet wallet
@@ -144,7 +144,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
           )}
         </div>
       )}
-      {starknet?.isConnected && !verifyingSignature && !verifiedSignature && (
+      {wallet?.isConnected && !verifyingSignature && !verifiedSignature && (
         <a className={styles.sign} onClick={sign}>
           sign a message to verify your identity
         </a>
@@ -178,10 +178,17 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
         <br />
         Starknet network: <b>{starknetNetwork}</b>
         <br />
-        {starknet?.isConnected && (
+        {wallet?.isConnected && (
           <span className={styles.starknetWallet}>
-            Starknet wallet: <b>{starknet.account.address}</b>{" "}
-            <a onClick={() => disconnect()}>disconnect</a>
+            Starknet wallet: <b>{wallet.account.address}</b>{" "}
+            <a
+              onClick={() => {
+                disconnect();
+                setWallet(undefined);
+              }}
+            >
+              disconnect
+            </a>
           </span>
         )}
         <br />
