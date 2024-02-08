@@ -1,11 +1,12 @@
 import { useCallback, useState } from "react";
-import {
-  connect as starknetConnect,
-  IStarknetWindowObject,
-} from "@argent/get-starknet";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Signature } from "starknet";
+import {
+  connect as starknetConnect,
+  disconnect,
+  StarknetWindowObject,
+} from "starknetkit";
 
 import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
@@ -51,7 +52,7 @@ const getSignatureErrorMessage = (
 const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const router = useRouter();
   const { discordServerId, discordMemberId, customLink } = router.query;
-  const [starknet, setStarknet] = useState<IStarknetWindowObject | undefined>(
+  const [starknet, setStarknet] = useState<StarknetWindowObject | undefined>(
     undefined
   );
   const [noStarknetWallet, setNotStarknetWallet] = useState(false);
@@ -66,16 +67,20 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       setNotStarknetWallet(true);
       return;
     }
-    await strk.enable();
+    const wallet = strk.wallet;
+    if (!wallet) {
+      setNotStarknetWallet(true);
+      return;
+    }
     const chain =
-      (strk.account as any).provider.chainId ||
-      strk.provider.chainId ||
+      (wallet.account as any).provider.chainId ||
+      wallet.provider.chainId ||
       (strk as any).chainId;
 
     console.log(
       strk,
       chain,
-      (strk.account as any).provider.chainId,
+      (wallet.account as any).provider.chainId,
       Object.keys(chainAliasByNetwork)[
         Object.values(chainAliasByNetwork).findIndex((aliases) =>
           aliases.includes(chain)
@@ -92,7 +97,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
     ) {
       setWrongStarknetNetwork(true);
     } else {
-      setStarknet(strk);
+      if (strk.wallet) setStarknet(strk.wallet);
     }
   }, [starknetNetwork]);
 
@@ -194,7 +199,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
         {starknet?.isConnected && (
           <span className={styles.starknetWallet}>
             Starknet wallet: <b>{starknet.account.address}</b>{" "}
-            <a onClick={() => setStarknet(undefined)}>disconnect</a>
+            <a onClick={() => disconnect()}>disconnect</a>
           </span>
         )}
         <br />
