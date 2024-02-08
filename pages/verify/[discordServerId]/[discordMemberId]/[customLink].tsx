@@ -62,31 +62,15 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const [unverifiedSignature, setUnverifiedSignature] = useState("");
 
   const connectToStarknet = useCallback(async () => {
-    const strk = await starknetConnect();
-    if (!strk) {
-      setNotStarknetWallet(true);
-      return;
-    }
-    const wallet = strk.wallet;
+    const { wallet } = await starknetConnect();
     if (!wallet) {
       setNotStarknetWallet(true);
       return;
     }
     const chain =
-      (wallet.account as any).provider.chainId ||
+      wallet.account.provider.chainId ||
       wallet.provider.chainId ||
-      (strk as any).chainId;
-
-    console.log(
-      strk,
-      chain,
-      (wallet.account as any).provider.chainId,
-      Object.keys(chainAliasByNetwork)[
-        Object.values(chainAliasByNetwork).findIndex((aliases) =>
-          aliases.includes(chain)
-        )
-      ]
-    );
+      wallet.chainId;
     if (
       starknetNetwork !==
       Object.keys(chainAliasByNetwork)[
@@ -94,11 +78,9 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
           aliases.includes(chain)
         )
       ]
-    ) {
+    )
       setWrongStarknetNetwork(true);
-    } else {
-      if (strk.wallet) setStarknet(strk.wallet);
-    }
+    else setStarknet(wallet);
   }, [starknetNetwork]);
 
   const verifySignature = useCallback(
