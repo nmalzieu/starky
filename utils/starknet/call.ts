@@ -25,7 +25,7 @@ export const callContract = async ({
   const chainId = chainAliasByNetwork[starknetNetwork][1] as any;
   if (!chainId) throw new Error("Invalid network");
 
-  const nodeUrl = chainAliasByNetwork[starknetNetwork][0];
+  const nodeUrl = process.env[`RPC_URL_${starknetNetwork.toUpperCase()}`];
   if (!nodeUrl) throw new Error("Invalid network");
   const provider = new RpcProvider({
     chainId,
