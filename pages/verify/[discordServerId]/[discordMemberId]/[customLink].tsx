@@ -40,11 +40,13 @@ const getSignatureErrorMessage = (
       return {
         short:
           "please deploy your wallet on-chain so we can verify your signature",
+        advanced: error,
       };
 
     default:
       return {
         short: "your signature could not be verified, please try again",
+        advanced: error,
       };
   }
 };
