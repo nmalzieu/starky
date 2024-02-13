@@ -31,6 +31,6 @@ export const verifySignature = async (
       `Error while verifying signature for ${accountAddress} on ${starknetNetwork}. Error code: ${e.errorCode}, message: ${e.message} `
     );
 
-    return { signatureValid: false, error: e.errorCode || e.message };
+    return { signatureValid: false, error: e.message || e.errorCode };
   }
 };
