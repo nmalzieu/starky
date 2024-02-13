@@ -1,3 +1,5 @@
+import { log } from "../discord/logs";
+
 import { callContract } from "./call";
 
 type SignatureVerify = {
@@ -25,9 +27,10 @@ export const verifySignature = async (
 
     return { signatureValid };
   } catch (e: any) {
-    console.log("Error while verifying signature for");
-    console.log({ accountAddress, hexHash, signature, starknetNetwork });
-    console.log(e);
-    return { signatureValid: false, error: e.errorCode || e.message };
+    log(
+      `Error while verifying signature for ${accountAddress} on ${starknetNetwork}. Error code: ${e.errorCode}, message: ${e.message} `
+    );
+
+    return { signatureValid: false, error: e.message || e.errorCode };
   }
 };
