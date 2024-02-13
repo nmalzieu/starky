@@ -28,27 +28,16 @@ const getSignatureErrorMessage = (
   short: string;
   advanced?: string;
 } => {
-  if (error.includes("Contract not found"))
+  if (error.includes("Contract not found") || error.includes("UNINITIALIZED"))
     return {
       short:
         "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it",
       advanced: error,
     };
-
-  switch (error) {
-    case "StarknetErrorCode.UNINITIALIZED_CONTRACT":
-      return {
-        short:
-          "please deploy your wallet on-chain so we can verify your signature",
-        advanced: error,
-      };
-
-    default:
-      return {
-        short: "your signature could not be verified, please try again",
-        advanced: error,
-      };
-  }
+  return {
+    short: "your signature could not be verified, please try again",
+    advanced: error,
+  };
 };
 
 const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
@@ -106,7 +95,10 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
           e.response?.data
         );
         setVerifyingSignature(false);
-        setUnverifiedSignature(e.response?.data?.error || "ERROR");
+        setUnverifiedSignature(`
+        ${e.response?.data?.message}.
+        ${e.response?.data?.error}
+          `);
       }
     },
     [
