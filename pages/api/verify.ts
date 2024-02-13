@@ -14,7 +14,9 @@ type Data = {
 const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   await setupDb();
   if (req.method !== "POST") {
-    res.status(405).json({ message: "Only POST allowed" });
+    res
+      .status(405)
+      .json({ message: "Method not allowed", error: "POST method required" });
     return;
   }
   const body = req.body;
@@ -27,8 +29,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     !body.network
   ) {
     res.status(400).json({
-      message:
-        "Missing body: account, signature, discordServerId, discordMemberId, customLink & network required",
+      message: "Incorrect body",
+      error: `Missing body: account, signature, discordServerId, discordMemberId, customLink & network required. Provided: ${JSON.stringify(
+        body
+      )}`,
     });
     return;
   }
@@ -44,7 +48,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
   if (!discordMember || discordMember.customLink !== body.customLink) {
     res.status(400).json({
-      message: "Wrong custom link",
+      message: "Incorrect body",
+      error: `Discord member not found or custom link is incorrect`,
     });
     return;
   }

@@ -27,6 +27,7 @@
   .advancedErrorMessage {
     font-size: 12px;
     color: rgba(128, 128, 128, 0.765);
+    word-break: break-all;
   }
   /* cursor select effect */
   .advancedErrorMessage::selection {
