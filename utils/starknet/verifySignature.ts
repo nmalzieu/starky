@@ -25,12 +25,31 @@ export const verifySignature = async (
 
     const signatureValid = result[0] === "0x1";
 
-    return { signatureValid };
+    return {
+      signatureValid,
+      error: signatureValid ? undefined : `Invalid signature ${result[0]}`,
+    };
   } catch (e: any) {
-    log(
-      `Error while verifying signature for ${accountAddress} on ${starknetNetwork}. Error code: ${e.errorCode}, message: ${e.message} `
-    );
+    try {
+      const result = await callContract({
+        starknetNetwork: starknetNetwork === "mainnet" ? "mainnet" : "goerli",
+        contractAddress: accountAddress,
+        entrypoint: "is_valid_signature",
+        calldata: [hexHash, `${signature.length}`, ...signature],
+      });
 
-    return { signatureValid: false, error: e.message || e.errorCode };
+      const signatureValid =
+        result[0] === "0x1" ||
+        result[0] === "0x0" ||
+        result[0] === "0x56414c4944";
+
+      return { signatureValid, error: signatureValid ? undefined : result[0] };
+    } catch (e: any) {
+      log(
+        `Error while verifying signature for ${accountAddress} on ${starknetNetwork}. Error code: ${e.errorCode}, message: ${e.message} `
+      );
+
+      return { signatureValid: false, error: e.message || e.errorCode };
+    }
   }
 };
