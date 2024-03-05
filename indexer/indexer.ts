@@ -6,6 +6,7 @@ import { DiscordMemberRepository, NetworkStatusRepository } from "../db";
 import { BlockMember } from "../types/indexer";
 import { NetworkName } from "../types/starknet";
 import { convertFieldEltToStringHex } from "../utils/data/string";
+import { log } from "../utils/discord/logs";
 import { execWithRateLimit } from "../utils/execWithRateLimit";
 import { retrieveTx } from "../utils/starkscan/retrieveTx";
 
@@ -15,14 +16,14 @@ import { configure, onStramReconnect } from "./stream";
 require("dotenv").config();
 
 const launchIndexers = () => {
-  console.log("[Indexer] Launching indexers");
-  console.log(`[Indexer] Found ${networks.length} networks`);
+  log("[Indexer] Launching indexers");
+  log(`[Indexer] Found ${networks.length} networks`);
   const blockStack = new BlockStack();
   // For each network, launch an indexer
   for (let network of networks) {
     const networkName = network.name as NetworkName;
     const networkUrl = network.url;
-    console.log(`[Indexer] Launching ${networkName} indexer`);
+    log(`[Indexer] Launching ${networkName} indexer`, networkName);
     launchIndexer(networkName, networkUrl, blockStack);
   }
 };
@@ -78,7 +79,7 @@ const launchIndexer = async (
   lastLoadedBlockNumber = lastBlockNumber;
 
   configure(client, lastBlockNumber);
-  console.log(`[Indexer] Starting stream for ${networkName}`);
+  log(`[Indexer] Starting stream for ${networkName}`, networkName);
 
   let transferEventsCount = 0;
   for await (const message of client) {
@@ -164,10 +165,11 @@ const launchIndexer = async (
             networkName
           );
           blockStack.push(parsedBlock);
-          console.log(
+          log(
             `[Indexer] Adding block ${blockNumber} for ${networkName} in stack - size: ${blockStack.size()}. ${
               blockMembers.length
-            } members found, for a total of ${transferEventsCount} transfer events`
+            } members found, for a total of ${transferEventsCount} transfer events`,
+            networkName
           );
         }
       }

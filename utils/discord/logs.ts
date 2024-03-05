@@ -1,6 +1,7 @@
-export const log = async (message: string) => {
-  console.log(message);
-  const webhookUrl = process.env.WEBHOOK_URL;
+export const log = async (message: string, network?: string) => {
+  const webhookUrl = !network
+    ? process.env.WEBHOOK_URL
+    : process.env[`WEBHOOK_URL_${network.toUpperCase()}`];
   if (webhookUrl) {
     await fetch(webhookUrl, {
       method: "POST",
@@ -11,5 +12,7 @@ export const log = async (message: string) => {
         content: message,
       }),
     });
+  } else {
+    console.log(message);
   }
 };
