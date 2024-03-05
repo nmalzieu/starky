@@ -4,6 +4,7 @@ import {
   NetworkStatusRepository,
 } from "../db";
 import modules from "../starkyModules";
+import { log } from "../utils/discord/logs";
 import { refreshDiscordMember } from "../utils/discord/refreshRoles";
 import preLoadMemberAssets from "../utils/preLoadMemberAssets";
 
@@ -55,14 +56,16 @@ const processBlocks = async (stack: BlockStack) => {
           } catch (e: any) {
             if (e?.code === 10007) {
               // This user is no longer a member of this discord server, we should just remove it
-              console.log(
-                `Discord member ${member.discordMemberId} does not exist in Discord server ${discordConfig.discordServerId}. Deleting it.`
+              log(
+                `Discord member ${member.discordMemberId} does not exist in Discord server ${discordConfig.discordServerId}. Deleting it.`,
+                networkName
               );
               await DiscordMemberRepository.remove(member);
             } else if (e?.code === 10011) {
               // The role no longer exists, we should just remove the config
-              console.log(
-                `Discord role ${discordConfig.discordRoleId} does not exist. Deleting configuration ${discordConfig.id} in server : ${discordConfig.discordServerId}`
+              log(
+                `Discord role ${discordConfig.discordRoleId} does not exist. Deleting configuration ${discordConfig.id} in server : ${discordConfig.discordServerId}`,
+                networkName
               );
               await DiscordServerConfigRepository.remove(discordConfig);
             } else {
@@ -73,15 +76,16 @@ const processBlocks = async (stack: BlockStack) => {
           }
       }
     }
-    console.log(
-      `[BlockProcessor] Refreshed ${blockMembers.length} members in block ${blockNumber} - ${networkName} network.`
+    log(
+      `[BlockProcessor] Refreshed ${blockMembers.length} members in block ${blockNumber} - ${networkName} network.`,
+      networkName
     );
     await NetworkStatusRepository.save({
       network: networkName,
       lastBlockNumber: blockNumber,
     });
   } catch (e) {
-    console.log(`[BlockProcessor] Error : ${e}`);
+    console.error(`[BlockProcessor] Error : ${e}`, "ERROR");
   }
   processBlocks(stack);
 };
