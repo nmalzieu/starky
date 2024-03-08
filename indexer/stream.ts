@@ -2,6 +2,7 @@ import { StatusObject, StreamClient, v1alpha2 } from "@apibara/protocol";
 import { Filter, StarkNetCursor } from "@apibara/starknet";
 
 import { NetworkName } from "../types/starknet";
+import { log } from "../utils/discord/logs";
 
 export const configure = (client: StreamClient, startingBlock: number) => {
   const cursor = StarkNetCursor.createWithBlockNumber(startingBlock);
@@ -28,12 +29,15 @@ export const onStramReconnect = async (
   client: StreamClient
 ) => {
   // handle error
-  console.log(`[Indexer] Error in ${networkName} (${err.code}) : ${err}`);
-  console.log(`[Indexer] Retry count: ${retryCount}`);
+  log(`[Indexer] Error in ${networkName} (${err.code}) : ${err}`, networkName);
+  log(`[Indexer] Retry count: ${retryCount}`, networkName);
   // If RESOURCE_EXHAUSTED, skip the current block
   if (err.code === 8) {
     blockNumber++;
-    console.log(`[Indexer] Skipping block ${blockNumber} for ${networkName}`);
+    log(
+      `[Indexer] Skipping block ${blockNumber} for ${networkName}`,
+      networkName
+    );
     // Wait 3 seconds before reconnecting
     await new Promise((resolve) => setTimeout(resolve, 1000 * 3));
     configure(client, blockNumber);
@@ -41,7 +45,7 @@ export const onStramReconnect = async (
   }
   // wait 10 seconds before reconnecting
   await new Promise((resolve) => setTimeout(resolve, 1000 * 10));
-  console.log(`[Indexer] Reconnecting ${networkName} indexer`);
+  log(`[Indexer] Reconnecting ${networkName} indexer`, networkName);
   // decide to reconnect or not
   return { reconnect: true };
 };
