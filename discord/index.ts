@@ -15,6 +15,7 @@ const verifyConfig = () => {
 
 export const launchBot = async () => {
   try {
+    console.log("> Verifying configuration");
     verifyConfig();
   } catch (e) {
     console.error(e);
