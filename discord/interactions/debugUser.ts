@@ -16,7 +16,8 @@ export const handleDebugUserCommand = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertModerator(interaction);
+  if (interaction.user.id !== process.env.DEBUG_USER_ID)
+    await assertModerator(interaction);
   if (!interaction.guildId) return;
   const selectedUser = interaction.options.getUser("user");
   if (!selectedUser) {
