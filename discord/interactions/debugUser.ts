@@ -16,7 +16,8 @@ export const handleDebugUserCommand = async (
   client: Client,
   restClient: REST
 ) => {
-  await assertModerator(interaction);
+  if (interaction.user.id !== process.env.DEBUG_USER_ID)
+    await assertModerator(interaction);
   if (!interaction.guildId) return;
   const selectedUser = interaction.options.getUser("user");
   if (!selectedUser) {
@@ -90,7 +91,8 @@ export const handleDebugUserCommand = async (
     name: "assets.json",
   });
   await interaction.followUp({
-    content: `Updated configs for user ${selectedUser.username}:
+    content: discordMembers.length
+      ? `Updated configs for user ${selectedUser.username}:
 ${Object.entries(updatedConfigs)
   .map(
     ([network, user]) =>
@@ -104,7 +106,9 @@ ${user.configs
   )
   .join("\n")}`
   )
-  .join("\n")}`,
+  .join("\n")}`
+      : `User ${selectedUser.username} didn't connect to any network.`,
+
     ephemeral: true,
     files: [assetsAttachment],
   });
