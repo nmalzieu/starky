@@ -53,6 +53,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       setNotStarknetWallet(true);
       return;
     }
+    console.log("Wallet information", wallet);
     const chain =
       wallet.account.provider.chainId ||
       wallet.provider.chainId ||
