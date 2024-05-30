@@ -1,7 +1,9 @@
 import axios from "axios";
 
+import { NetworkName } from "../../types/starknet";
+
 type ClassHashParameters = {
-  starknetNetwork: "mainnet" | "goerli";
+  starknetNetwork: NetworkName;
   contractAddress: string;
 };
 

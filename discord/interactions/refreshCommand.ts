@@ -6,15 +6,6 @@ import {
   DiscordServerConfigRepository,
 } from "../../db";
 import { refreshDiscordMemberForAllConfigs } from "../../utils/discord/refreshRoles";
-
-export const otherNetwork = (network: string) => {
-  if (network == "goerli") {
-    return "mainnet";
-  }
-  if (network == "mainnet") {
-    return "goerli";
-  }
-};
 export const handleRefreshCommand = async (
   interaction: ChatInputCommandInteraction,
   client: Client<boolean>,

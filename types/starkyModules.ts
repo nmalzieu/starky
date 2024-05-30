@@ -1,3 +1,5 @@
+import { NetworkName } from "./starknet";
+
 export type StarkyModuleField = {
   id: string;
   question: string;
@@ -7,7 +9,7 @@ export type StarkyModuleField = {
 
 export type ShouldHaveRole = (
   starknetWalletAddress: string,
-  starknetNetwork: "mainnet" | "goerli",
+  starknetNetwork: NetworkName,
   starkyModuleConfig: StarkyModuleConfig,
   cachedData?: { [key: string]: any }
 ) => Promise<boolean>;

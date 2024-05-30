@@ -1,10 +1,11 @@
 import axios from "axios";
 
 import config from "../../config";
+import { NetworkName } from "../../types/starknet";
 import { execWithRateLimit } from "../execWithRateLimit";
 
 type RetrieveTxParameters = {
-  starknetNetwork: "mainnet" | "goerli";
+  starknetNetwork: NetworkName;
   txHash: string;
 };
 

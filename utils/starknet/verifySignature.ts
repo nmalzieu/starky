@@ -17,7 +17,8 @@ export const verifySignature = async (
   // by calling the is_valid_signature method on the Account contract
   try {
     const result = await callContract({
-      starknetNetwork: starknetNetwork === "mainnet" ? "mainnet" : "goerli",
+      starknetNetwork:
+        starknetNetwork === "mainnet" ? "mainnet" : ("sepolia" as any),
       contractAddress: accountAddress,
       entrypoint: "isValidSignature",
       calldata: [hexHash, `${signature.length}`, ...signature],
@@ -32,7 +33,8 @@ export const verifySignature = async (
   } catch (e: any) {
     try {
       const result = await callContract({
-        starknetNetwork: starknetNetwork === "mainnet" ? "mainnet" : "goerli",
+        starknetNetwork:
+          starknetNetwork === "mainnet" ? "mainnet" : ("sepolia" as any),
         contractAddress: accountAddress,
         entrypoint: "is_valid_signature",
         calldata: [hexHash, `${signature.length}`, ...signature],

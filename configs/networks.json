@@ -4,7 +4,7 @@
     "url": "starknetid-mainnet.starknet.a5a.ch"
   },
   {
-    "name": "goerli",
-    "url": "starknetid-goerli.starknet.a5a.ch"
+    "name": "sepolia",
+    "url": "starknetid-sepolia.starknet.a5a.ch"
   }
 ]

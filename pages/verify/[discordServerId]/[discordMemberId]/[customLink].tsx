@@ -9,13 +9,14 @@ import SocialLinks from "../../../../components/SocialLinks";
 import chainAliasByNetwork from "../../../../configs/chainAliasByNetwork.json";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerName } from "../../../../discord/utils";
+import { NetworkName } from "../../../../types/starknet";
 import messageToSign from "../../../../utils/starknet/message";
 
 import styles from "../../../../styles/Verify.module.scss";
 
 type Props = {
   discordServerName: string;
-  starknetNetwork: "goerli" | "mainnet";
+  starknetNetwork: NetworkName;
 };
 
 const getSignatureErrorMessage = (

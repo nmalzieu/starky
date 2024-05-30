@@ -9,18 +9,19 @@ import {
 import { nanoid } from "nanoid";
 
 import config from "../../config";
+import networks from "../../configs/networks.json";
 import { DiscordMemberRepository, DiscordServerRepository } from "../../db";
 import { DiscordMember } from "../../db/entity/DiscordMember";
 import { DiscordServer } from "../../db/entity/DiscordServer";
 
 export const otherNetwork = (network: string) => {
-  if (network == "goerli") {
-    return "mainnet";
-  }
-  if (network == "mainnet") {
-    return "goerli";
-  }
+  const currentNetworkIndex = networks.findIndex(
+    (networkObj) => networkObj.name === network
+  );
+  const nextNetworkIndex = (currentNetworkIndex + 1) % networks.length;
+  return networks[nextNetworkIndex].name;
 };
+
 export const handleConnectCommand = async (
   interaction: ChatInputCommandInteraction,
   client: Client<boolean>,
@@ -57,7 +58,6 @@ export const handleConnectCommand = async (
 
   if (alreadyDiscordMembers.length > 0) {
     if (alreadyConnectedOnBothNetworks) {
-      // Connected to Goerli & Mainnet
       await interaction.reply({
         content:
           "You have already linked a Starknet wallet to this Discord server on both networks. Use `/starky-disconnect` first if you want to link a new one",
@@ -130,9 +130,9 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
         .setPlaceholder("Starknet Network")
         .addOptions(
           {
-            label: "Goerli",
-            description: "The Goerli Starknet testnet",
-            value: "goerli",
+            label: "Sepolia",
+            description: "The Sepolia Starknet testnet",
+            value: "sepolia",
           },
           {
             label: "Mainnet",

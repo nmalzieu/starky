@@ -23,11 +23,12 @@ import {
 import { DiscordServer } from "../../db/entity/DiscordServer";
 import { DiscordServerConfig } from "../../db/entity/DiscordServerConfig";
 import starkyModules from "../../starkyModules";
+import { NetworkName } from "../../types/starknet";
 import { assertManageRoles } from "../../utils/discord/permissions";
 import { getRoles, isBotRole } from "../role";
 
 type OngoingConfiguration = {
-  network?: "mainnet" | "goerli";
+  network?: NetworkName;
   roleId?: string;
   moduleType?: string;
   moduleConfig?: any;
@@ -91,9 +92,9 @@ export const handleInitialConfigCommand = async (
       .setPlaceholder("Starknet Network")
       .addOptions(
         {
-          label: "Goerli",
-          description: "The Goerli Starknet testnet",
-          value: "goerli",
+          label: "Sepolia",
+          description: "The Sepolia Starknet testnet",
+          value: "sepolia",
         },
         {
           label: "Mainnet",
@@ -117,7 +118,7 @@ export const handleNetworkConfigCommand = async (
   await assertManageRoles(interaction);
   if (!interaction.guildId) return;
   const network = interaction.values[0];
-  if (network !== "mainnet" && network !== "goerli") return;
+  if (network !== "mainnet" && network !== "sepolia") return;
 
   ongoingConfigurationsCache[interaction.guildId].network = network;
   await interaction.update({
@@ -303,7 +304,7 @@ export const handleConfigConfirmCommand = async (
   discordServerConfig.discordServerId = interaction.guildId;
   if (
     currentConfig.network !== "mainnet" &&
-    currentConfig.network !== "goerli"
+    currentConfig.network !== "sepolia"
   ) {
     throw new Error("Wrong network config");
   }
