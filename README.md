@@ -14,7 +14,7 @@ Starky is a Discord bot. To use Starky, a Discord server admin can install the S
 
 The first application command is `/starky-add-config` and can be used only by the admin. With this command, the admin can configure Starky, namely:
 
-- the Starknet network to use Starky on (Goerli or Mainnet)
+- the Starknet network to use Starky on (Sepolia or Mainnet)
 - the Discord role to assign to the discord users who match the criteria
 - the Starky module to use (ERC-721 for instance)
 - some module specific settings (for ERC-721, the address of the contract to use for token gating)

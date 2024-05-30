@@ -27,7 +27,7 @@ export const refreshDiscordMember = async (
         discordMember.starknetWalletAddress,
         discordServerConfig.starknetNetwork === "mainnet"
           ? "mainnet"
-          : "goerli",
+          : "sepolia",
         discordServerConfig?.starkyModuleConfig,
         cachedData
       );

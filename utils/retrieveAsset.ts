@@ -1,5 +1,6 @@
 import axios from "axios";
 
+import { NetworkName } from "../types/starknet";
 import { CustomApi } from "../types/starkyModules";
 
 import { hexToDecimal } from "./data/felt";
@@ -7,7 +8,7 @@ import { retrieveAssetsFromStarkscan } from "./starkscan/retrieveAssetsFromStark
 import { execWithRateLimit } from "./execWithRateLimit";
 
 type RetrieveAssetsParameters = {
-  starknetNetwork: "mainnet" | "goerli";
+  starknetNetwork: NetworkName;
   contractAddress: string;
   ownerAddress: string;
   customApi?: CustomApi;

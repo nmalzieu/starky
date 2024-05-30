@@ -1,3 +1,4 @@
+import { NetworkName } from "../types/starknet";
 import { StarkyModuleConfig, StarkyModuleField } from "../types/starkyModules";
 import { execWithRateLimit } from "../utils/execWithRateLimit";
 import { callContract } from "../utils/starknet/call";
@@ -13,14 +14,15 @@ export const fields: StarkyModuleField[] = [];
 
 export const shouldHaveRole = async (
   starknetWalletAddress: string,
-  starknetNetwork: "mainnet" | "goerli",
+  starknetNetwork: NetworkName,
   starkyModuleConfig: StarkyModuleConfig
 ): Promise<boolean> => {
   // TODO => use starkyModuleConfig to support not only argent but also Braavos
   try {
     const interface1 = await execWithRateLimit(async () => {
       return await callContract({
-        starknetNetwork: starknetNetwork === "mainnet" ? "mainnet" : "goerli",
+        starknetNetwork:
+          starknetNetwork === "mainnet" ? "mainnet" : ("sepolia" as any),
         contractAddress: starknetWalletAddress,
         entrypoint: "supportsInterface",
         calldata: ["0x3943f10f"],
@@ -28,7 +30,8 @@ export const shouldHaveRole = async (
     }, "starknet");
     const interface2 = await execWithRateLimit(async () => {
       return await callContract({
-        starknetNetwork: starknetNetwork === "mainnet" ? "mainnet" : "goerli",
+        starknetNetwork:
+          starknetNetwork === "mainnet" ? "mainnet" : ("sepolia" as any),
         contractAddress: starknetWalletAddress,
         entrypoint: "supportsInterface",
         calldata: ["0xf10dbd44"],
@@ -42,7 +45,8 @@ export const shouldHaveRole = async (
     try {
       const name = await execWithRateLimit(async () => {
         return await callContract({
-          starknetNetwork: starknetNetwork === "mainnet" ? "mainnet" : "goerli",
+          starknetNetwork:
+            starknetNetwork === "mainnet" ? "mainnet" : ("sepolia" as any),
           contractAddress: starknetWalletAddress,
           entrypoint: "getName",
           calldata: [],
