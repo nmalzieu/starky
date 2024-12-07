@@ -1,3 +1,5 @@
+// Template: https://starknetjs.com/docs/guides/signature/#sign-and-verify-the-following-eip712
+
 const domain = {
   name: "Starky",
   version: "1",
