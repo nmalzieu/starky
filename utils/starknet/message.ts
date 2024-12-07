@@ -1,5 +1,6 @@
 const domain = {
   name: "Starky",
+  chainId: "0x534e5f4d41494e",
 };
 
 const types = {
