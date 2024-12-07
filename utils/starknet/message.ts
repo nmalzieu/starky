@@ -1,13 +1,16 @@
+// Template: https://starknetjs.com/docs/guides/signature/#sign-and-verify-the-following-eip712
+
 const domain = {
   name: "Starky",
+  version: "1",
+  chainId: "0x534e5f4d41494e",
 };
 
 const types = {
   StarkNetDomain: [
-    {
-      name: "name",
-      type: "felt",
-    },
+    { name: "name", type: "string" },
+    { name: "version", type: "felt" },
+    { name: "chainId", type: "felt" },
   ],
   Message: [
     {
