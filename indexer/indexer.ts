@@ -22,12 +22,11 @@ const launchIndexers = () => {
   // For each network, launch an indexer
   for (let network of networks) {
     if (network.indexer === true) {
-    const networkName = network.name as NetworkName;
-    const networkUrl = network.url;
-    log(`[Indexer] Launching ${networkName} indexer`, networkName);
-    launchIndexer(networkName, networkUrl, blockStack);
-    }
-    else {
+      const networkName = network.name as NetworkName;
+      const networkUrl = network.url;
+      log(`[Indexer] Launching ${networkName} indexer`, networkName);
+      launchIndexer(networkName, networkUrl, blockStack);
+    } else {
       log(`[Indexer] Skipping ${network.name} as indexer is disabled`);
     }
   }
