@@ -1,10 +1,14 @@
 [
   {
     "name": "mainnet",
-    "url": "starknetid-mainnet.starknet.a5a.ch"
+    "url": "starknetid-mainnet.starknet.a5a.ch",
+    "chain": "starknet",
+    "description": "The Starknet mainnet"
   },
   {
     "name": "sepolia",
-    "url": "starknetid-sepolia.starknet.a5a.ch"
+    "url": "starknetid-sepolia.starknet.a5a.ch",
+     "chain": "starknet",
+    "description": "The Sepolia Starknet testnet"
   }
 ]
