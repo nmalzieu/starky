@@ -24,6 +24,7 @@ const WatchTowerLogger = {
   enabled: process.env.WATCHTOWER_ENABLED === "true" || false, // Optionally disable logging
 
   async log(level: LogLevel, message: string, metadata: LogMetadata = {}) {
+    console.log(message);
     if (!this.enabled) return;
 
     const logMessage: LogMessage = {
@@ -33,7 +34,6 @@ const WatchTowerLogger = {
       appName: this.appName,
       timestamp: new Date().toISOString(),
     };
-
     try {
       await axios.post(`${this.serverUrl}/logs`, logMessage);
     } catch (error) {
