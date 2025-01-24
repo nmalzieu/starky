@@ -21,7 +21,6 @@ const launchServer = async () => {
   // Prepare the next app
   await app.prepare();
   // Create the http server ready to receive requests
-  // TODO => handle HTTPS
   const isHttps = false;
   const createServer = isHttps ? createHttpsServer : createHttpServer;
   createServer(async (req, res) => {
