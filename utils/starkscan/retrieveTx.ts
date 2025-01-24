@@ -2,6 +2,7 @@ import axios from "axios";
 
 import config from "../../config";
 import { NetworkName } from "../../types/starknet";
+import WatchTowerLogger from "../../watchTower";
 import { execWithRateLimit } from "../execWithRateLimit";
 
 type RetrieveTxParameters = {
@@ -29,8 +30,8 @@ export const retrieveTx = async ({
       "starkscan"
     );
     return data;
-  } catch (e) {
-    console.log(`[Starkscan] Error while fetching tx: ${e}`);
+  } catch (e: any) {
+    WatchTowerLogger.error(`[Starkscan] Error while fetching tx`, e);
     return null;
   }
 };

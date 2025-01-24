@@ -10,6 +10,7 @@ import modules from "../../starkyModules";
 import { NetworkName } from "../../types/starknet";
 import { StarkyModule } from "../../types/starkyModules";
 import preLoadMemberAssets from "../../utils/preLoadMemberAssets";
+import WatchTowerLogger from "../../watchTower";
 
 export const refreshDiscordMember = async (
   discordServerConfig: DiscordServerConfig,
@@ -85,19 +86,20 @@ export const refreshDiscordMemberForAllConfigs = async (
     } catch (e: any) {
       if (e?.code === 10007) {
         // This user is no longer a member of this discord server, we should just remove it
-        console.log(
+        WatchTowerLogger.info(
           `Discord member ${discordMember.discordMemberId} does not exist in Discord server ${discordConfig.discordServerId}. Deleting it.`
         );
         await DiscordMemberRepository.remove(discordMember);
       } else if (e?.code === 10011) {
         // The role no longer exists, we should just remove the config
-        console.log(
+        WatchTowerLogger.info(
           `Discord role ${discordConfig.discordRoleId} does not exist. Deleting configuration ${discordConfig.id} in server : ${discordConfig.discordServerId}`
         );
         await DiscordServerConfigRepository.remove(discordConfig);
       } else {
-        console.error(
-          `Could not refresh discord member ${discordMember.discordMemberId} with configuration ${discordConfig.id} in server : ${discordConfig.discordServerId} ${e}`
+        WatchTowerLogger.error(
+          `Could not refresh discord member ${discordMember.discordMemberId} with configuration ${discordConfig.id} in server : ${discordConfig.discordServerId}`,
+          e
         );
       }
     }

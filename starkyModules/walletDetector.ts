@@ -2,6 +2,7 @@ import { NetworkName } from "../types/starknet";
 import { StarkyModuleConfig, StarkyModuleField } from "../types/starkyModules";
 import { execWithRateLimit } from "../utils/execWithRateLimit";
 import { callContract } from "../utils/starknet/call";
+import WatchTowerLogger from "../watchTower";
 
 export const name = "Wallet detector (Argent only)";
 // Only refreshing when connecting the wallet or when using the /starky-refresh command
@@ -66,7 +67,7 @@ export const shouldHaveRole = async (
     }
     return false;
   } catch (e: any) {
-    console.log(e);
+    WatchTowerLogger.error(e.message, e);
     return false;
   }
 };
