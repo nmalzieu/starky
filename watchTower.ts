@@ -1,41 +1,43 @@
 import axios, { AxiosError } from "axios";
 
-enum LogLevel {
-  Info = "info",
-  Warn = "warn",
-  Error = "error",
-}
+const LogTypes = {
+  info: process.env.LOGINFO || "goerli/info",
+  warn: process.env.LOGWARNING || "goerli/warning",
+  severe: process.env.LOGSEVERE || "goerli/severe",
+} as const;
 
 interface LogMetadata {
   [key: string]: any;
 }
 
+type LogType = (typeof LogTypes)[keyof typeof LogTypes];
 interface LogMessage {
-  level: LogLevel;
+  type: LogType;
   message: string;
   metadata?: LogMetadata;
-  appName: string;
-  timestamp: string;
+  app_id: string;
+  timestamp: number;
 }
 
 const WatchTowerLogger = {
-  serverUrl: process.env.WATCHTOWER_URL || "http://localhost:3000",
-  appName: process.env.APP_NAME || "MyApp",
+  endpoint: process.env.WATCHTOWER_URL || "http://localhost:3000",
+  app_id: process.env.APP_NAME || "MyApp",
   enabled: process.env.WATCHTOWER_ENABLED === "true" || false, // Optionally disable logging
+  token: process.env.WATCHTOWER_TOKEN || "",
 
-  async log(level: LogLevel, message: string, metadata: LogMetadata = {}) {
+  async log(type: LogType, message: string, metadata: LogMetadata = {}) {
     console.log(message);
     if (!this.enabled) return;
 
     const logMessage: LogMessage = {
-      level,
+      type,
       message,
       metadata,
-      appName: this.appName,
-      timestamp: new Date().toISOString(),
+      app_id: this.app_id,
+      timestamp: Date.now(),
     };
     try {
-      await axios.post(`${this.serverUrl}/logs`, logMessage);
+      await axios.post(this.endpoint, { token: this.token, log: logMessage });
     } catch (error) {
       if (error instanceof AxiosError) {
         console.error("WatchTower logging failed:", error.message);
@@ -46,15 +48,15 @@ const WatchTowerLogger = {
   },
 
   info(message: string, metadata: LogMetadata = {}) {
-    this.log(LogLevel.Info, message, metadata);
+    this.log(LogTypes["info"], message, metadata);
   },
 
   warn(message: string, metadata: LogMetadata = {}) {
-    this.log(LogLevel.Warn, message, metadata);
+    this.log(LogTypes["warn"], message, metadata);
   },
 
   error(message: string, metadata: LogMetadata = {}) {
-    this.log(LogLevel.Error, message, metadata);
+    this.log(LogTypes["severe"], message, metadata);
   },
 };
 
