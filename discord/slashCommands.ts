@@ -2,6 +2,7 @@ import { REST } from "@discordjs/rest";
 import { Routes, SlashCommandBuilder } from "discord.js";
 
 import config from "../config";
+import WatchTowerLogger from "../watchTower";
 
 export const registerSlashCommands = async () => {
   const restDiscordClient = new REST({ version: "10" }).setToken(
@@ -58,12 +59,12 @@ export const registerSlashCommands = async () => {
         "Set a custom API URI for a configuration (Instead of Starkscan)"
       ),
   ].map((command) => command.toJSON());
-  console.log("> Registering Discord slash commands...");
+  WatchTowerLogger.info("> Registering Discord slash commands...");
   await restDiscordClient.put(
     Routes.applicationCommands(config.NEXT_PUBLIC_DISCORD_CLIENT_ID),
     {
       body: slashCommands,
     }
   );
-  console.log("> Registered Discord slash commands!");
+  WatchTowerLogger.info("> Registered Discord slash commands!");
 };

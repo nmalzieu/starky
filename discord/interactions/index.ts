@@ -2,6 +2,7 @@ import { REST } from "@discordjs/rest";
 import { Client } from "discord.js";
 
 import config from "../../config";
+import WatchTowerLogger from "../../watchTower";
 
 import {
   handleConfigCancelCommand,
@@ -158,5 +159,5 @@ export const setupInteractions = (client: Client) => {
       );
   });
 
-  console.log("> Discord interactions set up successfully");
+  WatchTowerLogger.info("> Discord interactions set up successfully");
 };

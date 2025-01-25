@@ -1,3 +1,5 @@
+import WatchTowerLogger from "../../watchTower";
+
 export const log = async (message: string, network?: string) => {
   const webhookUrl = !network
     ? process.env.WEBHOOK_URL
@@ -13,6 +15,6 @@ export const log = async (message: string, network?: string) => {
       }),
     });
   } else {
-    console.log(message);
+    WatchTowerLogger.info(message);
   }
 };
