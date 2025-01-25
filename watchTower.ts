@@ -1,16 +1,16 @@
 import axios, { AxiosError } from "axios";
 
 const LogTypes = {
-  info: process.env.LOGINFO || "goerli/info",
-  warn: process.env.LOGWARNING || "goerli/warning",
-  severe: process.env.LOGSEVERE || "goerli/severe",
+  info: process.env.LOG_INFO || "goerli/info",
+  warn: process.env.LOG_WARNING || "goerli/warning",
+  severe: process.env.LOG_SEVERE || "goerli/severe",
 } as const;
 
 interface LogMetadata {
   [key: string]: any;
 }
 
-type LogType = (typeof LogTypes)[keyof typeof LogTypes];
+type LogType = typeof LogTypes[keyof typeof LogTypes];
 interface LogMessage {
   type: LogType;
   message: string;
@@ -21,7 +21,7 @@ interface LogMessage {
 
 const WatchTowerLogger = {
   endpoint: process.env.WATCHTOWER_URL || "http://localhost:3000",
-  app_id: process.env.APP_NAME || "MyApp",
+  app_id: process.env.APP_ID || "",
   enabled: process.env.WATCHTOWER_ENABLED === "true" || false, // Optionally disable logging
   token: process.env.WATCHTOWER_TOKEN || "",
 
