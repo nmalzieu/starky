@@ -169,12 +169,19 @@ const launchIndexer = async (
             networkName
           );
           blockStack.push(parsedBlock);
-          log(
-            `[Indexer] Adding block ${blockNumber} for ${networkName} in stack - size: ${blockStack.size()}. ${
-              blockMembers.length
-            } members found, for a total of ${transferEventsCount} transfer events`,
-            networkName
+
+          const logEveryXBlock = parseInt(
+            process.env.LOG_EVERY_X_BLOCK || "50",
+            10
           );
+          if (blockNumber && Number(blockNumber) % logEveryXBlock === 0) {
+            log(
+              `[Indexer] Adding block ${blockNumber} for ${networkName} in stack - size: ${blockStack.size()}. ${
+                blockMembers.length
+              } members found, for a total of ${transferEventsCount} transfer events`,
+              networkName
+            );
+          }
         }
       }
     }
