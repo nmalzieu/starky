@@ -11,6 +11,7 @@ import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerName } from "../../../../discord/utils";
 import { NetworkName } from "../../../../types/starknet";
 import messageToSign from "../../../../utils/starknet/message";
+import WatchTowerLogger from "../../../../watchTower";
 
 import styles from "../../../../styles/Verify.module.scss";
 
@@ -54,7 +55,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       setNotStarknetWallet(true);
       return;
     }
-    console.log("Wallet information", wallet);
+    WatchTowerLogger.info("Wallet information", wallet);
     const chain =
       wallet.account.provider.chainId ||
       wallet.provider.chainId ||
@@ -89,7 +90,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
         setVerifiedSignature(true);
         setVerifyingSignature(false);
       } catch (e: any) {
-        console.error(
+        WatchTowerLogger.error(
           "Signature verification failed with data",
           e.response?.data
         );
@@ -112,8 +113,8 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       };
       const signature = await account.signMessage(messageCopy);
       await verifySignature(signature);
-    } catch (e) {
-      console.log(e);
+    } catch (e: any) {
+      WatchTowerLogger.error(e.message, e);
     }
   }, [account, verifySignature, chainId]);
 
@@ -175,7 +176,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
             <a
               onClick={() => {
                 setAccount(undefined);
-                disconnect().catch(console.error);
+                disconnect().catch(WatchTowerLogger.error);
               }}
             >
               disconnect
@@ -219,8 +220,8 @@ export async function getServerSideProps({ res, query }: any) {
   }
   try {
     discordServerName = await getDiscordServerName(`${query.discordServerId}`);
-  } catch (e) {
-    console.error(e);
+  } catch (e: any) {
+    WatchTowerLogger.error(e.message, e);
   }
   return {
     props: {

@@ -7,6 +7,7 @@ import modules from "../starkyModules";
 import { log } from "../utils/discord/logs";
 import { refreshDiscordMember } from "../utils/discord/refreshRoles";
 import preLoadMemberAssets from "../utils/preLoadMemberAssets";
+import WatchTowerLogger from "../watchTower";
 
 import BlockStack from "./blockStack";
 
@@ -69,8 +70,9 @@ const processBlocks = async (stack: BlockStack) => {
               );
               await DiscordServerConfigRepository.remove(discordConfig);
             } else {
-              console.error(
-                `Could not refresh discord member ${member.discordMemberId} with configuration ${discordConfig.id} in server : ${discordConfig.discordServerId} ${e}`
+              WatchTowerLogger.error(
+                `Could not refresh discord member ${member.discordMemberId} with configuration ${discordConfig.id} in server : ${discordConfig.discordServerId}`,
+                e
               );
             }
           }
@@ -84,8 +86,8 @@ const processBlocks = async (stack: BlockStack) => {
       network: networkName,
       lastBlockNumber: blockNumber,
     });
-  } catch (e) {
-    console.error(`[BlockProcessor] Error : ${e}`, "ERROR");
+  } catch (e: any) {
+    WatchTowerLogger.error(`[BlockProcessor] Error`, e);
   }
   processBlocks(stack);
 };

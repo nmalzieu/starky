@@ -2,6 +2,7 @@ import axios from "axios";
 
 import { NetworkName } from "../types/starknet";
 import { CustomApi } from "../types/starkyModules";
+import WatchTowerLogger from "../watchTower";
 
 import { hexToDecimal } from "./data/felt";
 import { retrieveAssetsFromStarkscan } from "./starkscan/retrieveAssetsFromStarkscan";
@@ -45,7 +46,7 @@ export const retrieveAssets = async ({
         break;
       }
       if (!data[apiParamName]) {
-        console.log(
+        WatchTowerLogger.info(
           `[Custom API] Error while fetching assets (field ${apiParamName} not found): ${JSON.stringify(
             data
           )}`
@@ -56,7 +57,9 @@ export const retrieveAssets = async ({
       nextUrl = data.next_url;
       calls++;
     } catch (e) {
-      console.log(`[Custom API] Error while fetching assets: ${e}\n${nextUrl}`);
+      WatchTowerLogger.info(
+        `[Custom API] Error while fetching assets: ${e}\n${nextUrl}`
+      );
       break;
     }
   }

@@ -2,6 +2,7 @@ import { REST } from "@discordjs/rest";
 import { Client } from "discord.js";
 
 import config from "../../config";
+import WatchTowerLogger from "../../watchTower";
 
 import {
   handleConfigCancelCommand,
@@ -24,6 +25,7 @@ import {
   handleDisconnectCommand,
   handleDisconnectConfirmCommand,
 } from "./disconnectCommand";
+import { handleHelpCommand } from "./helpCommand";
 import { handleRefreshCommand } from "./refreshCommand";
 import {
   handleSetConfigCustomApiCommand,
@@ -114,6 +116,9 @@ export const setupInteractions = (client: Client) => {
       interaction.isModalSubmit() &&
       interaction.customId === "set-config-custom-api-modal";
 
+    const isHelpCommand =
+      interaction.isChatInputCommand() && interaction.commandName === "help";
+
     if (isUserConnect)
       return handleConnectCommand(interaction, client, restClient);
     else if (isUserNetworkConfig)
@@ -156,7 +161,9 @@ export const setupInteractions = (client: Client) => {
         client,
         restClient
       );
+    else if (isHelpCommand)
+      return handleHelpCommand(interaction, client, restClient);
   });
 
-  console.log("> Discord interactions set up successfully");
+  WatchTowerLogger.info("> Discord interactions set up successfully");
 };

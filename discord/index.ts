@@ -1,4 +1,5 @@
 import config from "../config";
+import WatchTowerLogger from "../watchTower";
 
 import { createDiscordClient } from "./client";
 import { setupInteractions } from "./interactions";
@@ -15,10 +16,10 @@ const verifyConfig = () => {
 
 export const launchBot = async () => {
   try {
-    console.log("> Verifying configuration");
+    WatchTowerLogger.info("> Verifying configuration");
     verifyConfig();
-  } catch (e) {
-    console.error(e);
+  } catch (e: any) {
+    WatchTowerLogger.error(e.message, e);
     return;
   }
   const client = await createDiscordClient();

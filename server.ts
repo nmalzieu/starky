@@ -10,6 +10,7 @@ import { cleanStacks } from "./utils/execWithRateLimit";
 import config from "./config";
 import { setupDb } from "./db";
 import { launchBot } from "./discord";
+import WatchTowerLogger from "./watchTower";
 
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev, hostname: config.HOST, port: config.PORT });
@@ -21,7 +22,6 @@ const launchServer = async () => {
   // Prepare the next app
   await app.prepare();
   // Create the http server ready to receive requests
-  // TODO => handle HTTPS
   const isHttps = false;
   const createServer = isHttps ? createHttpsServer : createHttpServer;
   createServer(async (req, res) => {
@@ -29,12 +29,12 @@ const launchServer = async () => {
       const parsedUrl = parse(req.url || "", true);
       await handle(req, res, parsedUrl);
     } catch (err) {
-      console.error("Error occurred handling", req.url, err);
+      WatchTowerLogger.error("Error occurred handling", { url: req.url, err });
       res.statusCode = 500;
       res.end("internal server error");
     }
   }).listen(config.PORT, async () => {
-    console.log(
+    WatchTowerLogger.info(
       `> Server ready on http${isHttps ? "s" : ""}://${config.HOST}:${
         config.PORT
       }`

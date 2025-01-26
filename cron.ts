@@ -9,10 +9,13 @@ import {
   DiscordServerRepository,
 } from "./db";
 import modules from "./starkyModules";
+import WatchTowerLogger from "./watchTower";
 
 const refreshDiscordServers = async () => {
   const discordServers = await DiscordServerRepository.find();
-  console.log(`[Cron] Refreshing ${discordServers.length} discord servers`);
+  WatchTowerLogger.info(
+    `[Cron] Refreshing ${discordServers.length} discord servers`
+  );
   for (let discordServer of discordServers) {
     await refreshDiscordServer(discordServer);
   }
@@ -52,12 +55,13 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
         if (e?.code === 10007) {
           // This user is no longer a member of this discord server, we should just remove it
           deleteDiscordMember = true;
-          console.log(
+          WatchTowerLogger.info(
             `Discord member ${discordMember.discordMemberId} does not exist in Discord server ${discordConfig.discordServerId} and will be deleted`
           );
         } else {
-          console.error(
-            `Could not refresh discord member ${discordMember.discordMemberId} with configuration ${discordConfig.id} in server : ${discordConfig.discordServerId} ${e}`
+          WatchTowerLogger.error(
+            `Could not refresh discord member ${discordMember.discordMemberId} with configuration ${discordConfig.id} in server : ${discordConfig.discordServerId}`,
+            e
           );
         }
       }
@@ -71,9 +75,9 @@ export const refreshDiscordServer = async (discordServer: DiscordServer) => {
 const cronInterval = async () => {
   try {
     await refreshDiscordServers();
-  } catch (e) {
-    console.log("[Cron] Error while refreshing discord servers");
-    console.error(e);
+  } catch (e: any) {
+    WatchTowerLogger.info("[Cron] Error while refreshing discord servers");
+    WatchTowerLogger.error(e.message, e);
   }
   setTimeout(cronInterval, config.UPDATE_STATUS_EVERY_SECONDS * 1000);
 };

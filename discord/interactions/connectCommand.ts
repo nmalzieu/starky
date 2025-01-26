@@ -13,6 +13,7 @@ import networks from "../../configs/networks.json";
 import { DiscordMemberRepository, DiscordServerRepository } from "../../db";
 import { DiscordMember } from "../../db/entity/DiscordMember";
 import { DiscordServer } from "../../db/entity/DiscordServer";
+import WatchTowerLogger from "../../watchTower";
 
 export const otherNetwork = (network: string) => {
   const currentNetworkIndex = networks.findIndex(
@@ -41,7 +42,7 @@ export const handleConnectCommand = async (
   });
 
   if (alreadyDiscordServer === null) {
-    console.log("Creating discord server");
+    WatchTowerLogger.info("Creating discord server");
     alreadyDiscordServer = new DiscordServer();
     alreadyDiscordServer.id = guildId;
     await DiscordServerRepository.save(alreadyDiscordServer);
@@ -84,7 +85,7 @@ export const handleConnectCommand = async (
         content: `
 You already connected on this Network : ${
           alreadyDiscordMembers[0].starknetNetwork
-        } 
+        }
 Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
           newDiscordMember.customLink
         } and verify your Starknet identity on network: ${otherNetwork(
@@ -150,7 +151,7 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
     return;
   }
 
-  console.log("An error occured in Starky connect", {
+  WatchTowerLogger.info("An error occured in Starky connect", {
     guildId,
     userId,
     alreadyDiscordMembers,
