@@ -78,10 +78,13 @@ const processBlocks = async (stack: BlockStack) => {
           }
       }
     }
-    log(
-      `[BlockProcessor] Refreshed ${blockMembers.length} members in block ${blockNumber} - ${networkName} network.`,
-      networkName
-    );
+    const logEveryXBlock = parseInt(process.env.LOG_EVERY_X_BLOCK || "50", 10);
+    if (blockNumber % logEveryXBlock === 0) {
+      log(
+        `[BlockProcessor] Refreshed ${blockMembers.length} members in block ${blockNumber} - ${networkName} network.`,
+        networkName
+      );
+    }
     await NetworkStatusRepository.save({
       network: networkName,
       lastBlockNumber: blockNumber,
