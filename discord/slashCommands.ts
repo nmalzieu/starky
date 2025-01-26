@@ -58,6 +58,9 @@ export const registerSlashCommands = async () => {
       .setDescription(
         "Set a custom API URI for a configuration (Instead of Starkscan)"
       ),
+    new SlashCommandBuilder()
+      .setName("help")
+      .setDescription("Display a link to help"),
   ].map((command) => command.toJSON());
   WatchTowerLogger.info("> Registering Discord slash commands...");
   await restDiscordClient.put(
