@@ -17,8 +17,11 @@ import WatchTowerLogger from "../../watchTower";
 
 export const otherNetwork = (network: string) => {
   const currentNetworkIndex = networks.findIndex(
-    (networkObj) => networkObj.name === network
+    ({ name }) => name === network
   );
+  if (currentNetworkIndex === -1) {
+    throw new Error("Invalid network name provided.");
+  }
   const nextNetworkIndex = (currentNetworkIndex + 1) % networks.length;
   return networks[nextNetworkIndex].name;
 };
@@ -130,16 +133,11 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
         .setCustomId("user-config-network")
         .setPlaceholder("Starknet Network")
         .addOptions(
-          {
-            label: "Sepolia",
-            description: "The Sepolia Starknet testnet",
-            value: "sepolia",
-          },
-          {
-            label: "Mainnet",
-            description: "The Starknet mainnet",
-            value: "mainnet",
-          }
+          ...networks.map((network) => ({
+            label: network.name,
+            description: network.description,
+            value: network.name,
+          }))
         )
     );
 
@@ -188,6 +186,15 @@ export const handleUserNetworkConfigCommand = async (
     });
     return;
   }
+
+  if (!networks.find((n) => n.name === interaction.values[0])) {
+    await interaction.reply({
+      content: "Invalid network selected.",
+      ephemeral: true,
+    });
+    return;
+  }
+
   const newDiscordMember = new DiscordMember();
   newDiscordMember.starknetNetwork = interaction.values[0];
   newDiscordMember.discordServerId = guildId;

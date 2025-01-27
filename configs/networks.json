@@ -2,11 +2,13 @@
   {
     "name": "mainnet",
     "url": "starknetid-mainnet.starknet.a5a.ch",
-    "indexer": true
+    "indexer": true,
+    "description": "The Starknet mainnet"
   },
   {
     "name": "sepolia",
     "url": "starknetid-sepolia.starknet.a5a.ch",
-    "indexer": true
+    "indexer": true,
+    "description": "The Starknet testnet"
   }
 ]
