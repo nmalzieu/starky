@@ -33,6 +33,7 @@ Other commands available:
 - `/starky-view-config` for an admin to check a configuration's settings
 - `/starky-debug-user` for moderators to refresh a user's roles and collect informations about them and why it may not work
 - `/starky-set-config-custom-api` for an admin to setup an API override. By default Starky is fetching data at Starkscan's API for every configs, but you can use your own.
+- `/help` to display a list of all available commands and their usage.
 
 # Starky technical components
 

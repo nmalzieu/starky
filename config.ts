@@ -35,6 +35,7 @@ const config = {
   HOST: process.env.HOST || "localhost",
   PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : 8080,
   STARKSCAN_API_KEY,
+  LOG_EVERY_X_BLOCK: parseInt(process.env.LOG_EVERY_X_BLOCK || "50", 10),
 };
 
 export default config;
