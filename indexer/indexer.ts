@@ -1,6 +1,7 @@
 import { StreamClient } from "@apibara/protocol";
 import { v1alpha2 as starknet } from "@apibara/starknet";
 
+import config from "../config";
 import networks from "../configs/networks.json";
 import { DiscordMemberRepository, NetworkStatusRepository } from "../db";
 import { BlockMember } from "../types/indexer";
@@ -170,10 +171,7 @@ const launchIndexer = async (
           );
           blockStack.push(parsedBlock);
 
-          const logEveryXBlock = parseInt(
-            process.env.LOG_EVERY_X_BLOCK || "50",
-            10
-          );
+          const logEveryXBlock = config.LOG_EVERY_X_BLOCK;
           if (blockNumber && Number(blockNumber) % logEveryXBlock === 0) {
             log(
               `[Indexer] Adding block ${blockNumber} for ${networkName} in stack - size: ${blockStack.size()}. ${

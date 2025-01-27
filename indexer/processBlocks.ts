@@ -1,3 +1,4 @@
+import config from "../config";
 import {
   DiscordMemberRepository,
   DiscordServerConfigRepository,
@@ -78,7 +79,7 @@ const processBlocks = async (stack: BlockStack) => {
           }
       }
     }
-    const logEveryXBlock = parseInt(process.env.LOG_EVERY_X_BLOCK || "50", 10);
+    const logEveryXBlock = config.LOG_EVERY_X_BLOCK;
     if (blockNumber % logEveryXBlock === 0) {
       log(
         `[BlockProcessor] Refreshed ${blockMembers.length} members in block ${blockNumber} - ${networkName} network.`,
