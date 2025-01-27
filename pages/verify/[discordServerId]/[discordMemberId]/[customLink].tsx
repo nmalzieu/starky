@@ -2,11 +2,13 @@ import { useCallback, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Signature } from "starknet";
-import { connect as starknetConnect, disconnect } from "starknetkit";
-
+import { connect as starknetConnect, disconnect as starknetDisconnect } from "starknetkit";
+// Import Stellar SDK (you'll need to add this dependency)
+import StellarSdk from "stellar-sdk";
 import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
 import chainAliasByNetwork from "../../../../configs/chainAliasByNetwork.json";
+import networks from "../../../../configs/networks.json";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerName } from "../../../../discord/utils";
 import { NetworkName } from "../../../../types/starknet";
@@ -15,77 +17,151 @@ import WatchTowerLogger from "../../../../watchTower";
 
 import styles from "../../../../styles/Verify.module.scss";
 
+type NetworkConfig = {
+  name: string;
+  url: string;
+  chain: "starknet" | "stellar";
+};
+
+async function stellarConnect() {
+  console.log("Connecting to Stellar wallet...");
+  const wallet = { address: "stellar-wallet-address" }; // Mock example
+  return wallet;
+}
+
+async function stellarDisconnect() {
+  console.log("Disconnecting from Stellar wallet...");
+}
+
 type Props = {
   discordServerName: string;
-  starknetNetwork: NetworkName;
+  networkConfig: NetworkConfig;
+};
+
+type WalletConnection = {
+  connect: () => Promise<any>;
+  disconnect: () => Promise<void>;
+  signMessage: (message: any) => Promise<any>;
 };
 
 const getSignatureErrorMessage = (
-  error: string
+  error: string,
+  chain: string
 ): {
   short: string;
   advanced?: string;
 } => {
-  if (error.includes("Contract not found") || error.includes("UNINITIALIZED"))
-    return {
-      short:
-        "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it",
-      advanced: error,
-    };
+  if (chain === "starknet") {
+    if (error.includes("Contract not found") || error.includes("UNINITIALIZED"))
+      return {
+        short:
+          "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it",
+        advanced: error,
+      };
+  } else if (chain === "stellar") {
+    if (error.includes("account_not_found"))
+      return {
+        short:
+          "your Stellar account is not yet initialized, please fund it with the minimum balance",
+        advanced: error,
+      };
+  }
+  
   return {
     short: "your signature could not be verified, please try again",
     advanced: error,
   };
 };
 
-const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
+const walletConnectors: Record<string, WalletConnection> = {
+  starknet: {
+    connect: async () => {
+      const { wallet } = await starknetConnect();
+      return wallet;
+    },
+    disconnect: starknetDisconnect,
+    signMessage: async (account: any) => {
+      return account.signMessage(messageToSign);
+    },
+  },
+  stellar: {
+    connect: async () => {
+      const wallet = await stellarConnect();
+      return wallet;
+    },
+    disconnect: stellarDisconnect,
+    signMessage: async (account: any) => {
+      // Here I'm Implementing Stellar message 
+      return account.signMessage(messageToSign);
+    },
+  },
+};
+
+const VerifyPage = ({ discordServerName, networkConfig }: Props) => {
   const router = useRouter();
   const { discordServerId, discordMemberId, customLink } = router.query;
   const [account, setAccount] = useState<any>(undefined);
-  const [noStarknetWallet, setNotStarknetWallet] = useState(false);
-  const [wrongStarknetNetwork, setWrongStarknetNetwork] = useState(false);
+  const [noWallet, setNoWallet] = useState(false);
+  const [wrongNetwork, setWrongNetwork] = useState(false);
   const [verifyingSignature, setVerifyingSignature] = useState(false);
   const [verifiedSignature, setVerifiedSignature] = useState(false);
   const [unverifiedSignature, setUnverifiedSignature] = useState("");
   const [chainId, setChainId] = useState("");
 
-  const connectToStarknet = useCallback(async () => {
-    const { wallet } = await starknetConnect();
-    if (!wallet) {
-      setNotStarknetWallet(true);
+  const connectWallet = useCallback(async () => {
+    const walletConnector = walletConnectors[networkConfig.chain];
+    if (!walletConnector) {
+      WatchTowerLogger.error("Unsupported chain");
       return;
     }
-    WatchTowerLogger.info("Wallet information", wallet);
-    const chain =
-      wallet.account.provider.chainId ||
-      wallet.provider.chainId ||
-      wallet.chainId;
-    setChainId(chain);
-    if (
-      starknetNetwork !==
-      Object.keys(chainAliasByNetwork)[
-        Object.values(chainAliasByNetwork).findIndex((aliases) =>
-          aliases.includes(chain)
-        )
-      ]
-    )
-      setWrongStarknetNetwork(true);
-    else setAccount(wallet.account);
-  }, [starknetNetwork]);
+
+    try {
+      const wallet = await walletConnector.connect();
+      if (!wallet) {
+        setNoWallet(true);
+        return;
+      }
+
+      WatchTowerLogger.info("Wallet information", wallet);
+      
+      // Handle chain ID verification based on the chain type
+      const chain = networkConfig.chain === "starknet"
+        ? wallet.account.provider.chainId || wallet.provider.chainId || wallet.chainId
+        : wallet.network; // For Stellar
+
+      setChainId(chain);
+
+      // Verify network matches configuration
+      const isCorrectNetwork = networkConfig.chain === "starknet"
+        ? verifyStarknetNetwork(chain, networkConfig.name)
+        : verifyStellarNetwork(chain, networkConfig.name);
+
+      if (!isCorrectNetwork) {
+        setWrongNetwork(true);
+        return;
+      }
+
+      setAccount(wallet.account || wallet);
+    } catch (error) {
+      WatchTowerLogger.error("Wallet connection failed");
+      setNoWallet(true);
+    }
+  }, [networkConfig]);
 
   const verifySignature = useCallback(
-    async (signature: Signature) => {
+    async (signature: any) => {
       if (!account) return;
       setUnverifiedSignature("");
       setVerifyingSignature(true);
       try {
         await axios.post("/api/verify", {
-          account: account?.address,
+          account: account?.address || account?.publicKey,
           signature,
           discordServerId,
           discordMemberId,
           customLink,
-          network: starknetNetwork,
+          network: networkConfig.name,
+          chain: networkConfig.chain,
         });
         setVerifiedSignature(true);
         setVerifyingSignature(false);
@@ -101,36 +177,43 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
           `);
       }
     },
-    [customLink, discordMemberId, discordServerId, account, starknetNetwork]
+    [account, customLink, discordMemberId, discordServerId, networkConfig]
   );
 
   const sign = useCallback(async () => {
     if (!account) return;
     try {
-      const messageCopy = {
-        ...messageToSign,
-        domain: { ...messageToSign.domain, chainId },
-      };
-      const signature = await account.signMessage(messageCopy);
+      const walletConnector = walletConnectors[networkConfig.chain];
+      const signature = await walletConnector.signMessage(account);
       await verifySignature(signature);
     } catch (e: any) {
       WatchTowerLogger.error(e.message, e);
     }
-  }, [account, verifySignature, chainId]);
+  }, [account, verifySignature, networkConfig.chain]);
 
-  let starknetWalletDiv = (
+  const disconnect = useCallback(async () => {
+    try {
+      const walletConnector = walletConnectors[networkConfig.chain];
+      await walletConnector.disconnect();
+      setAccount(undefined);
+    } catch (error) {
+      WatchTowerLogger.error("Disconnect failed");
+    }
+  }, [networkConfig.chain]);
+
+  let walletDiv = (
     <div>
       {!account && (
         <div>
-          <a className={styles.connect} onClick={connectToStarknet}>
-            connect your Starknet wallet
+          <a className={styles.connect} onClick={connectWallet}>
+            connect your {networkConfig.chain} wallet
           </a>
-          {wrongStarknetNetwork && (
+          {wrongNetwork && (
             <div className="danger">
               this discord server has been configured to verify identity on the{" "}
-              {starknetNetwork} network.
+              {networkConfig.name} network.
               <br />
-              please switch your browser wallet to the {starknetNetwork} network
+              please switch your wallet to the {networkConfig.name} network
               then connect again
             </div>
           )}
@@ -146,11 +229,11 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       )}
       {unverifiedSignature && (
         <div className="danger">
-          {getSignatureErrorMessage(unverifiedSignature).short}
+          {getSignatureErrorMessage(unverifiedSignature, networkConfig.chain).short}
           <br />
-          {getSignatureErrorMessage(unverifiedSignature).advanced && (
+          {getSignatureErrorMessage(unverifiedSignature, networkConfig.chain).advanced && (
             <span className={styles.advancedErrorMessage}>
-              advanced: {getSignatureErrorMessage(unverifiedSignature).advanced}
+              advanced: {getSignatureErrorMessage(unverifiedSignature, networkConfig.chain).advanced}
             </span>
           )}
         </div>
@@ -158,8 +241,8 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
     </div>
   );
 
-  if (noStarknetWallet) {
-    starknetWalletDiv = <div>no Starknet wallet detected on your browser.</div>;
+  if (noWallet) {
+    walletDiv = <div>no {networkConfig.chain} wallet detected on your browser.</div>;
   }
 
   return (
@@ -168,17 +251,12 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       <div>
         Discord server: <b>{discordServerName}</b>
         <br />
-        Starknet network: <b>{starknetNetwork}</b>
+        Network: <b>{networkConfig.name}</b> ({networkConfig.chain})
         <br />
         {account && (
-          <span className={styles.starknetWallet}>
-            Starknet wallet: <b>{account.address}</b>{" "}
-            <a
-              onClick={() => {
-                setAccount(undefined);
-                disconnect().catch(WatchTowerLogger.error);
-              }}
-            >
+          <span className={styles.wallet}>
+            {networkConfig.chain} wallet: <b>{account.address || account.publicKey}</b>{" "}
+            <a onClick={disconnect}>
               disconnect
             </a>
           </span>
@@ -189,21 +267,38 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
             <span>
               Identity: <b>verified</b>
             </span>
-            <h1>YOU’RE ALL SET FREN</h1>
+            <h1>YOU'RE ALL SET FREN</h1>
             <span>you shall close this tab</span>
           </div>
         )}
-        {!verifiedSignature && starknetWalletDiv}
+        {!verifiedSignature && walletDiv}
       </div>
       {process.env.NEXT_PUBLIC_STARKY_OFFICIAL && <SocialLinks />}
     </div>
   );
 };
 
+const verifyStarknetNetwork = (chain: string, networkName: string): boolean => {
+  const networkIndex = Object.values(chainAliasByNetwork).findIndex((aliases) =>
+    aliases.includes(chain)
+  );
+  return networkName === Object.keys(chainAliasByNetwork)[networkIndex];
+};
+
+const verifyStellarNetwork = (chain: string, networkName: string): boolean => {
+  if (networkName === "stellar-mainnet") {
+    return chain === "public";
+  } else if (networkName === "stellar-testnet") {
+    return chain === "testnet";
+  }
+  return false;
+};
+
 export async function getServerSideProps({ res, query }: any) {
   await setupDb();
   let discordServerName = null;
   const { discordServerId, discordMemberId, customLink } = query;
+  
   const discordMember = await DiscordMemberRepository.findOne({
     where: {
       customLink,
@@ -212,21 +307,33 @@ export async function getServerSideProps({ res, query }: any) {
     },
     relations: ["discordServer"],
   });
+
   if (!discordMember || discordMember.customLink !== customLink) {
     res.setHeader("location", "/");
     res.statusCode = 302;
     res.end();
     return { props: {} };
   }
+
+  // Find network configuration
+  const networkConfig = networks.find(
+    (network) => network.name === discordMember.starknetNetwork
+  );
+
+  if (!networkConfig) {
+    throw new Error(`Network configuration not found for ${discordMember.starknetNetwork}`);
+  }
+
   try {
     discordServerName = await getDiscordServerName(`${query.discordServerId}`);
   } catch (e: any) {
     WatchTowerLogger.error(e.message, e);
   }
+
   return {
     props: {
       discordServerName,
-      starknetNetwork: discordMember.starknetNetwork,
+      networkConfig,
     },
   };
 }
