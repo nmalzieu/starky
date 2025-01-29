@@ -89,6 +89,7 @@ Just run the `noemalzieu/starky:latest` docker container, providing the followin
 - `DOMAIN` : the domain on which Starky is hosted (will be used to send their custom link to users in Discord)
 - `PORT` : the port on which to run the server (defaults to 8080 and it is the port exposed in the Dockerfile)
 - `UPDATE_STATUS_EVERY_SECONDS` (optional - defaults to 5min) : the cron interval in seconds
+- `LOG_EVERY_X_BLOCK` (optional - defaults to 1): Allows printing one block out of X instead of printing every block. This should be set as an integer.
 
 ## Step 4: install your Discord application on your server
 
