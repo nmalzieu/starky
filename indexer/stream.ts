@@ -1,4 +1,4 @@
-import { StatusObject, StreamClient, v1alpha2 } from "@apibara/protocol";
+/* import { StatusObject, StreamClient, v1alpha2 } from "@apibara/protocol";
 import { Filter, StarkNetCursor } from "@apibara/starknet";
 
 import { NetworkName } from "../types/starknet";
@@ -48,4 +48,4 @@ export const onStramReconnect = async (
   log(`[Indexer] Reconnecting ${networkName} indexer`, networkName);
   // decide to reconnect or not
   return { reconnect: true };
-};
+}; */
