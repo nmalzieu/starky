@@ -66,7 +66,7 @@ export const handleDebugUserCommand = async (
     const network = discordMember.starknetNetwork as NetworkName;
     const discordServerConfigs = await DiscordServerConfigRepository.findBy({
       discordServerId: guildId,
-      //starknetNetwork: network,
+      starknetNetwork: network,
     });
     const preLoadedAssets = await preLoadMemberAssets(
       discordMember,

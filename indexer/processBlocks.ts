@@ -28,7 +28,7 @@ const processBlocks = async (stack: BlockStack) => {
       if (!walletAddress) continue;
       const discordConfigs = await DiscordServerConfigRepository.findBy({
         discordServerId: member.discordServerId,
-        //starknetNetwork: networkName,
+        starknetNetwork: networkName,
       });
       const transferConfigs = discordConfigs.filter(
         (config) => modules[config.starkyModuleType].refreshOnTransfer
