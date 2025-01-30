@@ -1,4 +1,9 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  getAddress,
+  getNetwork,
+  signMessage as stellarSignMessage,
+} from "@stellar/freighter-api";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Signature } from "starknet";
@@ -18,6 +23,27 @@ import styles from "../../../../styles/Verify.module.scss";
 type Props = {
   discordServerName: string;
   starknetNetwork: NetworkName;
+  signMessage: (message: any) => Promise<Signature>;
+};
+
+type StarknetAccount = {
+  address: string;
+  network: string;
+};
+
+type StellarAccount = {
+  publicKey: string;
+  network: string;
+};
+
+type ChainIds = {
+  mainnet: string;
+  sepolia: string;
+};
+
+const chainIds: ChainIds = {
+  mainnet: "SN_MAIN",
+  sepolia: "SN_SEPOLIA",
 };
 
 const getSignatureErrorMessage = (
@@ -41,18 +67,37 @@ const getSignatureErrorMessage = (
 const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const router = useRouter();
   const { discordServerId, discordMemberId, customLink } = router.query;
-  const [account, setAccount] = useState<any>(undefined);
-  const [noStarknetWallet, setNotStarknetWallet] = useState(false);
-  const [wrongStarknetNetwork, setWrongStarknetNetwork] = useState(false);
+  const [account, setAccount] = useState<
+    StarknetAccount | StellarAccount | undefined
+  >(undefined);
+  const [noWallet, setNoWallet] = useState(false);
+  const [wrongNetwork, setWrongNetwork] = useState(false);
   const [verifyingSignature, setVerifyingSignature] = useState(false);
   const [verifiedSignature, setVerifiedSignature] = useState(false);
   const [unverifiedSignature, setUnverifiedSignature] = useState("");
   const [chainId, setChainId] = useState("");
+  const [currentChain, setCurrentChain] = useState<"starknet" | "stellar">(
+    "starknet"
+  );
+
+  useEffect(() => {
+    const fetchNetworkConfig = async () => {
+      const response = await fetch("/configs/networks.json");
+      const networks = await response.json();
+      const networkConfig = networks.find(
+        (net: any) => net.name === starknetNetwork
+      );
+      if (networkConfig) {
+        setCurrentChain(networkConfig.chain);
+      }
+    };
+    fetchNetworkConfig();
+  }, [starknetNetwork]);
 
   const connectToStarknet = useCallback(async () => {
     const { wallet } = await starknetConnect();
     if (!wallet) {
-      setNotStarknetWallet(true);
+      setNoWallet(true);
       return;
     }
     WatchTowerLogger.info("Wallet information", wallet);
@@ -69,9 +114,25 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
         )
       ]
     )
-      setWrongStarknetNetwork(true);
-    else setAccount(wallet.account);
+      setWrongNetwork(true);
+    else setAccount({ address: wallet.account.address, network: chain });
   }, [starknetNetwork]);
+
+  const connectToStellar = useCallback(async () => {
+    try {
+      const publicKey = await getAddress();
+
+      const network = await getNetwork();
+
+      const netWorkToString = network.toString();
+
+      const publicKeyToString = publicKey.toString();
+
+      setAccount({ publicKey: publicKeyToString, network: netWorkToString });
+    } catch (error) {
+      setNoWallet(true);
+    }
+  }, []);
 
   const verifySignature = useCallback(
     async (signature: Signature) => {
@@ -80,7 +141,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       setVerifyingSignature(true);
       try {
         await axios.post("/api/verify", {
-          account: account?.address,
+          account: "publicKey" in account ? account.publicKey : account.address,
           signature,
           discordServerId,
           discordMemberId,
@@ -107,25 +168,37 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const sign = useCallback(async () => {
     if (!account) return;
     try {
-      const messageCopy = {
-        ...messageToSign,
-        domain: { ...messageToSign.domain, chainId },
-      };
-      const signature = await account.signMessage(messageCopy);
-      await verifySignature(signature);
+      let signature;
+      if ("publicKey" in account) {
+        const message = "Your message to sign"; // Define your message here
+        signature = await stellarSignMessage(message, {
+          address: account.publicKey,
+        });
+      } else {
+        const messageCopy = {
+          ...messageToSign,
+          domain: { ...messageToSign.domain, chainId },
+        };
+        signature = messageCopy;
+      }
     } catch (e: any) {
       WatchTowerLogger.error(e.message, e);
     }
   }, [account, verifySignature, chainId]);
 
-  let starknetWalletDiv = (
+  let walletDiv = (
     <div>
       {!account && (
         <div>
-          <a className={styles.connect} onClick={connectToStarknet}>
-            connect your Starknet wallet
+          <a
+            className={styles.connect}
+            onClick={
+              currentChain === "starknet" ? connectToStarknet : connectToStellar
+            }
+          >
+            connect your {currentChain} wallet
           </a>
-          {wrongStarknetNetwork && (
+          {wrongNetwork && (
             <div className="danger">
               this discord server has been configured to verify identity on the{" "}
               {starknetNetwork} network.
@@ -158,8 +231,8 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
     </div>
   );
 
-  if (noStarknetWallet) {
-    starknetWalletDiv = <div>no Starknet wallet detected on your browser.</div>;
+  if (noWallet) {
+    walletDiv = <div>no {currentChain} wallet detected on your browser.</div>;
   }
 
   return (
@@ -168,11 +241,14 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       <div>
         Discord server: <b>{discordServerName}</b>
         <br />
-        Starknet network: <b>{starknetNetwork}</b>
+        Network: <b>{starknetNetwork}</b>
         <br />
         {account && (
-          <span className={styles.starknetWallet}>
-            Starknet wallet: <b>{account.address}</b>{" "}
+          <span className={styles.wallet}>
+            {currentChain} wallet:{" "}
+            <b>
+              {"publicKey" in account ? account.publicKey : account.address}
+            </b>{" "}
             <a
               onClick={() => {
                 setAccount(undefined);
@@ -193,7 +269,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
             <span>you shall close this tab</span>
           </div>
         )}
-        {!verifiedSignature && starknetWalletDiv}
+        {!verifiedSignature && walletDiv}
       </div>
       {process.env.NEXT_PUBLIC_STARKY_OFFICIAL && <SocialLinks />}
     </div>

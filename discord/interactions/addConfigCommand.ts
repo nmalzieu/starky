@@ -288,7 +288,7 @@ export const handleConfigConfirmCommand = async (
       discordServerId: interaction.guildId,
       starkyModuleConfig: currentConfig.moduleConfig,
       discordRoleId: currentConfig.roleId,
-      starknetNetwork: currentConfig.network,
+      //starknetNetwork: currentConfig.network,
     });
 
   const alreadyDiscordServer = await DiscordServerRepository.findOneBy({

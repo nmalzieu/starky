@@ -58,7 +58,7 @@ export const refreshDiscordMemberForAllConfigs = async (
   const network = discordMember.starknetNetwork as NetworkName;
   const discordServerConfigs = await DiscordServerConfigRepository.findBy({
     discordServerId: discordMember.discordServerId,
-    starknetNetwork: network,
+    // starknetNetwork: network,
   });
   const preLoadedAssets = assets
     ? assets
