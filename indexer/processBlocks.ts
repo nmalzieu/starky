@@ -1,3 +1,4 @@
+import config from "../config";
 import {
   DiscordMemberRepository,
   DiscordServerConfigRepository,
@@ -78,10 +79,13 @@ const processBlocks = async (stack: BlockStack) => {
           }
       }
     }
-    log(
-      `[BlockProcessor] Refreshed ${blockMembers.length} members in block ${blockNumber} - ${networkName} network.`,
-      networkName
-    );
+    const logEveryXBlock = config.LOG_EVERY_X_BLOCK;
+    if (blockNumber % logEveryXBlock === 0) {
+      log(
+        `[BlockProcessor] Refreshed ${blockMembers.length} members in block ${blockNumber} - ${networkName} network.`,
+        networkName
+      );
+    }
     await NetworkStatusRepository.save({
       network: networkName,
       lastBlockNumber: blockNumber,

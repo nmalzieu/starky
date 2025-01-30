@@ -295,7 +295,9 @@ export async function getServerSideProps({ res, query }: any) {
     return { props: {} };
   }
   try {
-    discordServerName = await getDiscordServerName(`${query.discordServerId}`);
+    discordServerName = await getDiscordServerName(
+      `Server ID: ${query.discordServerId}`
+    );
   } catch (e: any) {
     WatchTowerLogger.error(e.message, e);
   }
