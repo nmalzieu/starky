@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.11.0.tgz#42cc67c5baa407ac25059fcd7d405cc5ecdb0c33"
   integrity sha512-/3DDPKHqqIqxUULp8yP4zODUY1i+2xvVWsv8A79xGWdCAG+8sb0hRh0Rk2QyOJUnnbyPUAZYcpBuRe3nS2OIUg==
 
-"@apibara/protocol@2.0.0-beta.37", "@apibara/protocol@^2.0.0-beta.37":
-  version "2.0.0-beta.37"
-  resolved "https://registry.yarnpkg.com/@apibara/protocol/-/protocol-2.0.0-beta.37.tgz#882d02e2b6bfec0c0819f779f5ab49ee5bc72b7e"
-  integrity sha512-9TGeumU3MxMv50tcIEjB0OfnA0IX13q7g3vURYW2Jr+HPzHRM4T8ALwuh2TFa37pCW/b3yMaORsyGn6O08rVqw==
+"@apibara/protocol@2.0.0-beta.38", "@apibara/protocol@next":
+  version "2.0.0-beta.38"
+  resolved "https://registry.yarnpkg.com/@apibara/protocol/-/protocol-2.0.0-beta.38.tgz#e52601e747d7f251228ac0b6c065427ba2910f6d"
+  integrity sha512-2r4Bd84priFBNAIpX4X0EhIsa6zeXGwgnRWy8eYJnP3ukBWjFY5s6CIc1fN1zCogXO/1QGQ3YtGjFm3/CL+hMA==
   dependencies:
     "@effect/schema" "^0.67.15"
     effect "^3.2.6"
@@ -20,12 +20,12 @@
     protobufjs "^7.3.0"
     viem "^2.13.2"
 
-"@apibara/starknet@^2.0.0-beta.37":
-  version "2.0.0-beta.37"
-  resolved "https://registry.yarnpkg.com/@apibara/starknet/-/starknet-2.0.0-beta.37.tgz#dff5f61a617e32a60df4534e33e8015ba2767a58"
-  integrity sha512-THcixqJ4alFjixrKRMq2z87R3ttT272SqHT/MBBJh0kojjWXNzeBgbbGr0zfuNIA4ZvdGfEJaRUD7Xj9d1ExjQ==
+"@apibara/starknet@next":
+  version "2.0.0-beta.38"
+  resolved "https://registry.yarnpkg.com/@apibara/starknet/-/starknet-2.0.0-beta.38.tgz#2bbee567be277bc9e0434633665fb6b2cfa9844a"
+  integrity sha512-shUuGoecdrsUU6ILAjvUzLSxvMqMNmF7ed43d44g+FYvt1hu2fo3mLCfJQjg6jLD84JoWsBVgg9/fx54C0WmJg==
   dependencies:
-    "@apibara/protocol" "2.0.0-beta.37"
+    "@apibara/protocol" "2.0.0-beta.38"
     "@effect/schema" "^0.67.15"
     "@scure/starknet" "^1.1.0"
     abi-wan-kanabi "^2.2.4"
