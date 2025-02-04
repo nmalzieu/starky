@@ -1,5 +1,7 @@
 {
   "goerli": ["SN_GOERLI", "0x534e5f474f45524c49"],
   "sepolia": ["SN_SEPOLIA", "0x534e5f5345504f4c4941"],
-  "mainnet": ["SN_MAIN", "0x534e5f4d41494e"]
+  "mainnet": ["SN_MAIN", "0x534e5f4d41494e"],
+  "stellar-mainnet": ["SN_STELLAR_MAIN", "0x534e5f53544c4c41524d41494e"],
+  "stellar-testnet": ["SN_STELLAR_TEST", "0x534e5f53544c4c415254455354"]
 }
