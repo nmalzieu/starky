@@ -3,24 +3,27 @@
     "name": "mainnet",
     "url": "starknetid-mainnet.starknet.a5a.ch",
     "indexer": true,
-    "chain": "starknet"
+    "description": "The Starknet mainnet"
   },
   {
     "name": "sepolia",
     "url": "starknetid-sepolia.starknet.a5a.ch",
     "indexer": true,
-    "chain": "starknet"
+    "description": "The Starknet testnet"
   },
+
   {
     "name": "stellar-mainnet",
     "url": "stellar-mainnet-url",
     "indexer": true,
-    "chain": "stellar"
+    "chain": "stellar",
+    "description": "The stellar mainnet"
   },
   {
     "name": "stellar-testnet",
     "url": "stellar-testnet-url",
     "indexer": true,
-    "chain": "stellar"
+    "chain": "stellar",
+    "description": "The stellar testnet"
   }
 ]
