@@ -1,14 +1,8 @@
 [
   {
     "name": "mainnet",
-    "url": "starknetid-mainnet.starknet.a5a.ch",
+    "url": "https://starknet.preview.apibara.org",
     "indexer": true,
     "description": "The Starknet mainnet"
-  },
-  {
-    "name": "sepolia",
-    "url": "starknetid-sepolia.starknet.a5a.ch",
-    "indexer": true,
-    "description": "The Starknet testnet"
   }
 ]
