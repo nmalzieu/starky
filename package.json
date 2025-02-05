@@ -11,8 +11,8 @@
     "postinstall": "husky install"
   },
   "dependencies": {
-    "@apibara/protocol": "next",
-    "@apibara/starknet": "next",
+    "@apibara/protocol": "^2.0.0-beta.38",
+    "@apibara/starknet": "^2.0.0-beta.38",
     "@discordjs/rest": "^2.1.0",
     "axios": "^0.27.2",
     "bn.js": "^5.2.1",
