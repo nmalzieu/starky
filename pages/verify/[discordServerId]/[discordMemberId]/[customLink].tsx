@@ -14,37 +14,13 @@ import SocialLinks from "../../../../components/SocialLinks";
 import chainAliasByNetwork from "../../../../configs/chainAliasByNetwork.json";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerName } from "../../../../discord/utils";
-import { NetworkName } from "../../../../types/starknet";
+import { Props } from "../../../../types/props";
+import { StarknetAccount } from "../../../../types/starknet";
+import { StellarAccount } from "../../../../types/stellar";
 import messageToSign from "../../../../utils/starknet/message";
 import WatchTowerLogger from "../../../../watchTower";
 
 import styles from "../../../../styles/Verify.module.scss";
-
-type Props = {
-  discordServerName: string;
-  starknetNetwork: NetworkName;
-  signMessage: (message: any) => Promise<Signature>;
-};
-
-type StarknetAccount = {
-  address: string;
-  network: string;
-};
-
-type StellarAccount = {
-  publicKey: string;
-  network: string;
-};
-
-type ChainIds = {
-  mainnet: string;
-  sepolia: string;
-};
-
-const chainIds: ChainIds = {
-  mainnet: "SN_MAIN",
-  sepolia: "SN_SEPOLIA",
-};
 
 const getSignatureErrorMessage = (
   error: string
@@ -184,7 +160,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
     } catch (e: any) {
       WatchTowerLogger.error(e.message, e);
     }
-  }, [account, verifySignature, chainId]);
+  }, [account, chainId]);
 
   let walletDiv = (
     <div>

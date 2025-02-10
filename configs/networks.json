@@ -15,14 +15,14 @@
   {
     "name": "stellar-mainnet",
     "url": "stellar-mainnet-url",
-    "indexer": true,
+    "indexer": false,
     "chain": "stellar",
     "description": "The stellar mainnet"
   },
   {
     "name": "stellar-testnet",
     "url": "stellar-testnet-url",
-    "indexer": true,
+    "indexer": false,
     "chain": "stellar",
     "description": "The stellar testnet"
   }
