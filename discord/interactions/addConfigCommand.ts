@@ -271,7 +271,7 @@ export const handleNetworkConfigCommand = async (
         .addOptions(...modulesOptions)
     );
 
-  const backRow = addBackButton("network");
+  const backRow = addBackButton("module");
 
   await interaction.followUp({
     content: "What Starky module do you want to use?",
@@ -295,7 +295,7 @@ export const handleModuleTypeConfigCommand = async (
 
   if (starkyModule.fields.length === 0) {
     ongoingConfigurationsCache[interaction.guildId].currentStep = "summary";
-    const backRow = addBackButton("module");
+    const backRow = addBackButton("config");
     await interaction.update({
       content: "Thanks, preparing summary...",
       components: [backRow],
@@ -320,11 +320,11 @@ export const handleModuleTypeConfigCommand = async (
   );
   modal.addComponents(...rows);
 
-  const backRow = addBackButton("module");
+  const backRow = addBackButton("config");
 
   await interaction.showModal(modal);
   await interaction.editReply({
-    content: "Thanks, following up...",
+    content: "Thanks, following up... Click the button to reselect Module",
     components: [backRow],
   });
 };
