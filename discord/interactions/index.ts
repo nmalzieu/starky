@@ -5,6 +5,7 @@ import config from "../../config";
 import WatchTowerLogger from "../../watchTower";
 
 import {
+  handleBackButton,
   handleConfigCancelCommand,
   handleConfigConfirmCommand,
   handleInitialConfigCommand,
@@ -111,6 +112,9 @@ export const setupInteractions = (client: Client) => {
     const isSetConfigCustomApiNext =
       interaction.isButton() &&
       interaction.customId === "set-config-custom-api-next";
+    const isBackCommand =
+      interaction.isButton() &&
+      interaction.customId.startsWith("starky-config-back-");
 
     const isSetConfigCustomApiModalInput =
       interaction.isModalSubmit() &&
@@ -163,6 +167,9 @@ export const setupInteractions = (client: Client) => {
       );
     else if (isHelpCommand)
       return handleHelpCommand(interaction, client, restClient);
+    else if (isBackCommand)
+      await handleBackButton(interaction, client, restClient);
+    return;
   });
 
   WatchTowerLogger.info("> Discord interactions set up successfully");
