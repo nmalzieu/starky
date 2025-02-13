@@ -10,5 +10,20 @@
     "url": "starknetid-sepolia.starknet.a5a.ch",
     "indexer": true,
     "description": "The Starknet testnet"
+  },
+
+  {
+    "name": "stellar-mainnet",
+    "url": "stellar-mainnet-url",
+    "indexer": false,
+    "chain": "stellar",
+    "description": "The stellar mainnet"
+  },
+  {
+    "name": "stellar-testnet",
+    "url": "stellar-testnet-url",
+    "indexer": false,
+    "chain": "stellar",
+    "description": "The stellar testnet"
   }
 ]
