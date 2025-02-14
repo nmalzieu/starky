@@ -77,14 +77,19 @@ const launchIndexer = async (
   const client = createClient(StarknetStream, networkUrl);
 
   // Read block number from file
-  const networkStatusExists = await NetworkStatusRepository.findOneBy({
+  const networkStatus = await NetworkStatusRepository.findOneBy({
     network: networkName,
   });
   const configFirstBlockNumber = parseInt(
     process.env[`APIBARA_DEFAULT_BLOCK_NUMBER_${networkName.toUpperCase()}`] ||
       "0"
   );
-  if (!networkStatusExists) {
+  if (networkStatus) {
+    log(
+      `[Indexer] Starting at block ${networkStatus.lastBlockNumber} for ${networkName}`,
+      networkName
+    );
+  } else {
     NetworkStatusRepository.save({
       network: networkName,
       lastBlockNumber: configFirstBlockNumber,
@@ -135,9 +140,10 @@ const launchIndexer = async (
               );
               // Transfer Events
               for (const transferEvent of transferEvents) {
+                transferEventsCount++;
                 // Transfer event from invoke transaction
-                const from = transferEvent.data[0];
-                const to = transferEvent.data[1];
+                const from = transferEvent.data[0] || "O";
+                const to = transferEvent.data[1] || "O";
                 const discordMembers = await DiscordMemberRepository.find({
                   where: [
                     {
@@ -178,7 +184,8 @@ const launchIndexer = async (
                   if (
                     !blockMembers.find(
                       (u) =>
-                        u.discordMember.id === discordMember.discordMemberId
+                        u.discordMember.id === discordMember.discordMemberId &&
+                        u.contractAddress === contractAddress
                     )
                   ) {
                     blockMembers.push({ discordMember, contractAddress });
