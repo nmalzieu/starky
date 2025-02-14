@@ -134,4 +134,4 @@ kill -9 <PID>
 ## Conclusion
 Your PostgreSQL database should now be properly set up with TypeORM. If you encounter issues, recheck the configurations and follow the troubleshooting steps above.
 
-Happy Coding!
+## Happy Coding!
