@@ -8,7 +8,7 @@ import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
 import chainAliasByNetwork from "../../../../configs/chainAliasByNetwork.json";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
-import { getDiscordServerName } from "../../../../discord/utils";
+import {  getDiscordServerInfo } from "../../../../discord/utils";
 import { NetworkName } from "../../../../types/starknet";
 import messageToSign from "../../../../utils/starknet/message";
 import WatchTowerLogger from "../../../../watchTower";
@@ -17,6 +17,7 @@ import styles from "../../../../styles/Verify.module.scss";
 
 type Props = {
   discordServerName: string;
+  discordServerIcon?: string | null;
   starknetNetwork: NetworkName;
 };
 
@@ -38,7 +39,7 @@ const getSignatureErrorMessage = (
   };
 };
 
-const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
+const VerifyPage = ({ discordServerName, discordServerIcon, starknetNetwork }: Props) => {
   const router = useRouter();
   const { discordServerId, discordMemberId, customLink } = router.query;
   const [account, setAccount] = useState<any>(undefined);
@@ -166,7 +167,16 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
     <div className={styles.verify}>
       <Logo />
       <div>
-        Discord server: <b>{discordServerName}</b>
+      Discord server: 
+        {discordServerIcon ? (
+          <img
+            src={discordServerIcon}
+            alt="Discord Server Icon"
+            className={styles.discordIcon}
+          />
+        ) : (
+          <div className={styles.iconPlaceholder} />
+        )}
         <br />
         Starknet network: <b>{starknetNetwork}</b>
         <br />
@@ -203,6 +213,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
 export async function getServerSideProps({ res, query }: any) {
   await setupDb();
   let discordServerName = null;
+  let discordServerIcon = null;
   const { discordServerId, discordMemberId, customLink } = query;
   const discordMember = await DiscordMemberRepository.findOne({
     where: {
@@ -219,13 +230,20 @@ export async function getServerSideProps({ res, query }: any) {
     return { props: {} };
   }
   try {
-    discordServerName = await getDiscordServerName(`${query.discordServerId}`);
+    const serverInfo = await getDiscordServerInfo(`${query.discordServerId}`);
+    discordServerName = serverInfo.name;
+    discordServerIcon = serverInfo.icon
+      ? `https://cdn.discordapp.com/icons/${query.discordServerId}/${serverInfo.icon}${
+          serverInfo.icon.startsWith("a_") ? ".gif" : ".png"
+        }`
+      : null;
   } catch (e: any) {
     WatchTowerLogger.error(e.message, e);
   }
   return {
     props: {
       discordServerName,
+      discordServerIcon, 
       starknetNetwork: discordMember.starknetNetwork,
     },
   };
