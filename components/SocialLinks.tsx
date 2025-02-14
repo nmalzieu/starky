@@ -21,10 +21,14 @@ const SocialLinks = () => (
     >
       github
     </a>
-    {/* <div className={styles.separator} />
-    <a href="https://t.me/+Mi34Im1Uafc1Y2Q8" target="_blank" rel="noreferrer">
+    <div className={styles.separator} />
+    <a
+      href="https://t.me/+Mi34Im1Uafc1Y2Q8"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       telegram
-    </a> */}
+    </a>
   </div>
 );
 
