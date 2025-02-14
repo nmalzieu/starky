@@ -4,5 +4,11 @@
     "url": "https://starknet.preview.apibara.org",
     "indexer": true,
     "description": "The Starknet mainnet"
+  },
+  {
+    "name": "sepolia",
+    "url": "coming-soon",
+    "indexer": false,
+    "description": "The Starknet testnet"
   }
 ]
