@@ -22,7 +22,7 @@ export const shouldHaveRole: ShouldHaveRole = async (
   cachedData = {}
 ) => {
   // If we already have the assets, we can just check if the user has at least one
-  if (cachedData.assets) {
+  if (cachedData.assets?.length) {
     const assets = cachedData.assets;
     if (assets.length >= 1) return true;
     return false;
