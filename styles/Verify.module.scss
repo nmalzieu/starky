@@ -35,3 +35,35 @@
     color: white;
   }
 }
+
+
+.discordIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.iconPlaceholder {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #cccccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #333;
+  font-size: 12px;
+}
+
+.serverInfo {
+  display: flex;
+  align-items: center;
+}
+
+.serverDisplay {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+}
