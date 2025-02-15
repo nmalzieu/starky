@@ -11,6 +11,7 @@ import config from "../../config";
 import WatchTowerLogger from "../../watchTower";
 
 import {
+  handleBackButton,
   handleConfigCancelCommand,
   handleConfigConfirmCommand,
   handleInitialConfigCommand,
@@ -32,6 +33,7 @@ import {
   handleDisconnectConfirmCommand,
 } from "./disconnectCommand";
 import { handleHelpCommand } from "./helpCommand";
+import { handleListConfigsCommand } from "./listConfigs";
 import { handleRefreshCommand } from "./refreshCommand";
 import {
   handleSetConfigCustomApiCommand,
@@ -126,11 +128,11 @@ const interactionHandlers: HandlerConfig[] = [
     identifier: "help",
     handler: handleHelpCommand,
   },
-  // {
-  //   type: "chatInput",
-  //   identifier: "list-configs",
-  //   handler: handleListConfigsCommand,
-  // },
+  {
+    type: "chatInput",
+    identifier: "list-configs",
+    handler: handleListConfigsCommand,
+  },
   {
     type: "selectMenu",
     identifier: "starky-config-network",
@@ -186,12 +188,12 @@ const interactionHandlers: HandlerConfig[] = [
     identifier: "set-config-custom-api-next",
     handler: handleSetConfigCustomApiNext,
   },
-  // {
-  //   type: "button",
-  //   identifier: "starky-config-back-",
-  //   handler: handleBackButton,
-  //   matchType: "startsWith",
-  // },
+  {
+    type: "button",
+    identifier: "starky-config-back-",
+    handler: handleBackButton,
+    matchType: "startsWith",
+  },
 ];
 
 export const setupInteractions = (client: Client) => {
