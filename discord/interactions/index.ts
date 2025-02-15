@@ -11,6 +11,7 @@ import config from "../../config";
 import WatchTowerLogger from "../../watchTower";
 
 import {
+  // handleBackButton,
   handleConfigCancelCommand,
   handleConfigConfirmCommand,
   handleInitialConfigCommand,
@@ -32,6 +33,7 @@ import {
   handleDisconnectConfirmCommand,
 } from "./disconnectCommand";
 import { handleHelpCommand } from "./helpCommand";
+// import { handleListConfigsCommand } from "./listConfigs";
 import { handleRefreshCommand } from "./refreshCommand";
 import {
   handleSetConfigCustomApiCommand,
@@ -77,6 +79,7 @@ interface HandlerConfig {
     | ButtonHandler
     | SelectMenuHandler
     | ModalSubmitHandler;
+  matchType?: "exact" | "startsWith";
 }
 
 const interactionHandlers: HandlerConfig[] = [
@@ -120,7 +123,16 @@ const interactionHandlers: HandlerConfig[] = [
     identifier: "starky-set-config-custom-api",
     handler: handleSetConfigCustomApiCommand,
   },
-  { type: "chatInput", identifier: "help", handler: handleHelpCommand },
+  {
+    type: "chatInput",
+    identifier: "help",
+    handler: handleHelpCommand,
+  },
+  // {
+  //   type: "chatInput",
+  //   identifier: "list-configs",
+  //   handler: handleListConfigsCommand,
+  // },
   {
     type: "selectMenu",
     identifier: "starky-config-network",
@@ -176,6 +188,12 @@ const interactionHandlers: HandlerConfig[] = [
     identifier: "set-config-custom-api-next",
     handler: handleSetConfigCustomApiNext,
   },
+  // {
+  //   type: "button",
+  //   identifier: "starky-config-back-",
+  //   handler: handleBackButton,
+  //   matchType: "startsWith",
+  // },
 ];
 
 export const setupInteractions = (client: Client) => {
@@ -189,7 +207,10 @@ export const setupInteractions = (client: Client) => {
           );
         case "button":
           return (
-            interaction.isButton() && interaction.customId === config.identifier
+            interaction.isButton() &&
+            (config.matchType === "startsWith"
+              ? interaction.customId.startsWith(config.identifier)
+              : interaction.customId === config.identifier)
           );
         case "selectMenu":
           return (
@@ -207,43 +228,51 @@ export const setupInteractions = (client: Client) => {
     });
 
     if (matchingHandler) {
-      if (
-        matchingHandler.type === "chatInput" &&
-        interaction.isChatInputCommand()
-      ) {
-        return (matchingHandler.handler as ChatInputHandler)(
-          interaction,
-          client,
-          restClient
-        );
+      switch (matchingHandler.type) {
+        case "chatInput":
+          if (interaction.isChatInputCommand()) {
+            return (matchingHandler.handler as ChatInputHandler)(
+              interaction,
+              client,
+              restClient
+            );
+          }
+          break;
+        case "button":
+          if (interaction.isButton()) {
+            return (matchingHandler.handler as ButtonHandler)(
+              interaction,
+              client,
+              restClient
+            );
+          }
+          break;
+        case "selectMenu":
+          if (interaction.isStringSelectMenu()) {
+            return (matchingHandler.handler as SelectMenuHandler)(
+              interaction,
+              client,
+              restClient
+            );
+          }
+          break;
+        case "modalSubmit":
+          if (interaction.isModalSubmit()) {
+            return (matchingHandler.handler as ModalSubmitHandler)(
+              interaction,
+              client,
+              restClient
+            );
+          }
+          break;
       }
-      if (matchingHandler.type === "button" && interaction.isButton()) {
-        return (matchingHandler.handler as ButtonHandler)(
-          interaction,
-          client,
-          restClient
-        );
-      }
-      if (
-        matchingHandler.type === "selectMenu" &&
-        interaction.isStringSelectMenu()
-      ) {
-        return (matchingHandler.handler as SelectMenuHandler)(
-          interaction,
-          client,
-          restClient
-        );
-      }
-      if (
-        matchingHandler.type === "modalSubmit" &&
-        interaction.isModalSubmit()
-      ) {
-        return (matchingHandler.handler as ModalSubmitHandler)(
-          interaction,
-          client,
-          restClient
-        );
-      }
+    }
+
+    if (interaction.isRepliable()) {
+      await interaction.reply({
+        content: "This interaction couldn't be processed.",
+        ephemeral: true,
+      });
     }
   });
 
