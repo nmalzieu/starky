@@ -11,7 +11,6 @@ import config from "../../config";
 import WatchTowerLogger from "../../watchTower";
 
 import {
-  // handleBackButton,
   handleConfigCancelCommand,
   handleConfigConfirmCommand,
   handleInitialConfigCommand,
@@ -33,7 +32,6 @@ import {
   handleDisconnectConfirmCommand,
 } from "./disconnectCommand";
 import { handleHelpCommand } from "./helpCommand";
-// import { handleListConfigsCommand } from "./listConfigs";
 import { handleRefreshCommand } from "./refreshCommand";
 import {
   handleSetConfigCustomApiCommand,

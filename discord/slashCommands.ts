@@ -45,6 +45,9 @@ export const registerSlashCommands = async () => {
           .setRequired(true)
       ),
     new SlashCommandBuilder()
+      .setName("list-configs")
+      .setDescription("View your Starky configurations on this server"),
+    new SlashCommandBuilder()
       .setName("starky-debug-user")
       .setDescription("Debug a user on this server")
       .addUserOption((option) =>
