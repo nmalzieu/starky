@@ -1,5 +1,11 @@
 import { REST } from "@discordjs/rest";
-import { Client } from "discord.js";
+import {
+  ButtonInteraction,
+  ChatInputCommandInteraction,
+  Client,
+  ModalSubmitInteraction,
+  StringSelectMenuInteraction,
+} from "discord.js";
 
 import config from "../../config";
 import WatchTowerLogger from "../../watchTower";
@@ -39,130 +45,206 @@ export const restClient = new REST({ version: "10" }).setToken(
   config.DISCORD_BOT_TOKEN
 );
 
+type ChatInputHandler = (
+  interaction: ChatInputCommandInteraction,
+  client: Client,
+  rest: REST
+) => Promise<void>;
+
+type ButtonHandler = (
+  interaction: ButtonInteraction,
+  client: Client,
+  rest: REST
+) => Promise<void>;
+
+type SelectMenuHandler = (
+  interaction: StringSelectMenuInteraction,
+  client: Client,
+  rest: REST
+) => Promise<void>;
+
+type ModalSubmitHandler = (
+  interaction: ModalSubmitInteraction,
+  client: Client,
+  rest: REST
+) => Promise<void>;
+
+interface HandlerConfig {
+  type: "chatInput" | "button" | "selectMenu" | "modalSubmit";
+  identifier: string;
+  handler:
+    | ChatInputHandler
+    | ButtonHandler
+    | SelectMenuHandler
+    | ModalSubmitHandler;
+}
+
+const interactionHandlers: HandlerConfig[] = [
+  {
+    type: "chatInput",
+    identifier: "starky-add-config",
+    handler: handleInitialConfigCommand,
+  },
+  {
+    type: "chatInput",
+    identifier: "starky-delete-config",
+    handler: handleDeleteConfigCommand,
+  },
+  {
+    type: "chatInput",
+    identifier: "starky-connect",
+    handler: handleConnectCommand,
+  },
+  {
+    type: "chatInput",
+    identifier: "starky-disconnect",
+    handler: handleDisconnectCommand,
+  },
+  {
+    type: "chatInput",
+    identifier: "starky-refresh",
+    handler: handleRefreshCommand,
+  },
+  {
+    type: "chatInput",
+    identifier: "starky-view-config",
+    handler: handleViewConfigCommand,
+  },
+  {
+    type: "chatInput",
+    identifier: "starky-debug-user",
+    handler: handleDebugUserCommand,
+  },
+  {
+    type: "chatInput",
+    identifier: "starky-set-config-custom-api",
+    handler: handleSetConfigCustomApiCommand,
+  },
+  { type: "chatInput", identifier: "help", handler: handleHelpCommand },
+  {
+    type: "selectMenu",
+    identifier: "starky-config-network",
+    handler: handleNetworkConfigCommand,
+  },
+  {
+    type: "selectMenu",
+    identifier: "starky-config-module-type",
+    handler: handleModuleTypeConfigCommand,
+  },
+  {
+    type: "selectMenu",
+    identifier: "user-config-network",
+    handler: handleUserNetworkConfigCommand,
+  },
+  {
+    type: "selectMenu",
+    identifier: "delete-config-confirm",
+    handler: handleDeleteConfigConfirmCommand,
+  },
+  {
+    type: "selectMenu",
+    identifier: "set-config-custom-api-selected",
+    handler: handleSetConfigCustomApiSelected,
+  },
+  {
+    type: "modalSubmit",
+    identifier: "starky-config-module-config",
+    handler: handleModuleConfigCommand,
+  },
+  {
+    type: "modalSubmit",
+    identifier: "set-config-custom-api-modal",
+    handler: handleSetConfigCustomApiModalInput,
+  },
+  {
+    type: "button",
+    identifier: "starcord-config-confirm",
+    handler: handleConfigConfirmCommand,
+  },
+  {
+    type: "button",
+    identifier: "starcord-config-cancel",
+    handler: handleConfigCancelCommand,
+  },
+  {
+    type: "button",
+    identifier: "disconnect-confirm",
+    handler: handleDisconnectConfirmCommand,
+  },
+  {
+    type: "button",
+    identifier: "set-config-custom-api-next",
+    handler: handleSetConfigCustomApiNext,
+  },
+];
+
 export const setupInteractions = (client: Client) => {
   client.on("interactionCreate", async (interaction) => {
-    const isInitialConfig =
-      interaction.isChatInputCommand() &&
-      interaction.commandName === "starky-add-config";
+    const matchingHandler = interactionHandlers.find((config) => {
+      switch (config.type) {
+        case "chatInput":
+          return (
+            interaction.isChatInputCommand() &&
+            interaction.commandName === config.identifier
+          );
+        case "button":
+          return (
+            interaction.isButton() && interaction.customId === config.identifier
+          );
+        case "selectMenu":
+          return (
+            interaction.isStringSelectMenu() &&
+            interaction.customId === config.identifier
+          );
+        case "modalSubmit":
+          return (
+            interaction.isModalSubmit() &&
+            interaction.customId === config.identifier
+          );
+        default:
+          return false;
+      }
+    });
 
-    const isDeleteConfig =
-      interaction.isChatInputCommand() &&
-      interaction.commandName === "starky-delete-config";
-
-    const isNetworkConfig =
-      interaction.isStringSelectMenu() &&
-      interaction.customId === "starky-config-network";
-
-    const isModuleTypeConfig =
-      interaction.isStringSelectMenu() &&
-      interaction.customId === "starky-config-module-type";
-
-    const isModuleConfig =
-      interaction.isModalSubmit() &&
-      interaction.customId === "starky-config-module-config";
-
-    const isConfigConfirm =
-      interaction.isButton() &&
-      interaction.customId === "starcord-config-confirm";
-
-    const isConfigCancel =
-      interaction.isButton() &&
-      interaction.customId === "starcord-config-cancel";
-
-    const isUserConnect =
-      interaction.isChatInputCommand() &&
-      interaction.commandName === "starky-connect";
-
-    const isUserNetworkConfig =
-      interaction.isStringSelectMenu() &&
-      interaction.customId === "user-config-network";
-
-    const isUserDisonnect =
-      interaction.isChatInputCommand() &&
-      interaction.commandName === "starky-disconnect";
-
-    const isUserDisconnectConfirm =
-      interaction.isButton() && interaction.customId === "disconnect-confirm";
-
-    const isUserDeleteConfigConfirm =
-      interaction.isStringSelectMenu() &&
-      interaction.customId === "delete-config-confirm";
-
-    const isRefreshCommand =
-      interaction.isChatInputCommand() &&
-      interaction.commandName === "starky-refresh";
-
-    const isViewConfigCommand =
-      interaction.isChatInputCommand() &&
-      interaction.commandName === "starky-view-config";
-
-    const isDebugUserCommand =
-      interaction.isChatInputCommand() &&
-      interaction.commandName === "starky-debug-user";
-
-    const isSetConfigCustomApiCommand =
-      interaction.isChatInputCommand() &&
-      interaction.commandName === "starky-set-config-custom-api";
-
-    const isSetConfigCustomApiSelected =
-      interaction.isStringSelectMenu() &&
-      interaction.customId === "set-config-custom-api-selected";
-
-    const isSetConfigCustomApiNext =
-      interaction.isButton() &&
-      interaction.customId === "set-config-custom-api-next";
-
-    const isSetConfigCustomApiModalInput =
-      interaction.isModalSubmit() &&
-      interaction.customId === "set-config-custom-api-modal";
-
-    const isHelpCommand =
-      interaction.isChatInputCommand() && interaction.commandName === "help";
-
-    if (isUserConnect)
-      return handleConnectCommand(interaction, client, restClient);
-    else if (isUserNetworkConfig)
-      return handleUserNetworkConfigCommand(interaction, client, restClient);
-    else if (isInitialConfig)
-      return handleInitialConfigCommand(interaction, client, restClient);
-    else if (isDeleteConfig)
-      return handleDeleteConfigCommand(interaction, client, restClient);
-    else if (isNetworkConfig)
-      return handleNetworkConfigCommand(interaction, client, restClient);
-    else if (isModuleTypeConfig)
-      return handleModuleTypeConfigCommand(interaction, client, restClient);
-    else if (isModuleConfig)
-      return handleModuleConfigCommand(interaction, client, restClient);
-    else if (isConfigCancel)
-      return handleConfigCancelCommand(interaction, client, restClient);
-    else if (isConfigConfirm)
-      return handleConfigConfirmCommand(interaction, client, restClient);
-    else if (isUserDisonnect)
-      return handleDisconnectCommand(interaction, client, restClient);
-    else if (isUserDisconnectConfirm)
-      return handleDisconnectConfirmCommand(interaction, client, restClient);
-    else if (isUserDeleteConfigConfirm)
-      return handleDeleteConfigConfirmCommand(interaction, client, restClient);
-    else if (isRefreshCommand)
-      return handleRefreshCommand(interaction, client, restClient);
-    else if (isViewConfigCommand)
-      return handleViewConfigCommand(interaction, client, restClient);
-    else if (isDebugUserCommand)
-      return handleDebugUserCommand(interaction, client, restClient);
-    else if (isSetConfigCustomApiCommand)
-      return handleSetConfigCustomApiCommand(interaction, client, restClient);
-    else if (isSetConfigCustomApiSelected)
-      return handleSetConfigCustomApiSelected(interaction, client, restClient);
-    else if (isSetConfigCustomApiNext)
-      return handleSetConfigCustomApiNext(interaction, client, restClient);
-    else if (isSetConfigCustomApiModalInput)
-      return handleSetConfigCustomApiModalInput(
-        interaction,
-        client,
-        restClient
-      );
-    else if (isHelpCommand)
-      return handleHelpCommand(interaction, client, restClient);
+    if (matchingHandler) {
+      if (
+        matchingHandler.type === "chatInput" &&
+        interaction.isChatInputCommand()
+      ) {
+        return (matchingHandler.handler as ChatInputHandler)(
+          interaction,
+          client,
+          restClient
+        );
+      }
+      if (matchingHandler.type === "button" && interaction.isButton()) {
+        return (matchingHandler.handler as ButtonHandler)(
+          interaction,
+          client,
+          restClient
+        );
+      }
+      if (
+        matchingHandler.type === "selectMenu" &&
+        interaction.isStringSelectMenu()
+      ) {
+        return (matchingHandler.handler as SelectMenuHandler)(
+          interaction,
+          client,
+          restClient
+        );
+      }
+      if (
+        matchingHandler.type === "modalSubmit" &&
+        interaction.isModalSubmit()
+      ) {
+        return (matchingHandler.handler as ModalSubmitHandler)(
+          interaction,
+          client,
+          restClient
+        );
+      }
+    }
   });
 
   WatchTowerLogger.info("> Discord interactions set up successfully");
