@@ -41,6 +41,27 @@ type OngoingConfigurationsCache = {
   [guildId: string]: OngoingConfiguration;
 };
 
+const CONFIG_STEPS = {
+  ROLE: "role",
+  NETWORK: "network",
+  MODULE: "module",
+  MODULE_CONFIG: "module-config",
+  SUMMARY: "summary",
+} as const;
+
+const NETWORK_OPTIONS = [
+  {
+    label: "Sepolia",
+    description: "The Sepolia Starknet testnet",
+    value: "sepolia",
+  },
+  {
+    label: "Mainnet",
+    description: "The Starknet mainnet",
+    value: "mainnet",
+  },
+] as const;
+
 const ongoingConfigurationsCache: OngoingConfigurationsCache = {};
 
 const addBackButton = (previousStepId: string) => {
@@ -73,16 +94,16 @@ export const handleBackButton = async (
   const step = interaction.customId.replace("starky-config-back-", "");
 
   switch (step) {
-    case "network":
+    case CONFIG_STEPS.NETWORK:
       config.currentStep = "role";
       await handleBackToRole(interaction, client, restClient);
       break;
-    case "module":
+    case CONFIG_STEPS.MODULE:
       config.currentStep = "network";
       await handleBackToNetwork(interaction, client, restClient);
       break;
 
-    case "config":
+    case CONFIG_STEPS.MODULE_CONFIG:
       config.currentStep = "module";
       await handleBackToModule(interaction, client, restClient);
       break;
@@ -112,18 +133,7 @@ const handleBackToNetwork = async (
       new StringSelectMenuBuilder()
         .setCustomId("starky-config-network")
         .setPlaceholder("Starknet Network")
-        .addOptions(
-          {
-            label: "Sepolia",
-            description: "The Sepolia Starknet testnet",
-            value: "sepolia",
-          },
-          {
-            label: "Mainnet",
-            description: "The Starknet mainnet",
-            value: "mainnet",
-          }
-        )
+        .addOptions(...NETWORK_OPTIONS)
     );
 
   const backRow = addBackButton("network");
@@ -206,28 +216,18 @@ export const handleInitialConfigCommand = async (
   }
 
   ongoingConfigurationsCache[interaction.guildId].roleId = selectedRole.id;
-  ongoingConfigurationsCache[interaction.guildId].currentStep = "network";
+  ongoingConfigurationsCache[interaction.guildId].currentStep =
+    CONFIG_STEPS.NETWORK;
 
   const selectRow =
     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId("starky-config-network")
         .setPlaceholder("Starknet Network")
-        .addOptions(
-          {
-            label: "Sepolia",
-            description: "The Sepolia Starknet testnet",
-            value: "sepolia",
-          },
-          {
-            label: "Mainnet",
-            description: "The Starknet mainnet",
-            value: "mainnet",
-          }
-        )
+        .addOptions(...NETWORK_OPTIONS)
     );
 
-  const backRow = addBackButton("network");
+  const backRow = addBackButton(CONFIG_STEPS.NETWORK);
 
   await interaction.reply({
     content: "On what Starknet network do you want to set up Starky?",
@@ -247,7 +247,8 @@ export const handleNetworkConfigCommand = async (
   if (network !== "mainnet" && network !== "sepolia") return;
 
   ongoingConfigurationsCache[interaction.guildId].network = network;
-  ongoingConfigurationsCache[interaction.guildId].currentStep = "module";
+  ongoingConfigurationsCache[interaction.guildId].currentStep =
+    CONFIG_STEPS.MODULE;
 
   await interaction.update({
     content: "Thanks, following up...",
@@ -271,7 +272,7 @@ export const handleNetworkConfigCommand = async (
         .addOptions(...modulesOptions)
     );
 
-  const backRow = addBackButton("module");
+  const backRow = addBackButton(CONFIG_STEPS.MODULE);
 
   await interaction.followUp({
     content: "What Starky module do you want to use?",
@@ -289,13 +290,15 @@ export const handleModuleTypeConfigCommand = async (
   if (!interaction.guildId) return;
   const starkyModuleId = interaction.values[0];
   ongoingConfigurationsCache[interaction.guildId].moduleType = starkyModuleId;
-  ongoingConfigurationsCache[interaction.guildId].currentStep = "module-config";
+  ongoingConfigurationsCache[interaction.guildId].currentStep =
+    CONFIG_STEPS.MODULE_CONFIG;
   const starkyModule = starkyModules[starkyModuleId];
   if (!starkyModule) return;
 
   if (starkyModule.fields.length === 0) {
-    ongoingConfigurationsCache[interaction.guildId].currentStep = "summary";
-    const backRow = addBackButton("config");
+    ongoingConfigurationsCache[interaction.guildId].currentStep =
+      CONFIG_STEPS.SUMMARY;
+    const backRow = addBackButton(CONFIG_STEPS.MODULE_CONFIG);
     await interaction.update({
       content: "Thanks, preparing summary...",
       components: [backRow],
@@ -320,7 +323,7 @@ export const handleModuleTypeConfigCommand = async (
   );
   modal.addComponents(...rows);
 
-  const backRow = addBackButton("config");
+  const backRow = addBackButton(CONFIG_STEPS.MODULE_CONFIG);
 
   await interaction.showModal(modal);
   await interaction.editReply({
@@ -343,7 +346,8 @@ export const handleModuleConfigCommand = async (
   );
 
   const currentConfig = ongoingConfigurationsCache[interaction.guildId];
-  ongoingConfigurationsCache[interaction.guildId].currentStep = "summary";
+  ongoingConfigurationsCache[interaction.guildId].currentStep =
+    CONFIG_STEPS.SUMMARY;
   currentConfig.moduleConfig = moduleConfig;
 
   await finishUpConfiguration(interaction, client, restClient);
@@ -383,7 +387,7 @@ export const finishUpConfiguration = async (
       .setStyle(ButtonStyle.Primary)
   );
 
-  const backRow = addBackButton("config");
+  const backRow = addBackButton(CONFIG_STEPS.MODULE_CONFIG);
 
   if (interaction.replied) {
     await interaction.editReply({
