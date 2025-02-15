@@ -165,18 +165,26 @@ const VerifyPage = ({ discordServerName, discordServerIcon, starknetNetwork }: P
 
   return (
     <div className={styles.verify}>
-      <Logo />
-      <div>
-      Discord server: 
-        {discordServerIcon ? (
-          <img
-            src={discordServerIcon}
-            alt="Discord Server Icon"
-            className={styles.discordIcon}
-          />
-        ) : (
-          <div className={styles.iconPlaceholder} />
-        )}
+    <Logo />
+    <div>
+      <div className={styles.serverInfo}>
+        Discord server: 
+        <span className={styles.serverDisplay}>
+          {discordServerIcon ? (
+            <img
+              src={discordServerIcon}
+              alt="Discord Server Icon"
+              className={styles.discordIcon}
+            />
+          ) : (
+            <div className={styles.iconPlaceholder}>
+              {discordServerName?.[0]?.toUpperCase()}
+            </div>
+          )}
+          <b>{discordServerName}</b>
+        </span>
+      </div>
+      
         <br />
         Starknet network: <b>{starknetNetwork}</b>
         <br />
