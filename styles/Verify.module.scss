@@ -38,14 +38,14 @@
 
 
 .discordIcon {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
 }
 
 .iconPlaceholder {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background-color: #cccccc;
   display: flex;
@@ -53,10 +53,11 @@
   justify-content: center;
   font-weight: bold;
   color: #333;
+  font-size: 12px;
 }
 
 .serverInfo {
- display: flex;
+  display: flex;
   align-items: center;
 }
 
