@@ -27,6 +27,7 @@ import {
   handleDisconnectConfirmCommand,
 } from "./disconnectCommand";
 import { handleHelpCommand } from "./helpCommand";
+import { handleListConfigsCommand } from "./listConfigs";
 import { handleRefreshCommand } from "./refreshCommand";
 import {
   handleSetConfigCustomApiCommand,
@@ -97,6 +98,10 @@ export const setupInteractions = (client: Client) => {
       interaction.isChatInputCommand() &&
       interaction.commandName === "starky-view-config";
 
+    const isListConfigCommand =
+      interaction.isChatInputCommand() &&
+      interaction.commandName === "list-configs";
+
     const isDebugUserCommand =
       interaction.isChatInputCommand() &&
       interaction.commandName === "starky-debug-user";
@@ -151,6 +156,8 @@ export const setupInteractions = (client: Client) => {
       return handleRefreshCommand(interaction, client, restClient);
     else if (isViewConfigCommand)
       return handleViewConfigCommand(interaction, client, restClient);
+    else if (isListConfigCommand)
+      return handleListConfigsCommand(interaction, client, restClient);
     else if (isDebugUserCommand)
       return handleDebugUserCommand(interaction, client, restClient);
     else if (isSetConfigCustomApiCommand)
