@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import axios from "axios";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { Signature } from "starknet";
 import { connect as starknetConnect, disconnect } from "starknetkit";
@@ -189,7 +190,16 @@ const VerifyPage = ({
           </span>
         </div>
         <br />
-        Starknet network: <b>{starknetNetwork}</b>
+        <span className={styles.networkDisplay}>
+          Starknet network:
+          <Image
+            src="/assets/starknet-icon.png"
+            height={25}
+            width={25}
+            alt="Starknet Icon"
+          />
+          <b>{starknetNetwork}</b>
+        </span>
         <br />
         {account && (
           <span className={styles.starknetWallet}>
