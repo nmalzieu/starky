@@ -19,7 +19,7 @@ Ensure the following are installed on your system:
 ### Option 1: Local Installation
 
 1. Download and install PostgreSQL from the [official website](https://www.postgresql.org/download/).
-2. During installation, set a username and password.
+2. During installation, set a username and password. Use "mysecretpassword" as the password.
 3. Verify the installation:
    ```sh
    psql --version
@@ -30,8 +30,9 @@ Ensure the following are installed on your system:
 Run the following command to set up PostgreSQL in a Docker container:
 
 ```sh
-docker run --name postgres -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -e POSTGRES_DB=mydatabase -p 5432:5432 -d postgres
+docker run --name starky-postgres -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -d postgres
 ```
+(Please checkout the port if it matches yours.)
 
 ---
 
@@ -40,27 +41,34 @@ docker run --name postgres -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin -e 
 Create a `.env` file in your project's root directory and add the following:
 
 ```sh
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_USER=your_username
-DATABASE_PASSWORD=your_password
-DATABASE_NAME=your_database_name
+NEXT_PUBLIC_DISCORD_CLIENT_ID=your_application_id
+DISCORD_BOT_TOKEN=your_bot_token
+DATABASE_URL=postgresql://postgres:mysecretpassword@localhost:5432/postgres
+DOMAIN=http://localhost:8080
+PORT=8080
+NODE_ENV=development
+BASE_URL=http://localhost:8080/
+UPDATE_STATUS_EVERY_SECONDS=5
+APIBARA_AUTH_TOKEN_MAINNET=xxx
+APIBARA_AUTH_TOKEN_SEPOLIA=xxx
+APIBARA_DEFAULT_BLOCK_NUMBER_MAINNET=644802
+APIBARA_DEFAULT_BLOCK_NUMBER_SEPOLIA=70133
+STARKSCAN_API_KEY=xxx
+RPC_URL_MAINNET=https://rpc.starknet.id/
+RPC_URL_SEPOLIA=https://sepolia.rpc.starknet.id/
+WATCHTOWER_ENABLED=false
+APP_ID=xxx
+WATCHTOWER_URL=https://api.watchtower.starknet.id/service/add_message
+WATCHTOWER_TOKEN=xxx
+LOG_EVERY_X_BLOCK=1
 ```
-
-If using Docker, replace `DATABASE_HOST` with:
-
-```sh
-DATABASE_HOST=host.docker.internal
-```
-
----
 
 ## 3. Install Dependencies
 
 Install the required Node.js dependencies:
 
 ```sh
-npm install pg dotenv
+yarn install 
 ```
 
 ---
@@ -70,7 +78,7 @@ npm install pg dotenv
 Run your application to verify the database connection:
 
 ```sh
-npm run start
+yarn run dev 
 ```
 
 If successful, you should see a message confirming the connection to the database.
@@ -90,22 +98,11 @@ If successful, you should see a message confirming the connection to the databas
      docker start postgres
      ```
 
-### 2. **Environment Variables Not Loading**
-   - **Cause:** `dotenv` is not configured properly.
-   - **Fix:** Ensure `dotenv` is installed and required in your entry file:
-     ```sh
-     npm install dotenv
-     ```
-     Add this line at the top of your entry file:
-     ```js
-     require('dotenv').config();
-     ```
-
-### 3. **Port Conflict**
-   - **Cause:** Another service is using port `5432`.
+### 2. **Port Conflict**
+   - **Cause:** Another service is using port `5433`.
    - **Fix:** Stop the conflicting service or change the `DATABASE_PORT` in `.env`.
      ```sh
-     lsof -i :5432
+     lsof -i :5433
      kill -9 <PID>
      ```
 
@@ -118,3 +115,4 @@ Your PostgreSQL database is now set up and ready to use. If you encounter issues
 ---
 
 ## Happy Coding! 🚀
+
