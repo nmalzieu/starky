@@ -1,6 +1,8 @@
 import { REST } from "@discordjs/rest";
 import { ChatInputCommandInteraction, Client } from "discord.js";
 
+import { slashCommandsArray } from "../slashCommands";
+
 export const handleHelpCommand = async (
   interaction: ChatInputCommandInteraction,
   client: Client,
@@ -13,7 +15,7 @@ export const handleHelpCommand = async (
     if (!userId || !guildId) return;
 
     const commands =
-      client.application?.commands.cache
+      slashCommandsArray
         .map((cmd) => `• \`/${cmd.name}\` - ${cmd.description}`)
         .join("\n") || "No commands available.";
 
