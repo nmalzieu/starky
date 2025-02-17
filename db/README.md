@@ -78,7 +78,7 @@ yarn install
 Run your application to verify the database connection:
 
 ```sh
-yarn run dev 
+yarn run dev or yarn start
 ```
 
 If successful, you should see a message confirming the connection to the database.
