@@ -35,11 +35,11 @@ type OngoingConfiguration = {
   roleId?: string;
   moduleType?: string;
   moduleConfig?: any;
+  existingConfigId?: string;
 };
 
-type OngoingConfigurationsCache = {
-  [guildId: string]: OngoingConfiguration;
-};
+const CONFIG_TIMEOUT = 15 * 60 * 1000;
+const ongoingConfigurationsCache: Record<string, OngoingConfiguration> = {};
 
 const CONFIG_STEPS = {
   ROLE: "role",
@@ -62,7 +62,7 @@ const NETWORK_OPTIONS = [
   },
 ] as const;
 
-const ongoingConfigurationsCache: OngoingConfigurationsCache = {};
+const SUPPORTED_NETWORKS = ["mainnet", "sepolia"] as const;
 
 const addBackButton = (previousStepId: string) => {
   return new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -133,7 +133,14 @@ const handleBackToNetwork = async (
       new StringSelectMenuBuilder()
         .setCustomId("starky-config-network")
         .setPlaceholder("Starknet Network")
-        .addOptions(...NETWORK_OPTIONS)
+        .addOptions(
+          NETWORK_OPTIONS.map((option) => ({
+            ...option,
+            default:
+              option.value ===
+              ongoingConfigurationsCache[interaction.guildId!].network,
+          }))
+        )
     );
 
   const backRow = addBackButton("network");
@@ -207,9 +214,19 @@ export const handleInitialConfigCommand = async (
     });
 
   if (alreadyDiscordServerConfigForRole) {
+    const editConfigButton =
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
+          .setCustomId(
+            `starky-config-edit-${alreadyDiscordServerConfigForRole.id}`
+          )
+          .setLabel("Edit Configuration")
+          .setStyle(ButtonStyle.Primary)
+      );
+
     await interaction.reply({
-      content: `❌ You already have setup a Starky configuration for the selected role. If you want to setup a new configuration for this role, please first delete the existing one with \`/starky-delete-config\``,
-      components: [],
+      content: `⚠️ A configuration for this role already exists. You can edit it instead of creating a new one.`,
+      components: [editConfigButton],
       ephemeral: true,
     });
     return;
@@ -224,13 +241,22 @@ export const handleInitialConfigCommand = async (
       new StringSelectMenuBuilder()
         .setCustomId("starky-config-network")
         .setPlaceholder("Starknet Network")
-        .addOptions(...NETWORK_OPTIONS)
+        .addOptions(
+          NETWORK_OPTIONS.map((option) => ({
+            ...option,
+            default:
+              option.value ===
+              ongoingConfigurationsCache[interaction.guildId!].network,
+          }))
+        )
     );
 
   const backRow = addBackButton(CONFIG_STEPS.NETWORK);
 
   await interaction.reply({
-    content: "On what Starknet network do you want to set up Starky?",
+    content: `Current network: ${
+      ongoingConfigurationsCache[interaction.guildId!].network || "Not set"
+    }\nOn what Starknet network do you want to set up Starky?`,
     components: [selectRow, backRow],
     ephemeral: true,
   });
@@ -243,11 +269,11 @@ export const handleNetworkConfigCommand = async (
 ) => {
   await assertManageRoles(interaction);
   if (!interaction.guildId) return;
-  const network = interaction.values[0];
+  const network = interaction.values[0] as "mainnet" | "sepolia";
   if (network !== "mainnet" && network !== "sepolia") return;
 
-  ongoingConfigurationsCache[interaction.guildId].network = network;
-  ongoingConfigurationsCache[interaction.guildId].currentStep =
+  ongoingConfigurationsCache[interaction.guildId!].network = network;
+  ongoingConfigurationsCache[interaction.guildId!].currentStep =
     CONFIG_STEPS.MODULE;
 
   await interaction.update({
@@ -289,14 +315,14 @@ export const handleModuleTypeConfigCommand = async (
   await assertManageRoles(interaction);
   if (!interaction.guildId) return;
   const starkyModuleId = interaction.values[0];
-  ongoingConfigurationsCache[interaction.guildId].moduleType = starkyModuleId;
-  ongoingConfigurationsCache[interaction.guildId].currentStep =
+  ongoingConfigurationsCache[interaction.guildId!].moduleType = starkyModuleId;
+  ongoingConfigurationsCache[interaction.guildId!].currentStep =
     CONFIG_STEPS.MODULE_CONFIG;
   const starkyModule = starkyModules[starkyModuleId];
   if (!starkyModule) return;
 
   if (starkyModule.fields.length === 0) {
-    ongoingConfigurationsCache[interaction.guildId].currentStep =
+    ongoingConfigurationsCache[interaction.guildId!].currentStep =
       CONFIG_STEPS.SUMMARY;
     const backRow = addBackButton(CONFIG_STEPS.MODULE_CONFIG);
     await interaction.update({
@@ -307,6 +333,7 @@ export const handleModuleTypeConfigCommand = async (
     return;
   }
 
+  const currentConfig = ongoingConfigurationsCache[interaction.guildId!];
   const modal = new ModalBuilder()
     .setCustomId("starky-config-module-config")
     .setTitle(`Configure the ${starkyModule.name} Starky module`);
@@ -318,6 +345,7 @@ export const handleModuleTypeConfigCommand = async (
         .setStyle(
           moduleField.textarea ? TextInputStyle.Paragraph : TextInputStyle.Short
         )
+        .setValue(currentConfig.moduleConfig?.[moduleField.id] || "")
         .setPlaceholder(moduleField.placeholder ? moduleField.placeholder : "")
     )
   );
@@ -345,8 +373,8 @@ export const handleModuleConfigCommand = async (
     (fieldValue) => (moduleConfig[fieldValue.customId] = fieldValue.value)
   );
 
-  const currentConfig = ongoingConfigurationsCache[interaction.guildId];
-  ongoingConfigurationsCache[interaction.guildId].currentStep =
+  const currentConfig = ongoingConfigurationsCache[interaction.guildId!];
+  ongoingConfigurationsCache[interaction.guildId!].currentStep =
     CONFIG_STEPS.SUMMARY;
   currentConfig.moduleConfig = moduleConfig;
 
@@ -361,7 +389,26 @@ export const finishUpConfiguration = async (
   await assertManageRoles(interaction);
   if (!interaction.guildId) return;
 
-  const currentConfig = ongoingConfigurationsCache[interaction.guildId];
+  const currentConfig = ongoingConfigurationsCache[interaction.guildId!];
+  if (!currentConfig) {
+    await interaction.reply({
+      content: "❌ Configuration session expired. Please start over.",
+      ephemeral: true,
+    });
+    return;
+  }
+
+  if (
+    !SUPPORTED_NETWORKS.includes(
+      currentConfig.network as typeof SUPPORTED_NETWORKS[number]
+    )
+  ) {
+    await interaction.reply(
+      `❌ Unsupported network. Valid: ${SUPPORTED_NETWORKS.join(", ")}`
+    );
+    return;
+  }
+
   const role = (await getRoles(restClient, interaction.guildId)).find(
     (r) => r.id === currentConfig.roleId
   );
@@ -427,7 +474,7 @@ export const handleConfigConfirmCommand = async (
   await assertManageRoles(interaction);
   if (!interaction.guildId) return;
 
-  const currentConfig = ongoingConfigurationsCache[interaction.guildId];
+  const currentConfig = ongoingConfigurationsCache[interaction.guildId!];
 
   const alreadyDiscordServerConfig =
     await DiscordServerConfigRepository.findOneBy({
@@ -469,13 +516,77 @@ export const handleConfigConfirmCommand = async (
 
   discordServerConfig.starkyModuleConfig = currentConfig.moduleConfig || {};
 
-  await DiscordServerRepository.save(discordServer);
-  await DiscordServerConfigRepository.save(discordServerConfig);
+  const queryRunner =
+    DiscordServerConfigRepository.manager.connection.createQueryRunner();
+  await queryRunner.startTransaction();
+  try {
+    await DiscordServerRepository.save(discordServer);
+    await DiscordServerConfigRepository.save(discordServerConfig);
+    await queryRunner.commitTransaction();
+  } catch (error) {
+    await queryRunner.rollbackTransaction();
+    throw error;
+  } finally {
+    await queryRunner.release();
+  }
 
-  delete ongoingConfigurationsCache[interaction.guildId];
+  delete ongoingConfigurationsCache[interaction.guildId!];
 
   await interaction.update({
     content: "✅ Thanks your Starky configuration is now done.",
     components: [],
+  });
+};
+
+export const handleEditConfigButton = async (
+  interaction: ButtonInteraction,
+  client: Client,
+  restClient: REST
+) => {
+  await assertManageRoles(interaction);
+  if (!interaction.guildId) return;
+
+  const configId = interaction.customId.replace("starky-config-edit-", "");
+  const existingConfig = await DiscordServerConfigRepository.findOne({
+    where: { id: configId },
+  });
+
+  if (!existingConfig) {
+    await interaction.reply({
+      content: "❌ Configuration not found.",
+      ephemeral: true,
+    });
+    return;
+  }
+
+  ongoingConfigurationsCache[interaction.guildId!] = {
+    currentStep: "network",
+    network: existingConfig.starknetNetwork,
+    roleId: existingConfig.discordRoleId,
+    moduleType: existingConfig.starkyModuleType,
+    moduleConfig: existingConfig.starkyModuleConfig,
+    existingConfigId: configId,
+  };
+
+  const selectRow =
+    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId("starky-config-network")
+        .setPlaceholder("Starknet Network")
+        .addOptions(
+          NETWORK_OPTIONS.map((option) => ({
+            ...option,
+            default:
+              option.value ===
+              ongoingConfigurationsCache[interaction.guildId!].network,
+          }))
+        )
+    );
+
+  const backRow = addBackButton(CONFIG_STEPS.NETWORK);
+
+  await interaction.update({
+    content: `Current network: ${existingConfig.starknetNetwork}\nOn what Starknet network do you want to set up Starky?`,
+    components: [selectRow, backRow],
   });
 };
