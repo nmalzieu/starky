@@ -77,6 +77,10 @@ export const slashCommandsArray: SlashCommandData[] = [
       "Set a custom API URI for a configuration (Instead of Starkscan)",
   },
   { name: "help", description: "Get help with Starky" },
+  {
+    name: "list-configs",
+    description: "View your Starky configurations on this server",
+  },
 ];
 
 const buildSlashCommand = (
