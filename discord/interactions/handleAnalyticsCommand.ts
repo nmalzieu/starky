@@ -22,7 +22,7 @@ export const handleAnalyticsCommand = async (
     // Store the token in the database with guildId and userId
 
     {
-      /*} await saveTokenToDatabase(guildId, userId, token); */
+      // TODO * await saveTokenToDatabase(guildId, userId, token); */
     }
 
     // Construct the analytics URL with the token

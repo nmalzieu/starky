@@ -81,6 +81,10 @@ export const slashCommandsArray: SlashCommandData[] = [
     name: "list-configs",
     description: "View your Starky configurations on this server",
   },
+  {
+    name: "starky-analytics",
+    description: "View analytics for this server",
+  },
 ];
 
 const buildSlashCommand = (
@@ -119,7 +123,7 @@ export const registerSlashCommands = async (): Promise<void> => {
     .map((cmd) => cmd.toJSON());
 
   WatchTowerLogger.info("> Registering Discord slash commands...");
-  await restDiscordClient.put(
+  const res = await restDiscordClient.put(
     Routes.applicationCommands(config.NEXT_PUBLIC_DISCORD_CLIENT_ID),
     { body: slashCommands }
   );
