@@ -32,6 +32,7 @@ import {
   handleDisconnectCommand,
   handleDisconnectConfirmCommand,
 } from "./disconnectCommand";
+import { handleAnalyticsCommand } from "./handleAnalyticsCommand";
 import { handleHelpCommand } from "./helpCommand";
 import { handleListConfigsCommand } from "./listConfigs";
 import { handleRefreshCommand } from "./refreshCommand";
@@ -132,6 +133,11 @@ const interactionHandlers: HandlerConfig[] = [
     type: "chatInput",
     identifier: "list-configs",
     handler: handleListConfigsCommand,
+  },
+  {
+    type: "chatInput",
+    identifier: "starky-analytics",
+    handler: handleAnalyticsCommand,
   },
   {
     type: "selectMenu",
