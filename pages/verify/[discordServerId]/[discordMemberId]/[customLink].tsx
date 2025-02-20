@@ -12,6 +12,7 @@ import { connect as starknetConnect, disconnect } from "starknetkit";
 import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
 import chainAliasByNetwork from "../../../../configs/chainAliasByNetwork.json";
+import networkConfig  from "../../../../configs/networks.json";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerName } from "../../../../discord/utils";
 import { Props } from "../../../../types/props";
@@ -21,6 +22,16 @@ import messageToSign from "../../../../utils/starknet/message";
 import WatchTowerLogger from "../../../../watchTower";
 
 import styles from "../../../../styles/Verify.module.scss";
+
+interface NetworkConfig {
+  name: string;
+  url: string;
+  indexer: boolean;
+  chain?: "starknet"; 
+  description: string;
+}
+
+const typedNetworkConfig = networkConfig as NetworkConfig[];
 
 const getSignatureErrorMessage = (
   error: string
@@ -57,18 +68,11 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   );
 
   useEffect(() => {
-    const fetchNetworkConfig = async () => {
-      const response = await fetch("/configs/networks.json");
-      const networks = await response.json();
-      const networkConfig = networks.find(
-        (net: any) => net.name === starknetNetwork
-      );
-      if (networkConfig) {
-        setCurrentChain(networkConfig.chain);
-      }
-    };
-    fetchNetworkConfig();
+    if (!typedNetworkConfig) return;
+    const network = typedNetworkConfig.find((net: NetworkConfig) => net.name === starknetNetwork);
+    if (network) setCurrentChain(network.chain || "starknet"); 
   }, [starknetNetwork]);
+
 
   const connectToStarknet = useCallback(async () => {
     const { wallet } = await starknetConnect();
