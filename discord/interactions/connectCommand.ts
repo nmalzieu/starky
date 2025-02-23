@@ -2,6 +2,7 @@ import { REST } from "@discordjs/rest";
 import {
   ActionRowBuilder,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   ChatInputCommandInteraction,
   Client,
@@ -34,6 +35,69 @@ const isConnectedOnAllNetworks = async (
 ) => {
   const connectedNetworks = members.map((member) => member.starknetNetwork);
   return networks.every((network) => connectedNetworks.includes(network.name));
+};
+
+export const handleReconnectNetworkCommand = async (
+  interaction: ButtonInteraction,
+  client: Client,
+  restClient: REST
+) => {
+  const guildId = interaction.guildId;
+  const userId = interaction.member?.user?.id;
+  const networkName = interaction.customId.replace("reconnect_", "");
+
+  if (!guildId || !userId) {
+    await interaction.reply({ content: "An error occurred", ephemeral: true });
+    return;
+  }
+
+  const alreadyDiscordServer = await DiscordServerRepository.findOneBy({
+    id: guildId,
+  });
+
+  if (!alreadyDiscordServer) {
+    await interaction.reply({
+      content: "Starky is not yet configured on this server",
+      ephemeral: true,
+    });
+    return;
+  }
+
+  // Check if the record already exists
+  const existingMember = await DiscordMemberRepository.findOne({
+    where: {
+      discordMemberId: userId,
+      discordServerId: guildId,
+      starknetNetwork: networkName,
+    },
+  });
+
+  if (existingMember) {
+    // Update the existing record
+    existingMember.customLink = nanoid();
+    await DiscordMemberRepository.save(existingMember);
+  } else {
+    // Create a new record
+    const newDiscordMember = new DiscordMember();
+    newDiscordMember.starknetNetwork = networkName;
+    newDiscordMember.discordServerId = guildId;
+    newDiscordMember.discordMemberId = userId;
+    newDiscordMember.customLink = nanoid();
+    newDiscordMember.discordServer = alreadyDiscordServer;
+    await DiscordMemberRepository.save(newDiscordMember);
+  }
+
+  await interaction.update({
+    content: "Thanks, following up...",
+    components: [],
+  });
+
+  await interaction.followUp({
+    content: `Go to this link: ${config.BASE_URL}/verify/${guildId}/${userId}/${
+      existingMember ? existingMember.customLink : DiscordMember.customLink
+    } and verify your Starknet identity on network: ${networkName}!`,
+    ephemeral: true,
+  });
 };
 
 export const handleConnectCommand = async (

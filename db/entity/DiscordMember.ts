@@ -44,4 +44,5 @@ export class DiscordMember {
 
   @DeleteDateColumn()
   deletedAt?: Date;
+  static customLink: any;
 }
