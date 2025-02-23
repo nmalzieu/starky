@@ -98,6 +98,7 @@ const interactionHandlers: HandlerConfig[] = [
     type: "chatInput",
     identifier: "starky-connect",
     handler: handleConnectCommand,
+    matchType: "exact",
   },
   {
     type: "chatInput",
@@ -209,7 +210,9 @@ export const setupInteractions = (client: Client) => {
         case "chatInput":
           return (
             interaction.isChatInputCommand() &&
-            interaction.commandName === config.identifier
+            (config.matchType === "startsWith"
+              ? interaction.commandName.startsWith(config.identifier)
+              : interaction.commandName === config.identifier)
           );
         case "button":
           return (
