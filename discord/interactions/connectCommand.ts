@@ -63,7 +63,6 @@ export const handleReconnectNetworkCommand = async (
     return;
   }
 
-  // Check if the record already exists
   const existingMember = await DiscordMemberRepository.findOne({
     where: {
       discordMemberId: userId,
@@ -73,11 +72,9 @@ export const handleReconnectNetworkCommand = async (
   });
 
   if (existingMember) {
-    // Update the existing record
     existingMember.customLink = nanoid();
     await DiscordMemberRepository.save(existingMember);
   } else {
-    // Create a new record
     const newDiscordMember = new DiscordMember();
     newDiscordMember.starknetNetwork = networkName;
     newDiscordMember.discordServerId = guildId;
@@ -159,7 +156,6 @@ export const handleConnectCommand = async (
       alreadyDiscordMembers[0].starknetWalletAddress &&
       alreadyDiscordMembers.length == 1
     ) {
-      // Finished setup on one network
       const newDiscordMember = new DiscordMember();
 
       newDiscordMember.discordMemberId =
