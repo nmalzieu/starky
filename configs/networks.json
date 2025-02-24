@@ -1,11 +1,13 @@
 [
   {
+    "label": "Starknet Mainnet",
     "name": "mainnet",
     "url": "https://starknet.preview.apibara.org",
     "indexer": true,
     "description": "The Starknet mainnet"
   },
   {
+    "label": "Starknet Sepolia",
     "name": "sepolia",
     "url": "coming-soon",
     "indexer": false,
