@@ -21,6 +21,7 @@ import {
 } from "./addConfigCommand";
 import {
   handleConnectCommand,
+  handleReconnectNetworkCommand,
   handleUserNetworkConfigCommand,
 } from "./connectCommand";
 import { handleDebugUserCommand } from "./debugUser";
@@ -198,6 +199,12 @@ const interactionHandlers: HandlerConfig[] = [
     type: "button",
     identifier: "starky-config-back-",
     handler: handleBackButton,
+    matchType: "startsWith",
+  },
+  {
+    type: "button",
+    identifier: "reconnect_",
+    handler: handleReconnectNetworkCommand,
     matchType: "startsWith",
   },
 ];

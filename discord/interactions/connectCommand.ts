@@ -1,6 +1,9 @@
 import { REST } from "@discordjs/rest";
 import {
   ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
   ChatInputCommandInteraction,
   Client,
   StringSelectMenuBuilder,
@@ -24,6 +27,76 @@ export const otherNetwork = (network: string) => {
   }
   const nextNetworkIndex = (currentNetworkIndex + 1) % networks.length;
   return networks[nextNetworkIndex].name;
+};
+
+const isConnectedOnAllNetworks = async (
+  members: DiscordMember[],
+  networks: any[]
+) => {
+  const connectedNetworks = members.map((member) => member.starknetNetwork);
+  return networks.every((network) => connectedNetworks.includes(network.name));
+};
+
+export const handleReconnectNetworkCommand = async (
+  interaction: ButtonInteraction,
+  client: Client,
+  restClient: REST
+) => {
+  const guildId = interaction.guildId;
+  const userId = interaction.member?.user?.id;
+  const networkName = interaction.customId.replace("reconnect_", "");
+
+  if (!guildId || !userId) {
+    await interaction.reply({ content: "An error occurred", ephemeral: true });
+    return;
+  }
+
+  const alreadyDiscordServer = await DiscordServerRepository.findOneBy({
+    id: guildId,
+  });
+
+  if (!alreadyDiscordServer) {
+    await interaction.reply({
+      content: "Starky is not yet configured on this server",
+      ephemeral: true,
+    });
+    return;
+  }
+
+  const existingMember = await DiscordMemberRepository.findOne({
+    where: {
+      discordMemberId: userId,
+      discordServerId: guildId,
+      starknetNetwork: networkName,
+    },
+  });
+
+  let customLink;
+
+  if (existingMember) {
+    existingMember.customLink = nanoid();
+    await DiscordMemberRepository.save(existingMember);
+    customLink = existingMember.customLink;
+  } else {
+    const newDiscordMember = new DiscordMember();
+    newDiscordMember.starknetNetwork = networkName;
+    newDiscordMember.discordServerId = guildId;
+    newDiscordMember.discordMemberId = userId;
+    newDiscordMember.customLink = nanoid();
+    newDiscordMember.discordServer = alreadyDiscordServer;
+    await DiscordMemberRepository.save(newDiscordMember);
+    customLink = newDiscordMember.customLink;
+  }
+
+  await interaction.update({
+    content: "Thanks, following up...",
+    components: [],
+  });
+
+  await interaction.followUp({
+    content: `Go to this link: ${config.BASE_URL}/verify/${guildId}/${userId}/${customLink} and verify your Starknet identity on network: ${networkName}!`,
+    ephemeral: true,
+  });
 };
 
 export const handleConnectCommand = async (
@@ -55,16 +128,29 @@ export const handleConnectCommand = async (
     discordMemberId: userId,
     discordServer: alreadyDiscordServer,
   });
-  const alreadyConnectedOnBothNetworks =
-    alreadyDiscordMembers.length == 2 &&
-    alreadyDiscordMembers[0].starknetWalletAddress &&
-    alreadyDiscordMembers[1].starknetWalletAddress;
+
+  const alreadyConnectedOnAllNetworks = isConnectedOnAllNetworks(
+    alreadyDiscordMembers,
+    networks
+  );
 
   if (alreadyDiscordMembers.length > 0) {
-    if (alreadyConnectedOnBothNetworks) {
+    if (await alreadyConnectedOnAllNetworks) {
+      const reconnectButtons = networks.map((network) => {
+        return new ButtonBuilder()
+          .setCustomId(`reconnect_${network.name}`)
+          .setLabel(`Reconnect ${network.name}`)
+          .setStyle(ButtonStyle.Primary);
+      });
+
+      const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        reconnectButtons
+      );
+
       await interaction.reply({
         content:
-          "You have already linked a Starknet wallet to this Discord server on both networks. Use `/starky-disconnect` first if you want to link a new one",
+          "You have already linked a Starknet wallet to this Discord server on all networks. Use `/starky-disconnect` first if you want to link a new one",
+        components: [actionRow],
         ephemeral: true,
       });
       return;
@@ -72,7 +158,6 @@ export const handleConnectCommand = async (
       alreadyDiscordMembers[0].starknetWalletAddress &&
       alreadyDiscordMembers.length == 1
     ) {
-      // Finished setup on one network
       const newDiscordMember = new DiscordMember();
 
       newDiscordMember.discordMemberId =
