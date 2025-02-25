@@ -134,7 +134,7 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
         .setPlaceholder("Starknet Network")
         .addOptions(
           ...networks.map((network) => ({
-            label: network.name,
+            label: network.label,
             description: network.description,
             value: network.name,
           }))
