@@ -128,8 +128,8 @@ const VerifyPage = ({
     <div>
       {!account && (
         <div>
-          <button className={styles.connect}>
-            <a onClick={connectToStarknet}>Connect your Starknet wallet</a>
+          <button className={styles.connect} onClick={connectToStarknet}>
+            Connect your Starknet wallet
           </button>
           {wrongStarknetNetwork && (
             <div className="danger">

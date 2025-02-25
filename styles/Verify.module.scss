@@ -8,17 +8,15 @@
   }
 
   .connect {
-    margin-bottom: 10px;
-  
     border: 1px solid black;
     border-radius: 0.5rem;         
-    padding: 2rem 2rem;
+    padding: 1rem 2rem;
     background-color: transparent;    
     transition: background-color 0.3s ease;
     cursor: pointer;
   
     &:hover {
-      background-color: #f3f4f6;
+      background-color: #fefee9;
     }
   }
 
