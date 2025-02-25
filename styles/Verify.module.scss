@@ -8,7 +8,21 @@
   }
 
   .connect {
-    margin-bottom: 10px;
+    border: 1px solid black;
+    border-radius: 0.5rem;         
+    padding: 1rem 2rem;
+    background-color: transparent;    
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+  
+    &:hover {
+      background-color: #fefee9;
+    }
+  }
+
+  .connect a {
+    font-weight: 600;
+    font-size: 15px;
   }
 
   .sign {

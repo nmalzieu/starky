@@ -128,9 +128,9 @@ const VerifyPage = ({
     <div>
       {!account && (
         <div>
-          <a className={styles.connect} onClick={connectToStarknet}>
-            connect your Starknet wallet
-          </a>
+          <button className={styles.connect} onClick={connectToStarknet}>
+            Connect your Starknet wallet
+          </button>
           {wrongStarknetNetwork && (
             <div className="danger">
               this discord server has been configured to verify identity on the{" "}
