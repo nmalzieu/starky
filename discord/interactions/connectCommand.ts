@@ -37,67 +37,6 @@ const isConnectedOnAllNetworks = async (
   return networks.every((network) => connectedNetworks.includes(network.name));
 };
 
-// export const handleReconnectNetworkCommand = async (
-//   interaction: ButtonInteraction,
-//   client: Client,
-//   restClient: REST
-// ) => {
-//   const guildId = interaction.guildId;
-//   const userId = interaction.member?.user?.id;
-//   const networkName = interaction.customId.replace("reconnect_", "");
-
-//   if (!guildId || !userId) {
-//     await interaction.reply({ content: "An error occurred", ephemeral: true });
-//     return;
-//   }
-
-//   const alreadyDiscordServer = await DiscordServerRepository.findOneBy({
-//     id: guildId,
-//   });
-
-//   if (!alreadyDiscordServer) {
-//     await interaction.reply({
-//       content: "Starky is not yet configured on this server",
-//       ephemeral: true,
-//     });
-//     return;
-//   }
-
-//   const existingMember = await DiscordMemberRepository.findOne({
-//     where: {
-//       discordMemberId: userId,
-//       discordServerId: guildId,
-//       starknetNetwork: networkName,
-//     },
-//   });
-
-//   if (existingMember) {
-//     existingMember.customLink = nanoid();
-//     await DiscordMemberRepository.save(existingMember);
-//   } else {
-//     const newDiscordMember = new DiscordMember();
-//     newDiscordMember.starknetNetwork = networkName;
-//     newDiscordMember.discordServerId = guildId;
-//     newDiscordMember.discordMemberId = userId;
-//     newDiscordMember.customLink = nanoid();
-//     newDiscordMember.discordServer = alreadyDiscordServer;
-//     await DiscordMemberRepository.save(newDiscordMember);
-//   }
-
-//   await interaction.update({
-//     content: "Thanks, following up...",
-//     components: [],
-//   });
-
-//   await interaction.followUp({
-//     content: `Go to this link: ${config.BASE_URL}/verify/${guildId}/${userId}/${
-//       // existingMember ? existingMember.customLink : DiscordMember.customLink
-//       existingMember ?? newDiscordMember.customLink
-//     } and verify your Starknet identity on network: ${networkName}!`,
-//     ephemeral: true,
-//   });
-// };
-
 export const handleReconnectNetworkCommand = async (
   interaction: ButtonInteraction,
   client: Client,
