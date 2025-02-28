@@ -54,6 +54,42 @@ const VerifyPage = ({
   const [verifiedSignature, setVerifiedSignature] = useState(false);
   const [unverifiedSignature, setUnverifiedSignature] = useState("");
   const [chainId, setChainId] = useState("");
+  const [isArgent, setIsArgent] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
+
+  const getTargetChainId = () => {
+    return chainAliasByNetwork[starknetNetwork][1];
+  };
+
+  const handleNetworkSwitch = async (wallet: any) => {
+    setIsSwitching(true);
+    try {
+      await wallet.request({
+        type: "wallet_switchStarknetChain",
+        params: { chainId: getTargetChainId() },
+      });
+
+      // Verify if switch was successful
+      const newChainId =
+        wallet.account?.provider.chainId ||
+        wallet.provider?.chainId ||
+        wallet.chainId;
+      const validChainIds = chainAliasByNetwork[starknetNetwork];
+
+      if (validChainIds.includes(newChainId)) {
+        setAccount(wallet.account);
+        setWrongStarknetNetwork(false);
+        setIsSwitching(false);
+      } else {
+        setWrongStarknetNetwork(true);
+      }
+    } catch (error: any) {
+      setWrongStarknetNetwork(true);
+      WatchTowerLogger.error("Network switch failed:", error);
+    } finally {
+      setIsSwitching(false);
+    }
+  };
 
   const connectToStarknet = useCallback(async () => {
     const { wallet } = await starknetConnect();
@@ -77,6 +113,29 @@ const VerifyPage = ({
     )
       setWrongStarknetNetwork(true);
     else setAccount(wallet.account);
+
+    const isArgentWallet = wallet.id.toLowerCase().includes("argent");
+    setIsArgent(isArgentWallet);
+
+    const currentChainId =
+      wallet.account?.provider.chainId ||
+      wallet.provider?.chainId ||
+      wallet.chainId;
+    const validChainIds = chainAliasByNetwork[starknetNetwork];
+
+    if (!validChainIds.includes(currentChainId)) {
+      setWrongStarknetNetwork(true);
+
+      if (isArgentWallet) {
+        await handleNetworkSwitch(wallet);
+        return;
+      }
+
+      return;
+    }
+
+    setAccount(wallet.account);
+    setWrongStarknetNetwork(false);
   }, [starknetNetwork]);
 
   const verifySignature = useCallback(
@@ -128,16 +187,37 @@ const VerifyPage = ({
     <div>
       {!account && (
         <div>
-          <button className={styles.connect} onClick={connectToStarknet}>
-            Connect your Starknet wallet
+          <button
+            className={styles.connect}
+            onClick={connectToStarknet}
+            disabled={isSwitching}
+          >
+            {isSwitching ? "Switching Networks..." : "Connect Starknet Wallet"}
           </button>
+
           {wrongStarknetNetwork && (
             <div className="danger">
-              this discord server has been configured to verify identity on the{" "}
-              {starknetNetwork} network.
-              <br />
-              please switch your browser wallet to the {starknetNetwork} network
-              then connect again
+              {isArgent ? (
+                isSwitching ? (
+                  "Confirm network switch in your Argent wallet..."
+                ) : (
+                  <>
+                    {!isSwitching && (
+                      <div className="success">Switching successful</div>
+                    )}
+                  </>
+                )
+              ) : (
+                <div className="danger">
+                  this discord server has been configured to verify identity on
+                  the {starknetNetwork} network.
+                  <br />
+                  please switch your browser wallet to the {
+                    starknetNetwork
+                  }{" "}
+                  network then connect again
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -165,7 +245,20 @@ const VerifyPage = ({
   );
 
   if (noStarknetWallet) {
-    starknetWalletDiv = <div>no Starknet wallet detected on your browser.</div>;
+    starknetWalletDiv = (
+      <div>
+        {isArgent ? (
+          <div className="danger">
+            Argent wallet detected but not connected. Please retry.
+          </div>
+        ) : (
+          <div>
+            No Starknet wallet detected. We recommend using Argent Wallet for
+            best experience.
+          </div>
+        )}
+      </div>
+    );
   }
 
   return (
