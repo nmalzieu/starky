@@ -98,13 +98,11 @@ const VerifyPage = ({
     const handleNetworkSwitch = async (wallet: any) => {
       setIsSwitching(true);
       try {
-        // Request network switch
         await wallet.request({
           type: "wallet_switchStarknetChain",
           params: { chainId: getTargetChainId() },
         });
 
-        // Wait for network update and reconnect
         await new Promise((resolve) => setTimeout(resolve, 1000));
         const { wallet: refreshedWallet } = await starknetConnect();
 
@@ -114,13 +112,10 @@ const VerifyPage = ({
           return;
         }
 
-        // Get updated chain ID
         const newChainId =
           refreshedWallet.account?.provider.chainId ||
           refreshedWallet.provider?.chainId ||
           refreshedWallet.chainId;
-
-        // Case-insensitive validation
         const isValid = chainAliasByNetwork[starknetNetwork].some(
           (id) => id.toLowerCase() === newChainId?.toLowerCase()
         );
