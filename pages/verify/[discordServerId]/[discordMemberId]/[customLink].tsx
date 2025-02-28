@@ -56,40 +56,8 @@ const VerifyPage = ({
   const [chainId, setChainId] = useState("");
   const [isArgent, setIsArgent] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
-
-  const getTargetChainId = () => {
-    return chainAliasByNetwork[starknetNetwork][1];
-  };
-
-  const handleNetworkSwitch = async (wallet: any) => {
-    setIsSwitching(true);
-    try {
-      await wallet.request({
-        type: "wallet_switchStarknetChain",
-        params: { chainId: getTargetChainId() },
-      });
-
-      // Verify if switch was successful
-      const newChainId =
-        wallet.account?.provider.chainId ||
-        wallet.provider?.chainId ||
-        wallet.chainId;
-      const validChainIds = chainAliasByNetwork[starknetNetwork];
-
-      if (validChainIds.includes(newChainId)) {
-        setAccount(wallet.account);
-        setWrongStarknetNetwork(false);
-        setIsSwitching(false);
-      } else {
-        setWrongStarknetNetwork(true);
-      }
-    } catch (error: any) {
-      setWrongStarknetNetwork(true);
-      WatchTowerLogger.error("Network switch failed:", error);
-    } finally {
-      setIsSwitching(false);
-    }
-  };
+  const [switchError, setSwitchError] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const connectToStarknet = useCallback(async () => {
     const { wallet } = await starknetConnect();
@@ -122,6 +90,58 @@ const VerifyPage = ({
       wallet.provider?.chainId ||
       wallet.chainId;
     const validChainIds = chainAliasByNetwork[starknetNetwork];
+
+    const getTargetChainId = () => {
+      return chainAliasByNetwork[starknetNetwork][1];
+    };
+
+    const handleNetworkSwitch = async (wallet: any) => {
+      setIsSwitching(true);
+      try {
+        // Request network switch
+        await wallet.request({
+          type: "wallet_switchStarknetChain",
+          params: { chainId: getTargetChainId() },
+        });
+
+        // Wait for network update and reconnect
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const { wallet: refreshedWallet } = await starknetConnect();
+
+        if (!refreshedWallet) {
+          setSwitchError(true);
+          setTimeout(() => setSwitchError(false), 5000);
+          return;
+        }
+
+        // Get updated chain ID
+        const newChainId =
+          refreshedWallet.account?.provider.chainId ||
+          refreshedWallet.provider?.chainId ||
+          refreshedWallet.chainId;
+
+        // Case-insensitive validation
+        const isValid = chainAliasByNetwork[starknetNetwork].some(
+          (id) => id.toLowerCase() === newChainId?.toLowerCase()
+        );
+
+        if (isValid) {
+          setAccount(refreshedWallet.account);
+          setWrongStarknetNetwork(false);
+          setShowSuccess(true);
+          setTimeout(() => setShowSuccess(false), 2000);
+        } else {
+          setSwitchError(true);
+          setTimeout(() => setSwitchError(false), 5000);
+        }
+      } catch (error: any) {
+        setSwitchError(true);
+        setTimeout(() => setSwitchError(false), 5000);
+        WatchTowerLogger.error("Network switch failed:", error);
+      } finally {
+        setIsSwitching(false);
+      }
+    };
 
     if (!validChainIds.includes(currentChainId)) {
       setWrongStarknetNetwork(true);
@@ -202,8 +222,19 @@ const VerifyPage = ({
                   "Confirm network switch in your Argent wallet..."
                 ) : (
                   <>
-                    {!isSwitching && (
-                      <div className="success">Switching successful</div>
+                    {switchError && "Network switch failed. Please try again."}
+                    {showSuccess &&
+                      "Network switched successfully! Connecting..."}
+                    {!switchError && !showSuccess && (
+                      <div>
+                        Required network: {starknetNetwork}
+                        <button
+                          onClick={connectToStarknet}
+                          style={{ marginLeft: "10px" }}
+                        >
+                          Retry
+                        </button>
+                      </div>
                     )}
                   </>
                 )
