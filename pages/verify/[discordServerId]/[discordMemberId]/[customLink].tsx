@@ -116,6 +116,7 @@ const VerifyPage = ({
           refreshedWallet.account?.provider.chainId ||
           refreshedWallet.provider?.chainId ||
           refreshedWallet.chainId;
+        setChainId(newChainId);
         const isValid = chainAliasByNetwork[starknetNetwork].some(
           (id) => id.toLowerCase() === newChainId?.toLowerCase()
         );
