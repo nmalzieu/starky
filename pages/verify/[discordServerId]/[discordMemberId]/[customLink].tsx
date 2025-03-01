@@ -221,17 +221,6 @@ const VerifyPage = ({
                     {switchError && "Network switch failed. Please try again."}
                     {showSuccess &&
                       "Network switched successfully! Connecting..."}
-                    {!switchError && !showSuccess && (
-                      <div>
-                        Required network: {starknetNetwork}
-                        <button
-                          onClick={connectToStarknet}
-                          style={{ marginLeft: "10px" }}
-                        >
-                          Retry
-                        </button>
-                      </div>
-                    )}
                   </>
                 )
               ) : (
