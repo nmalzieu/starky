@@ -110,6 +110,7 @@ const buildSlashCommand = (
       );
     }
   });
+  console.log(command, "this is command is error");
   return command;
 };
 

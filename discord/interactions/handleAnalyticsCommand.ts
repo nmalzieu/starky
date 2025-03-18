@@ -1,7 +1,8 @@
 import { REST } from "@discordjs/rest";
 import { ChatInputCommandInteraction, Client } from "discord.js";
 import { v4 as uuidv4 } from "uuid"; // For token generation
-//import { saveTokenToDatabase } from "../../utils/database"; // Assume DB handling function
+
+import { saveTokenToDatabase } from "../../utils/database"; // Assume DB handling function
 
 export const handleAnalyticsCommand = async (
   interaction: ChatInputCommandInteraction,
@@ -20,10 +21,13 @@ export const handleAnalyticsCommand = async (
     const token = uuidv4();
 
     // Store the token in the database with guildId and userId
-
     {
       // TODO * await saveTokenToDatabase(guildId, userId, token); */
     }
+    // await saveTokenToDatabase(guildId, userId, token);
+    await saveTokenToDatabase(guildId, userId, token)
+      .then(() => console.log("Token saved"))
+      .catch((err) => console.error("Save failed:", err));
 
     // Construct the analytics URL with the token
     const analyticsUrl = `${process.env.BASE_URL}/analytics/${guildId}/${token}`;
