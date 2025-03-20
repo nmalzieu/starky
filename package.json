@@ -19,7 +19,7 @@
     "chart.js": "^4.4.8",
     "cross-env": "^7.0.3",
     "discord-api-types": "^0.37.63",
-    "discord.js": "^14.14.1",
+    "discord.js": "^14.18.0",
     "dotenv": "^16.0.1",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "eslint-plugin-unused-imports": "^2.0.0",

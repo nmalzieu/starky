@@ -27,6 +27,6 @@ export class DiscordServerConfig {
   @Column("jsonb", { nullable: false, default: {} })
   starkyModuleConfig: StarkyModuleConfig;
 
-  @ManyToOne((type) => DiscordServer, (server) => server.serverConfigs)
+  @ManyToOne("DiscordServer", "serverConfigs")
   discordServer: Relation<DiscordServer>;
 }

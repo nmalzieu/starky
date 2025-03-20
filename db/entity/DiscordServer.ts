@@ -1,5 +1,6 @@
 import { Entity, OneToMany, PrimaryColumn } from "typeorm";
 
+import { DiscordAnalyticsToken } from "./DiscordAnalyticsToken";
 import { DiscordMember } from "./DiscordMember";
 import { DiscordServerConfig } from "./DiscordServerConfig";
 
@@ -10,12 +11,12 @@ export class DiscordServer {
   @PrimaryColumn()
   id: string;
 
-  @OneToMany((type) => DiscordMember, (member) => member.discordServer)
+  @OneToMany(() => DiscordMember, (member) => member.discordServer)
   members: DiscordMember[];
 
-  @OneToMany(
-    (type) => DiscordServerConfig,
-    (serverConfig) => serverConfig.discordServer
-  )
+  @OneToMany(() => DiscordServerConfig, (config) => config.discordServer)
   serverConfigs: DiscordServerConfig[];
+
+  @OneToMany(() => DiscordAnalyticsToken, (token) => token.discordServer)
+  analyticsTokens: DiscordAnalyticsToken[];
 }

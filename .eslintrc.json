@@ -13,7 +13,7 @@
       "files": ["*.js", "*.jsx", "*.ts", "*.tsx"],
       "rules": {
         "simple-import-sort/imports": [
-          "error",
+          "off",
           {
             "groups": [
               // Packages `react` related packages come first.

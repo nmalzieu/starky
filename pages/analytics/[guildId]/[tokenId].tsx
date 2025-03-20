@@ -1,5 +1,6 @@
 import React from "react";
 import { Pie } from "react-chartjs-2";
+
 import {
   ArcElement,
   CategoryScale,
@@ -20,6 +21,7 @@ import {
 } from "../../../db"; // Assuming these exist in your codebase
 
 import styles from "../../../styles/Verify.module.scss";
+import { validateToken } from "../../../utils/validateToken";
 
 // Register necessary chart components
 ChartJS.register(
@@ -107,6 +109,21 @@ export const getServerSideProps = async ({
       res.end();
     }
     return { props: {} }; // Redirect to home if guildId or tokenId is missing
+  }
+
+  // Verify token validity
+  const isValidToken = await validateToken(
+    guildId as string,
+    tokenId as string
+  );
+
+  if (!isValidToken) {
+    if (res) {
+      res.setHeader("location", "/");
+      res.statusCode = 302;
+      res.end();
+    }
+    return { props: {} }; // Redirect to home if token is invalid or expired
   }
 
   // Verify if the guild exists
