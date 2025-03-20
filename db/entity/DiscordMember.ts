@@ -30,11 +30,6 @@ export class DiscordMember {
   @Column()
   discordServerId: string;
 
-  //before
-  //   @ManyToOne((type) => DiscordServer, (server) => server.members)
-  //   discordServer: DiscordServer;
-
-  //now
   @ManyToOne("DiscordServer", "members")
   discordServer: DiscordServer;
 

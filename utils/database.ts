@@ -15,7 +15,6 @@ export const saveTokenToDatabase = async (
     });
 
     await DiscordAnalyticsTokenRepository.save(analyticsToken);
-    console.log("Token saved successfully:", token);
   } catch (error) {
     console.error("Error saving token:", error);
   }
