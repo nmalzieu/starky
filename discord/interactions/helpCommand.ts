@@ -19,7 +19,7 @@ export const handleHelpCommand = async (
         .map((cmd) => `• \`/${cmd.name}\` - ${cmd.description}`)
         .join("\n") || "No commands available.";
 
-    const responseMessage = `**Available Commands:**\n${commands}\n\nFor support, join our [Telegram Group](https://t.me/+Mi34Im1Uafc1Y2Q8).\nFor more information, visit [Starky](https://starky.wtf/).`;
+    const responseMessage = `**Available Commands:**\n${commands}\n\n**Helpful Resources:**\n• For configuration examples, check out [/examples](https://starky.wtf/examples).\n• For help setting up the bot, visit [/help](https://starky.wtf/help).\n\nFor support, join our [Telegram Group](https://t.me/+Mi34Im1Uafc1Y2Q8).\nFor more information, visit [Starky](https://starky.wtf/).`;
 
     await interaction.reply({
       content: responseMessage,
