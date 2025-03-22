@@ -1,0 +1,138 @@
+.container {
+  margin: 0 auto;
+  padding: 0rem 0rem 2.5rem 0rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: 100%;
+  gap: 2rem;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    gap: 2rem;
+    margin-bottom: 2rem;
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .container {
+    width: 100%;
+  }
+}
+
+/* Page Header styles */
+.header {
+  margin-bottom: 0.5rem;
+}
+
+
+.description {
+  color: #666;
+}
+
+/* Example Card styles */
+.card {
+  border: 1px solid #e5e5e5;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.cardHeader {
+  padding: 1.25rem 1.25rem 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cardDescription {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.cardContent {
+  padding: 1.25rem;
+}
+
+.explanation {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+/* Code Block styles */
+.codeContainer {
+  position: relative;
+  background-color: #f5f5f5;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+}
+
+.code {
+  font-family: monospace;
+  font-size: 0.875rem;
+  white-space: pre;
+}
+
+.copyButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 0.25rem;
+  }
+}
+
+/* Key Components List styles */
+.componentsContainer {
+  margin-top: 1rem;
+}
+
+.componentsList {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.componentsItem {
+  margin-bottom: 0.25rem;
+}
+
+.componentName {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Implementation Notes styles */
+.notesSection {
+  margin-top: 2.5rem;
+}
+
+.notesContainer {
+  background-color: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+}
+
+.notesList {
+  font-size: 0.875rem;
+}
+
+.notesItem {
+  margin-bottom: 0.75rem;
+}
+
+.notesItemTitle {
+  font-weight: 500;
+}
