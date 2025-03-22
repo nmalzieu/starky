@@ -239,8 +239,8 @@ const VerifyPage = ({
         </div>
       )}
       {account && !verifyingSignature && !verifiedSignature && (
-        <a className={styles.sign} onClick={sign}>
-          sign a message to verify your identity
+        <a className={styles.connect} onClick={sign}>
+          Sign a message to verify your identity
         </a>
       )}
       {verifyingSignature && (
