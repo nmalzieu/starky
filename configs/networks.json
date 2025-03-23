@@ -4,13 +4,31 @@
     "name": "mainnet",
     "url": "https://starknet.preview.apibara.org",
     "indexer": true,
-    "description": "The Starknet mainnet"
+    "description": "The Starknet mainnet",
+    "chain": "starknet"
   },
   {
     "label": "Starknet Sepolia",
     "name": "sepolia",
     "url": "coming-soon",
     "indexer": false,
-    "description": "The Starknet testnet"
+    "description": "The Starknet testnet",
+    "chain": "starknet"
+  },
+  {
+    "label": "Stellar Mainnet",
+    "name": "stellar-mainnet",
+    "url": "https://horizon.stellar.org",
+    "indexer": true,
+    "description": "The Stellar mainnet",
+    "chain": "stellar"
+  },
+  {
+    "label": "Stellar Testnet",
+    "name": "stellar-testnet",
+    "url": "https://horizon-testnet.stellar.org",
+    "indexer": true,
+    "description": "The Stellar testnet",
+    "chain": "stellar"
   }
 ]
