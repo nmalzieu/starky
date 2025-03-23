@@ -1,5 +1,4 @@
 import { BigNumberish, RawCalldata, RpcProvider } from "starknet";
-
 import chainAliasByNetwork from "../../configs/chainAliasByNetwork.json";
 import { NetworkName } from "../../types/starknet";
 
@@ -22,22 +21,27 @@ export const callContract = async ({
   contractAddress,
   entrypoint,
   calldata,
-}: CallContractParameters) => {
+}: CallContractParameters): Promise<string[]> => {
   const chainId = chainAliasByNetwork[starknetNetwork][1] as any;
   if (!chainId) throw new Error("Invalid network");
 
   const nodeUrl = process.env[`RPC_URL_${starknetNetwork.toUpperCase()}`];
   if (!nodeUrl) throw new Error("Invalid network");
+
   const provider = new RpcProvider({
     chainId,
     nodeUrl,
   });
+
   const rawCalldata: RawCalldata = [];
   calldata?.forEach((d) => rawCalldata.push(getRawCallData(d)));
-  const response = await provider.callContract({
+
+  // The response is directly an array of strings
+  const response: string[] = await provider.callContract({
     contractAddress,
     entrypoint,
     calldata: rawCalldata,
   });
-  return response.result;
+
+  return response; // Return the array directly
 };
