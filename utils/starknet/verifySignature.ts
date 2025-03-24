@@ -24,6 +24,13 @@ export const verifySignature = async (
       calldata: [hexHash, `${signature.length}`, ...signature],
     });
 
+    if (!result || result.length === 0) {
+      return {
+        signatureValid: false,
+        error: "Invalid signature: received empty result",
+      };
+    }
+
     const signatureValid = result[0] === "0x1";
 
     return {
@@ -39,6 +46,13 @@ export const verifySignature = async (
         entrypoint: "is_valid_signature",
         calldata: [hexHash, `${signature.length}`, ...signature],
       });
+
+      if (!result || result.length === 0) {
+        return {
+          signatureValid: false,
+          error: "Invalid signature: received empty result",
+        };
+      }
 
       const signatureValid =
         result[0] === "0x1" ||
