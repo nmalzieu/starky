@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
 import axios from "axios";
-import Image from "next/image";
 import { useRouter } from "next/router";
 import { Signature } from "starknet";
 import { connect as starknetConnect, disconnect } from "starknetkit";
+import Image from "next/image";
 
 import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
@@ -285,7 +285,7 @@ const VerifyPage = ({
           Discord server:
           <span className={styles.serverDisplay}>
             {discordServerIcon ? (
-              <img
+              <Image
                 src={discordServerIcon}
                 alt="Discord Server Icon"
                 className={styles.discordIcon}
