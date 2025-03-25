@@ -16,7 +16,7 @@ export const verifySignature = async (
   // We can verify this message hash against the signature generated in the frontend
   // by calling the is_valid_signature method on the Account contract
   try {
-    const result = await callContract({
+    const response = await callContract({
       starknetNetwork:
         starknetNetwork === "mainnet" ? "mainnet" : ("sepolia" as any),
       contractAddress: accountAddress,
@@ -24,22 +24,23 @@ export const verifySignature = async (
       calldata: [hexHash, `${signature.length}`, ...signature],
     });
 
-    if (!result || result.length === 0) {
+    // Check if response and result exist
+    if (!response || !response.result || response.result.length === 0) {
       return {
         signatureValid: false,
         error: "Invalid signature: received empty result",
       };
     }
 
-    const signatureValid = result[0] === "0x1";
+    const signatureValid = response.result[0] === "0x1";
 
     return {
       signatureValid,
-      error: signatureValid ? undefined : `Invalid signature ${result[0]}`,
+      error: signatureValid ? undefined : `Invalid signature ${response.result[0]}`,
     };
   } catch (e: any) {
     try {
-      const result = await callContract({
+      const response = await callContract({
         starknetNetwork:
           starknetNetwork === "mainnet" ? "mainnet" : ("sepolia" as any),
         contractAddress: accountAddress,
@@ -47,7 +48,8 @@ export const verifySignature = async (
         calldata: [hexHash, `${signature.length}`, ...signature],
       });
 
-      if (!result || result.length === 0) {
+      // Check if response and result exist
+      if (!response || !response.result || response.result.length === 0) {
         return {
           signatureValid: false,
           error: "Invalid signature: received empty result",
@@ -55,11 +57,11 @@ export const verifySignature = async (
       }
 
       const signatureValid =
-        result[0] === "0x1" ||
-        result[0] === "0x0" ||
-        result[0] === "0x56414c4944";
+        response.result[0] === "0x1" ||
+        response.result[0] === "0x0" ||
+        response.result[0] === "0x56414c4944";
 
-      return { signatureValid, error: signatureValid ? undefined : result[0] };
+      return { signatureValid, error: signatureValid ? undefined : response.result[0] };
     } catch (e: any) {
       log(
         `Error while verifying signature for ${accountAddress} on ${starknetNetwork}. Error code: ${e.errorCode}, message: ${e.message} `
