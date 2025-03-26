@@ -10,6 +10,7 @@ import {
   StringSelectMenuInteraction,
 } from "discord.js";
 import { nanoid } from "nanoid";
+import { ethers } from "ethers";
 
 import config from "../../config";
 import networks from "../../configs/networks.json";
@@ -17,6 +18,12 @@ import { DiscordMemberRepository, DiscordServerRepository } from "../../db";
 import { DiscordMember } from "../../db/entity/DiscordMember";
 import { DiscordServer } from "../../db/entity/DiscordServer";
 import WatchTowerLogger from "../../watchTower";
+
+//determine if a network is Ethereum-based
+export const isEthereumNetwork = (networkName: string) => {
+  const network = networks.find(({ name }) => name === networkName);
+  return network && network.chainId !== undefined;
+};
 
 export const otherNetwork = (network: string) => {
   const currentNetworkIndex = networks.findIndex(
@@ -27,6 +34,26 @@ export const otherNetwork = (network: string) => {
   }
   const nextNetworkIndex = (currentNetworkIndex + 1) % networks.length;
   return networks[nextNetworkIndex].name;
+};
+
+const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
+
+if (!INFURA_PROJECT_ID) {
+  throw new Error(
+    "Missing NEXT_PUBLIC_INFURA_PROJECT_ID in .env or .env.local"
+  );
+}
+
+export const initializeProvider = async (networkName: string) => {
+  const network = networks.find(({ name }) => name === networkName);
+  if (!network) throw new Error("Network not found");
+
+  if (networkName === "Ethereum") {
+    return new ethers.JsonRpcProvider(
+      `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`
+    );
+  }
+  return null;
 };
 
 const isConnectedOnAllNetworks = async (
@@ -93,8 +120,13 @@ export const handleReconnectNetworkCommand = async (
     components: [],
   });
 
+  //verification process based on network type
+  const verificationUrl = isEthereumNetwork(networkName)
+    ? `${config.BASE_URL}/verify-eth/${guildId}/${userId}/${customLink}`
+    : `${config.BASE_URL}/verify/${guildId}/${userId}/${customLink}`;
+
   await interaction.followUp({
-    content: `Go to this link: ${config.BASE_URL}/verify/${guildId}/${userId}/${customLink} and verify your Starknet identity on network: ${networkName}!`,
+    content: `Go to this link: ${verificationUrl} and verify your Starknet identity on network: ${networkName}!`,
     ephemeral: true,
   });
 };
@@ -147,9 +179,14 @@ export const handleConnectCommand = async (
         reconnectButtons
       );
 
+      const isEthereum = isEthereumNetwork(
+        alreadyDiscordMembers[0].starknetNetwork
+      );
+
       await interaction.reply({
-        content:
-          "You have already linked a Starknet wallet to this Discord server on all networks. Use `/starky-disconnect` first if you want to link a new one",
+        content: `You have already linked a ${
+          isEthereum ? "Ethereum wallet" : "Starknet wallet"
+        } to this Discord server on all networks. Use \`/starky-disconnect\` first if you want to link a new one`,
         components: [actionRow],
         ephemeral: true,
       });
@@ -169,14 +206,19 @@ export const handleConnectCommand = async (
         otherNetwork(alreadyDiscordMembers[0].starknetNetwork) ?? "";
       await DiscordMemberRepository.save(newDiscordMember);
 
+      //verification process based on network type
+      const verificationUrl = isEthereumNetwork(
+        alreadyDiscordMembers[0].starknetNetwork
+      )
+        ? `${config.BASE_URL}/verify-eth/${guildId}/${userId}/${newDiscordMember.customLink}`
+        : `${config.BASE_URL}/verify/${guildId}/${userId}/${newDiscordMember.customLink}`;
+
       await interaction.reply({
         content: `
-You already connected on this Network : ${
+You already connected on this Network: ${
           alreadyDiscordMembers[0].starknetNetwork
         }
-Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
-          newDiscordMember.customLink
-        } and verify your Starknet identity on network: ${otherNetwork(
+Go to this link: ${verificationUrl}  and verify your Starknet identity on network: ${otherNetwork(
           alreadyDiscordMembers[0].starknetNetwork
         )}!`,
         ephemeral: true,
@@ -186,8 +228,15 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
       alreadyDiscordMembers.length == 1 &&
       !alreadyDiscordMembers[0].starknetWalletAddress
     ) {
+      //verification process based on network type
+      const verificationUrl = isEthereumNetwork(
+        alreadyDiscordMembers[0].starknetNetwork
+      )
+        ? `${config.BASE_URL}/verify-eth/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink}`
+        : `${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink}`;
+
       await interaction.reply({
-        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[0].starknetNetwork} ! You can start over by using  /starky-disconnect command. `,
+        content: `Go to this link: ${verificationUrl} and verify your Starknet identity on this network: ${alreadyDiscordMembers[0].starknetNetwork}! You can start over by using /starky-disconnect command.`,
         ephemeral: true,
       });
       return;
@@ -196,8 +245,15 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
       alreadyDiscordMembers[0].starknetWalletAddress &&
       !alreadyDiscordMembers[1].starknetWalletAddress
     ) {
+      //verification process based on network type
+      const verificationUrl = isEthereumNetwork(
+        alreadyDiscordMembers[0].starknetNetwork
+      )
+        ? `${config.BASE_URL}/verify-eth/${guildId}/${userId}/${alreadyDiscordMembers[1].customLink}`
+        : `${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[1].customLink}`;
+
       await interaction.reply({
-        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[1].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[1].starknetNetwork}! You can start over by using  /starky-disconnect command.`,
+        content: `Go to this link: ${verificationUrl} and verify your Starknet identity on this network: ${alreadyDiscordMembers[1].customLink}! You can start over by using /starky-disconnect command.`,
         ephemeral: true,
       });
       return;
@@ -206,8 +262,15 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
       !alreadyDiscordMembers[0].starknetWalletAddress &&
       alreadyDiscordMembers[1].starknetWalletAddress
     ) {
+      //verification process based on network type
+      const verificationUrl = isEthereumNetwork(
+        alreadyDiscordMembers[0].starknetNetwork
+      )
+        ? `${config.BASE_URL}/verify-eth/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink}`
+        : `${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink}`;
+
       await interaction.reply({
-        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[0].starknetNetwork}! You can start over by using  /starky-disconnect command.`,
+        content: `Go to this link: ${verificationUrl} and Starknet verify your identity on this network: ${alreadyDiscordMembers[0].starknetNetwork}! You can start over by using /starky-disconnect command.`,
         ephemeral: true,
       });
       return;
@@ -216,7 +279,7 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
     const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId("user-config-network")
-        .setPlaceholder("Starknet Network")
+        .setPlaceholder("Select Network")
         .addOptions(
           ...networks.map((network) => ({
             label: network.label,
@@ -227,7 +290,7 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
     );
 
     await interaction.reply({
-      content: "On what Starknet network do you want to connect to Starky?",
+      content: "On what network do you want to connect to Starky?",
       components: [row],
       ephemeral: true,
     });
@@ -254,6 +317,7 @@ export const handleUserNetworkConfigCommand = async (
 ) => {
   const guildId = interaction.guildId;
   const userId = interaction.member?.user?.id;
+  const selectedNetwork = interaction.values[0];
 
   if (!guildId || !userId) {
     await interaction.reply({ content: "An error occured", ephemeral: true });
@@ -294,8 +358,13 @@ export const handleUserNetworkConfigCommand = async (
     components: [],
   });
 
+  //verification process based on network type
+  const verificationUrl = isEthereumNetwork(selectedNetwork)
+    ? `${config.BASE_URL}/verify-eth/${guildId}/${userId}/${newDiscordMember.customLink}`
+    : `${config.BASE_URL}/verify/${guildId}/${userId}/${newDiscordMember.customLink}`;
+
   await interaction.followUp({
-    content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${newDiscordMember.customLink} and verify your Starknet identity on network : ${interaction.values[0]}!`,
+    content: `Go to this link: ${verificationUrl} and verify your Starkent identity on network: ${selectedNetwork}!`,
     ephemeral: true,
   });
 };

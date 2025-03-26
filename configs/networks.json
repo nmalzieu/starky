@@ -12,5 +12,16 @@
     "url": "coming-soon",
     "indexer": false,
     "description": "The Starknet testnet"
+  },
+    {
+  "label": "Ethereum Mainnet",
+  "name": "Ethereum",
+  "chainId": 1,
+  "url": "https://eth.llamarpc.com",
+  "explorerUrl": "https://etherscan.io",
+  "currency": "ETH",
+  "indexer": true,
+  "description": "The Ethereum mainnet"
   }
+  
 ]
