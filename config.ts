@@ -6,7 +6,7 @@ dotenv.config({ path: ".env.local" });
 let DB_HOST = process.env.DB_HOST || "localhost";
 let DB_PORT = process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432;
 let DB_USERNAME = process.env.DB_USERNAME || "postgres";
-let DB_PASSWORD = process.env.DB_PASSWORD || "postgres";
+let DB_PASSWORD = process.env.DB_PASSWORD || "HAALAND9";
 let DB_DATABASE = process.env.DB_DATABASE || "starky";
 let STARKSCAN_API_KEY = process.env.STARKSCAN_API_KEY || "";
 
