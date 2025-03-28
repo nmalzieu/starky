@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
-import type { DiscordServer } from "./DiscordServer";
+import { DiscordServer } from "./DiscordServer";
 
 @Entity({
   name: "discord_member",
@@ -30,7 +30,7 @@ export class DiscordMember {
   @Column()
   discordServerId: string;
 
-  @ManyToOne("DiscordServer", "members")
+  @ManyToOne((type) => DiscordServer, (server) => server.members)
   discordServer: DiscordServer;
 
   @Column()
