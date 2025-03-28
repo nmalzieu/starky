@@ -320,10 +320,12 @@ const VerifyPage = ({
           Discord server:
           <span className={styles.serverDisplay}>
             {discordServerIcon ? (
-              <img
+              <Image
                 src={discordServerIcon}
                 alt="Discord Server Icon"
                 className={styles.discordIcon}
+                width={24}
+                height={24}
               />
             ) : (
               <div className={styles.iconPlaceholder}>
