@@ -266,9 +266,12 @@ const VerifyPage = ({
         </div>
       )}
       {account && !verifyingSignature && !verifiedSignature && (
-        <a className={styles.sign} onClick={sign}>
-          sign a message to verify your identity
-        </a>
+        <>
+          <br></br>
+          <button className={styles.verify} onClick={sign}>
+            Sign a message to verify your identity
+          </button>
+        </>
       )}
       {verifyingSignature && (
         <span className={styles.sign}>verifying your signature...</span>
