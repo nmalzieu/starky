@@ -26,6 +26,6 @@ export class DiscordAnalyticsToken {
   @Column({ type: "timestamptz" }) // Use UTC timestamps
   expiresAt: Date;
 
-  @ManyToOne("DiscordServer", "analyticsTokens")
+  @ManyToOne("discord_server", "discord_analytics_token")
   discordServer: any;
 }

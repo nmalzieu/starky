@@ -19,6 +19,6 @@ export class DiscordServer {
   )
   serverConfigs: DiscordServerConfig[];
 
-  @OneToMany("DiscordAnalyticsToken", "discordServer")
+  @OneToMany("discord_analytics_token", "discord_server")
   analyticsTokens: any;
 }
