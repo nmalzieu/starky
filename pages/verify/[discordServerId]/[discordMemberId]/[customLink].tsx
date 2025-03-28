@@ -331,7 +331,10 @@ const VerifyPage = ({
 
         {account && (
           <span className={styles.starknetWallet}>
-            {isMobile ? truncateAddress(account.address) : account.address}
+            Starknet wallet:{" "}
+            <b>
+              {isMobile ? truncateAddress(account.address) : account.address}
+            </b>{" "}
             <a
               onClick={() => {
                 setAccount(undefined);
