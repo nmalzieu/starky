@@ -71,6 +71,8 @@ Copy your bot TOKEN: if it doesn’t show, just click “Reset Token” and copy
 
 Starky needs a Postgres database to save information, so make sure to have the credentials for your database ready!
 
+[Guide to setup a postgres db](/db/README.md)
+
 ## Step 3: host Starky
 
 Starky is a Next.js application with a custom server. Indeed it’s more than just a Next.js application, it also launches the Discord bot (i.e. ability to react to Application Commands) and a cron (a regular check to assign / unassign roles in Discord).
