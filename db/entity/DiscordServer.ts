@@ -11,12 +11,15 @@ export class DiscordServer {
   @PrimaryColumn()
   id: string;
 
-  @OneToMany(() => DiscordMember, (member) => member.discordServer)
+  @OneToMany((type) => DiscordMember, (member) => member.discordServer)
   members: DiscordMember[];
 
-  @OneToMany(() => DiscordServerConfig, (config) => config.discordServer)
+  @OneToMany(
+    (type) => DiscordServerConfig,
+    (serverConfig) => serverConfig.discordServer
+  )
   serverConfigs: DiscordServerConfig[];
 
-  @OneToMany(() => DiscordAnalyticsToken, (token) => token.discordServer)
+  @OneToMany((type) => DiscordAnalyticsToken, (token) => token.discordServer)
   analyticsTokens: DiscordAnalyticsToken[];
 }
