@@ -1,7 +1,7 @@
 import { REST } from "@discordjs/rest";
 import { ChatInputCommandInteraction, Client } from "discord.js";
 
-import { slashCommandsArray } from "../slashCommands";
+import { slashCommandsArray } from "../commands/index";
 
 export const handleHelpCommand = async (
   interaction: ChatInputCommandInteraction,
