@@ -36,7 +36,9 @@ export const verifySignature = async (
 
     return {
       signatureValid,
-      error: signatureValid ? undefined : `Invalid signature ${response.result[0]}`,
+      error: signatureValid
+        ? undefined
+        : `Invalid signature ${response.result[0]}`,
     };
   } catch (e: any) {
     try {
@@ -61,7 +63,10 @@ export const verifySignature = async (
         response.result[0] === "0x0" ||
         response.result[0] === "0x56414c4944";
 
-      return { signatureValid, error: signatureValid ? undefined : response.result[0] };
+      return {
+        signatureValid,
+        error: signatureValid ? undefined : response.result[0],
+      };
     } catch (e: any) {
       log(
         `Error while verifying signature for ${accountAddress} on ${starknetNetwork}. Error code: ${e.errorCode}, message: ${e.message} `
