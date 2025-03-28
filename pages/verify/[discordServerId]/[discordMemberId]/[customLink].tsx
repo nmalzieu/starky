@@ -34,15 +34,20 @@ const getSignatureErrorMessage = (
         "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it",
       advanced: error,
     };
-  
+
   // Handle the specific undefined property error
-  if (error.includes("Cannot read properties of undefined") || error.includes("received empty result")) {
+  if (
+    error.includes("Cannot read properties of undefined") ||
+    error.includes("received empty result")
+  ) {
     return {
-      short: "your wallet signature verification failed, please try again or try using a different wallet",
-      advanced: "The contract response was invalid. This may happen with some wallet implementations.",
+      short:
+        "your wallet signature verification failed, please try again or try using a different wallet",
+      advanced:
+        "The contract response was invalid. This may happen with some wallet implementations.",
     };
   }
-  
+
   return {
     short: "your signature could not be verified, please try again",
     advanced: error,
@@ -364,7 +369,7 @@ const VerifyPage = ({
             <span>
               Identity: <b>verified</b>
             </span>
-            <h1>YOU'RE ALL SET FREN</h1>
+            <h1>YOU’RE ALL SET FREN</h1>
             <span>you shall close this tab</span>
           </div>
         )}
