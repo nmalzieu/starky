@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Signature } from "starknet";
@@ -48,6 +48,10 @@ const getSignatureErrorMessage = (
     advanced: error,
   };
 };
+const truncateAddress = (address: string) => {
+  if (!address) return "";
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+};
 
 const VerifyPage = ({
   discordServerName,
@@ -67,6 +71,20 @@ const VerifyPage = ({
   const [isSwitching, setIsSwitching] = useState(false);
   const [switchError, setSwitchError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    handleResize(); // Check on initial render
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const connectToStarknet = useCallback(async () => {
     const { wallet } = await starknetConnect();
@@ -319,9 +337,13 @@ const VerifyPage = ({
           <b>{starknetNetwork}</b>
         </span>
         <br />
+
         {account && (
           <span className={styles.starknetWallet}>
-            Starknet wallet: <b>{account.address}</b>{" "}
+            Starknet wallet:{" "}
+            <b>
+              {isMobile ? truncateAddress(account.address) : account.address}
+            </b>{" "}
             <a
               onClick={() => {
                 setAccount(undefined);
@@ -332,6 +354,7 @@ const VerifyPage = ({
             </a>
           </span>
         )}
+
         <br />
         {verifiedSignature && (
           <div>
