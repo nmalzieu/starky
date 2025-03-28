@@ -6,7 +6,6 @@ import styles from "../styles/Help.module.scss";
 import Image from "next/image";
 import Logoblack from "../components/Logo-black";
 import github from "../components/github-icon.png";
-import Logowrite from "../components/Logo-withWriteUp";
 
 const HelpPage = () => {
   return (
@@ -16,11 +15,6 @@ const HelpPage = () => {
         <meta name="description" content="Help and documentation for Starky" />
       </Head>
       <div className={styles.helpPageWrapper}>
-        <div className={styles.topLogoContainer}>
-          <div className={styles.topLogoSvg}>
-            <Logowrite />
-          </div>
-        </div>
         <main className={styles.helpContainer}>
           {/* Logo */}
           <div className={styles.logoSvg}>
@@ -179,12 +173,10 @@ const HelpPage = () => {
           </div>
 
           <footer className={styles.helpFooter}>
-            <div className={styles.socialLinks}>
-              <Link href="https://twitter.com/starky_wtf">Twitter</Link>
-              <Link href="https://starky.wtf/">Website</Link>
-              <Link href="https://t.me/+Mi34Im1Uafc1Y2Q8">Telegram</Link>
-              <Link href="https://github.com/nmalzieu/starky">Github</Link>
-            </div>
+            <Link href="https://twitter.com/starky_wtf">Twitter</Link>
+            <Link href="https://starky.wtf/">Website</Link>
+            <Link href="https://t.me/+Mi34Im1Uafc1Y2Q8">Telegram</Link>
+            <Link href="https://github.com/nmalzieu/starky">Github</Link>
           </footer>
         </main>
       </div>
