@@ -39,5 +39,5 @@ export const callContract = async ({
     entrypoint,
     calldata: rawCalldata,
   });
-  return response.result;
+  return response;
 };

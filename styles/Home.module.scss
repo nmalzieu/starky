@@ -2,18 +2,10 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 105px 108px;
-  height: calc(100% - 210px);
-    
   h1 {
     margin-bottom: 63px;
   }
   h2 {
     margin-bottom: 63px;
-  }
-
-  @media (max-width: 450px) {
-    padding: 46px;
-    height: calc(100% - 92px);
   }
 }
