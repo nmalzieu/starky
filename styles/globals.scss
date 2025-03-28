@@ -8,6 +8,15 @@ body {
   margin: 0;
 }
 
+.container {
+  padding: 105px 108px;
+  height: calc(100% - 210px);
+  @media (max-width: 450px) {
+    padding: 46px;
+    height: calc(100% - 92px);
+  }
+}
+
 #__next {
   height: 100%;
 }
@@ -34,6 +43,8 @@ h2 {
     line-height: 34px;
   }
 }
+
+
 
 a {
   color: black;
