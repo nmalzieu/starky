@@ -9,3 +9,21 @@
     margin-bottom: 63px;
   }
 }
+
+.extraLinks {
+  margin-bottom: 63px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.extraLinks a {
+  color: black; 
+  text-decoration: none;
+  cursor: pointer;
+  gap: 10px; 
+}
+
+.extraLinks a:hover {
+  text-decoration: underline;
+}
