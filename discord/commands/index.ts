@@ -289,4 +289,8 @@ export const slashCommandsArray: SlashCommandData[] = [
     name: "starky-analytics",
     description: "View analytics for this server",
   },
+  {
+    name: "starky-dashboard",
+    description: "View the Starky dashboard for this server",
+  },
 ];

@@ -21,9 +21,6 @@ export const handleAnalyticsCommand = async (
     const token = uuidv4();
 
     // Store the token in the database with guildId and userId
-    {
-      // TODO * await saveTokenToDatabase(guildId, userId, token); */
-    }
     await saveAnalyticsTokenToDatabase(guildId, userId, token);
 
     // Construct the analytics URL with the token
