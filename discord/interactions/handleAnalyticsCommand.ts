@@ -24,7 +24,7 @@ export const handleAnalyticsCommand = async (
     {
       // TODO * await saveTokenToDatabase(guildId, userId, token); */
     }
-    await saveTokenToDatabase(guildId, userId, token);
+    await saveTokenToDatabase(guildId, userId, token, "analytics");
 
     // Construct the analytics URL with the token
     const analyticsUrl = `${process.env.BASE_URL}/analytics/${guildId}/${token}`;
