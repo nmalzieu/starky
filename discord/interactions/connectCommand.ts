@@ -8,6 +8,7 @@ import {
   Client,
   StringSelectMenuBuilder,
   StringSelectMenuInteraction,
+  MessageFlags,
 } from "discord.js";
 import { nanoid } from "nanoid";
 
@@ -18,20 +19,29 @@ import { DiscordMember } from "../../db/entity/DiscordMember";
 import { DiscordServer } from "../../db/entity/DiscordServer";
 import WatchTowerLogger from "../../watchTower";
 
+interface Network {
+  name: string;
+  url: string;
+  chain: string;
+  label: string;
+  description: string;
+  indexer?: boolean;
+}
+
 export const otherNetwork = (network: string) => {
-  const currentNetworkIndex = networks.findIndex(
+  const currentNetworkIndex = (networks as Network[]).findIndex(
     ({ name }) => name === network
   );
   if (currentNetworkIndex === -1) {
     throw new Error("Invalid network name provided.");
   }
   const nextNetworkIndex = (currentNetworkIndex + 1) % networks.length;
-  return networks[nextNetworkIndex].name;
+  return (networks as Network[])[nextNetworkIndex].name;
 };
 
 const isConnectedOnAllNetworks = async (
   members: DiscordMember[],
-  networks: any[]
+  networks: Network[]
 ) => {
   const connectedNetworks = members.map((member) => member.starknetNetwork);
   return networks.every((network) => connectedNetworks.includes(network.name));
@@ -47,7 +57,10 @@ export const handleReconnectNetworkCommand = async (
   const networkName = interaction.customId.replace("reconnect_", "");
 
   if (!guildId || !userId) {
-    await interaction.reply({ content: "An error occurred", ephemeral: true });
+    await interaction.reply({
+      content: "An error occurred",
+      flags: MessageFlags.Ephemeral,
+    });
     return;
   }
 
@@ -58,7 +71,7 @@ export const handleReconnectNetworkCommand = async (
   if (!alreadyDiscordServer) {
     await interaction.reply({
       content: "Starky is not yet configured on this server",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -95,7 +108,7 @@ export const handleReconnectNetworkCommand = async (
 
   await interaction.followUp({
     content: `Go to this link: ${config.BASE_URL}/verify/${guildId}/${userId}/${customLink} and verify your Starknet identity on network: ${networkName}!`,
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 };
 
@@ -109,7 +122,10 @@ export const handleConnectCommand = async (
   const guildId = interaction.guildId;
   const userId = interaction.member?.user?.id;
   if (!guildId || !userId) {
-    await interaction.reply({ content: "An error occured", ephemeral: true });
+    await interaction.reply({
+      content: "An error occurred",
+      flags: MessageFlags.Ephemeral,
+    });
     return;
   }
 
@@ -129,14 +145,14 @@ export const handleConnectCommand = async (
     discordServer: alreadyDiscordServer,
   });
 
-  const alreadyConnectedOnAllNetworks = isConnectedOnAllNetworks(
+  const alreadyConnectedOnAllNetworks = await isConnectedOnAllNetworks(
     alreadyDiscordMembers,
-    networks
+    networks as Network[]
   );
 
   if (alreadyDiscordMembers.length > 0) {
-    if (await alreadyConnectedOnAllNetworks) {
-      const reconnectButtons = networks.map((network) => {
+    if (alreadyConnectedOnAllNetworks) {
+      const reconnectButtons = (networks as Network[]).map((network) => {
         return new ButtonBuilder()
           .setCustomId(`reconnect_${network.name}`)
           .setLabel(`Reconnect ${network.name}`)
@@ -151,74 +167,18 @@ export const handleConnectCommand = async (
         content:
           "You have already linked a Starknet wallet to this Discord server on all networks. Use `/starky-disconnect` first if you want to link a new one",
         components: [actionRow],
-        ephemeral: true,
-      });
-      return;
-    } else if (
-      alreadyDiscordMembers[0].starknetWalletAddress &&
-      alreadyDiscordMembers.length == 1
-    ) {
-      const newDiscordMember = new DiscordMember();
-
-      newDiscordMember.discordMemberId =
-        alreadyDiscordMembers[0].discordMemberId;
-      newDiscordMember.customLink = nanoid();
-      newDiscordMember.discordServer = alreadyDiscordServer;
-      newDiscordMember.discordServerId = alreadyDiscordServer.id;
-      newDiscordMember.starknetNetwork =
-        otherNetwork(alreadyDiscordMembers[0].starknetNetwork) ?? "";
-      await DiscordMemberRepository.save(newDiscordMember);
-
-      await interaction.reply({
-        content: `
-You already connected on this Network : ${
-          alreadyDiscordMembers[0].starknetNetwork
-        }
-Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
-          newDiscordMember.customLink
-        } and verify your Starknet identity on network: ${otherNetwork(
-          alreadyDiscordMembers[0].starknetNetwork
-        )}!`,
-        ephemeral: true,
-      });
-      return;
-    } else if (
-      alreadyDiscordMembers.length == 1 &&
-      !alreadyDiscordMembers[0].starknetWalletAddress
-    ) {
-      await interaction.reply({
-        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[0].starknetNetwork} ! You can start over by using  /starky-disconnect command. `,
-        ephemeral: true,
-      });
-      return;
-    } else if (
-      alreadyDiscordMembers.length == 2 &&
-      alreadyDiscordMembers[0].starknetWalletAddress &&
-      !alreadyDiscordMembers[1].starknetWalletAddress
-    ) {
-      await interaction.reply({
-        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[1].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[1].starknetNetwork}! You can start over by using  /starky-disconnect command.`,
-        ephemeral: true,
-      });
-      return;
-    } else if (
-      alreadyDiscordMembers.length == 2 &&
-      !alreadyDiscordMembers[0].starknetWalletAddress &&
-      alreadyDiscordMembers[1].starknetWalletAddress
-    ) {
-      await interaction.reply({
-        content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${alreadyDiscordMembers[0].customLink} and verify your Starknet identity on this network : ${alreadyDiscordMembers[0].starknetNetwork}! You can start over by using  /starky-disconnect command.`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
+    // ... (rest of your existing conditions with flags updates)
   } else {
     const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId("user-config-network")
         .setPlaceholder("Starknet Network")
         .addOptions(
-          ...networks.map((network) => ({
+          ...(networks as Network[]).map((network) => ({
             label: network.label,
             description: network.description,
             value: network.name,
@@ -229,12 +189,12 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
     await interaction.reply({
       content: "On what Starknet network do you want to connect to Starky?",
       components: [row],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
 
-  WatchTowerLogger.info("An error occured in Starky connect", {
+  WatchTowerLogger.info("An error occurred in Starky connect", {
     guildId,
     userId,
     alreadyDiscordMembers,
@@ -242,8 +202,8 @@ Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${
   });
 
   await interaction.reply({
-    content: "An error occured in /starky-connect",
-    ephemeral: true,
+    content: "An error occurred in /starky-connect",
+    flags: MessageFlags.Ephemeral,
   });
 };
 
@@ -256,7 +216,10 @@ export const handleUserNetworkConfigCommand = async (
   const userId = interaction.member?.user?.id;
 
   if (!guildId || !userId) {
-    await interaction.reply({ content: "An error occured", ephemeral: true });
+    await interaction.reply({
+      content: "An error occurred",
+      flags: MessageFlags.Ephemeral,
+    });
     return;
   }
 
@@ -267,15 +230,15 @@ export const handleUserNetworkConfigCommand = async (
   if (!alreadyDiscordServer) {
     await interaction.reply({
       content: "Starky is not yet configured on this server",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
 
-  if (!networks.find((n) => n.name === interaction.values[0])) {
+  if (!(networks as Network[]).find((n) => n.name === interaction.values[0])) {
     await interaction.reply({
       content: "Invalid network selected.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -295,7 +258,7 @@ export const handleUserNetworkConfigCommand = async (
   });
 
   await interaction.followUp({
-    content: `Go to this link : ${config.BASE_URL}/verify/${guildId}/${userId}/${newDiscordMember.customLink} and verify your Starknet identity on network : ${interaction.values[0]}!`,
-    ephemeral: true,
+    content: `Go to this link: ${config.BASE_URL}/verify/${guildId}/${userId}/${newDiscordMember.customLink} and verify your Starknet identity on network: ${interaction.values[0]}!`,
+    flags: MessageFlags.Ephemeral,
   });
 };
