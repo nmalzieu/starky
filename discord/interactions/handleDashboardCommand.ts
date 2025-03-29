@@ -22,7 +22,7 @@ export const handleDashboardCommand = async (
         const token = uuidv4();
 
         // Store the token in the database with guildId and userId
-        await saveTokenToDatabase(guildId, userId, token);
+        await saveTokenToDatabase(guildId, userId, token, "dashboard");
 
         // Construct the dashboard URL with the token
         const dashboardUrl = `${process.env.BASE_URL}/dashboard/${guildId}/${token}`;
@@ -33,6 +33,6 @@ export const handleDashboardCommand = async (
         });
     } catch (error) {
         // Handle errors gracefully
-        console.error("Error handling /analytics command:", error);
+        console.error("Error handling /dashboard command:", error);
     }
 }

@@ -5,6 +5,7 @@ import { DiscordServerConfig } from "./entity/DiscordServerConfig";
 import { NetworkStatus } from "./entity/NetworkStatus";
 import { AppDataSource } from "./data-source";
 import { setupMigrations } from "./setup-migrations";
+import { DiscordDashboardToken } from "./entity/DiscordDashboardToken";
 
 export const setupDb = async () => {
   if (!AppDataSource.isInitialized) {
@@ -28,4 +29,7 @@ export const NetworkStatusRepository =
 
 export const DiscordAnalyticsTokenRepository = AppDataSource.getRepository(
   DiscordAnalyticsToken
+);
+export const DiscordDashboardTokenRepository = AppDataSource.getRepository(
+  DiscordDashboardToken
 );
