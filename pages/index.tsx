@@ -16,6 +16,10 @@ const Home: NextPage = () => (
         >
           <h2>install our discord bot</h2>
         </a>
+      <div className={styles.extra-links}>
+          <a href="/help">▶ Starky: wtf?</a>
+          <a href="/examples">▶ Config examples</a>
+       </div>
         <SocialLinks />
       </>
     )}
