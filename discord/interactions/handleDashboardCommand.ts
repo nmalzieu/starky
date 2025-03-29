@@ -2,7 +2,7 @@ import { REST } from "@discordjs/rest";
 import { ChatInputCommandInteraction, Client } from "discord.js";
 import { v4 as uuidv4 } from "uuid"; // For token generation
 
-import { saveTokenToDatabase } from "../../utils/database"; // Assume DB handling function
+import { saveDashboardTokenToDatabase } from "../../utils/database"; // Assume DB handling function
 
 
 export const handleDashboardCommand = async (
@@ -22,7 +22,7 @@ export const handleDashboardCommand = async (
         const token = uuidv4();
 
         // Store the token in the database with guildId and userId
-        await saveTokenToDatabase(guildId, userId, token, "dashboard");
+        await saveDashboardTokenToDatabase(guildId, userId, token);
 
         // Construct the dashboard URL with the token
         const dashboardUrl = `${process.env.BASE_URL}/dashboard/${guildId}/${token}`;
