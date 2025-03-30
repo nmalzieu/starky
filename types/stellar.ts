@@ -1,4 +1,4 @@
-export type StellarAccount = {
+export interface StellarAccount {
   publicKey: string;
   network: string;
-};
+}

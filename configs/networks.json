@@ -1,32 +1,32 @@
 [
   {
+    "label": "Starknet Mainnet",
     "name": "mainnet",
-    "url": "grpc.starknetid-mainnet.starknet.a5a.ch:443",
-    "chain": "starknet",
-    "label": "StarkNet Mainnet",
-    "description": "The main StarkNet network"
+    "url": "https://starknet.preview.apibara.org",
+    "indexer": true,
+    "description": "The Starknet mainnet"
   },
   {
+    "label": "Starknet Sepolia",
     "name": "sepolia",
-    "url": "grpc.starknetid-sepolia.starknet.a5a.ch:443",
-    "chain": "starknet",
-    "label": "StarkNet Sepolia",
-    "description": "StarkNet test network"
+    "url": "coming-soon",
+    "indexer": false,
+    "description": "The Starknet testnet"
   },
   {
     "name": "stellar-mainnet",
     "url": "stellar-mainnet-url",
+    "indexer": false,
     "chain": "stellar",
-    "label": "Stellar Mainnet",
-    "description": "Stellar main network",
-    "indexer": false
+    "description": "The stellar mainnet",
+    "label": "Stellar Mainnet"
   },
   {
     "name": "stellar-testnet",
     "url": "stellar-testnet-url",
+    "indexer": false,
     "chain": "stellar",
-    "label": "Stellar Testnet",
-    "description": "Stellar test network",
-    "indexer": false
+    "description": "The stellar testnet",
+    "label": "Stellar Testnet"
   }
 ]

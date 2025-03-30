@@ -26,7 +26,7 @@ interface NetworkConfig {
   name: string;
   url: string;
   indexer: boolean;
-  chain?: "starknet";
+  chain?: "starknet" | "stellar";
   description: string;
 }
 
@@ -49,12 +49,28 @@ const getSignatureErrorMessage = (
     advanced: error,
   };
 };
+
+const cleanDiscordId = (id: string | string[] | undefined): string => {
+  if (!id) return "";
+  const strId = Array.isArray(id) ? id[0] : id;
+  return strId.replace(/\D/g, "");
+};
+
 const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const router = useRouter();
-  const { discordServerId, discordMemberId, customLink } = router.query;
+  const {
+    discordServerId: rawServerId,
+    discordMemberId: rawMemberId,
+    customLink,
+  } = router.query;
+
+  const discordServerId = cleanDiscordId(rawServerId);
+  const discordMemberId = cleanDiscordId(rawMemberId);
+
   const [account, setAccount] = useState<
     StarknetAccount | StellarAccount | undefined
   >(undefined);
+  const [wallet, setWallet] = useState<any>(null);
   const [noWallet, setNoWallet] = useState(false);
   const [wrongNetwork, setWrongNetwork] = useState(false);
   const [verifyingSignature, setVerifyingSignature] = useState(false);
@@ -79,6 +95,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
       setNoWallet(true);
       return;
     }
+    setWallet(wallet);
     WatchTowerLogger.info("Wallet information", wallet);
     const chain =
       wallet.account.provider.chainId ||
@@ -100,21 +117,20 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
   const connectToStellar = useCallback(async () => {
     try {
       const publicKey = await getAddress();
-
       const network = await getNetwork();
 
-      const netWorkToString = network.toString();
-
-      const publicKeyToString = publicKey.toString();
-
-      setAccount({ publicKey: publicKeyToString, network: netWorkToString });
+      setAccount({
+        publicKey:
+          typeof publicKey === "string" ? publicKey : String(publicKey),
+        network: typeof network === "string" ? network : String(network),
+      });
     } catch (error) {
       setNoWallet(true);
     }
   }, []);
 
   const verifySignature = useCallback(
-    async (signature: Signature) => {
+    async (signature: Signature | string) => {
       if (!account) return;
       setUnverifiedSignature("");
       setVerifyingSignature(true);
@@ -136,33 +152,88 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
         );
         setVerifyingSignature(false);
         setUnverifiedSignature(`
-        ${e.response?.data?.message}.
-        ${e.response?.data?.error}
-          `);
+          ${e.response?.data?.message}.
+          ${e.response?.data?.error}
+        `);
       }
     },
     [customLink, discordMemberId, discordServerId, account, starknetNetwork]
   );
+
   const sign = useCallback(async () => {
     if (!account) return;
     try {
       let signature;
+
       if ("publicKey" in account) {
-        const message = "Your message to sign"; // Define your message here
+        // Stellar signing
+        const message = `Verifying my identity for ${discordServerName}`;
         signature = await stellarSignMessage(message, {
           address: account.publicKey,
         });
       } else {
+        // Starknet signing
+        if (!wallet?.account) {
+          throw new Error("Wallet not connected");
+        }
+
+        // First check if account is initialized
+        try {
+          await wallet.account.getNonce();
+        } catch (e) {
+          throw new Error(
+            "Wallet not initialized. Please make a transaction first."
+          );
+        }
+
         const messageCopy = {
           ...messageToSign,
           domain: { ...messageToSign.domain, chainId },
         };
-        signature = messageCopy;
+
+        signature = await wallet.account.signMessage(messageCopy);
+      }
+
+      if (signature) {
+        await verifySignature(signature);
       }
     } catch (e: any) {
       WatchTowerLogger.error(e.message, e);
+      setUnverifiedSignature(
+        e.message.includes("Contract not found") ||
+          e.message.includes("UNINITIALIZED") ||
+          e.message.includes("Wallet not initialized")
+          ? "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it"
+          : e.message
+      );
     }
-  }, [account, chainId]);
+  }, [account, chainId, verifySignature, wallet, discordServerName]);
+
+  const handleDisconnect = useCallback(async () => {
+    try {
+      await disconnect();
+      setAccount(undefined);
+      setWallet(null);
+      setVerifiedSignature(false);
+    } catch (error) {
+      WatchTowerLogger.error("Disconnect error");
+    }
+  }, []);
+
+  const displayWalletAddress = (
+    account: StarknetAccount | StellarAccount | undefined
+  ) => {
+    if (!account) return "Unknown";
+
+    try {
+      return "publicKey" in account
+        ? account.publicKey // Ensure publicKey is properly extracted for Stellar
+        : account.address;
+    } catch (e) {
+      console.error("Error displaying wallet address:", e);
+      return "Error displaying address";
+    }
+  };
 
   let walletDiv = (
     <div>
@@ -174,7 +245,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
               currentChain === "starknet" ? connectToStarknet : connectToStellar
             }
           >
-            connect your {currentChain} wallet
+            connect {currentChain} wallet
           </a>
           {wrongNetwork && (
             <div className="danger">
@@ -223,18 +294,8 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
         <br />
         {account && (
           <span className={styles.wallet}>
-            {currentChain} wallet:{" "}
-            <b>
-              {"publicKey" in account ? account.publicKey : account.address}
-            </b>{" "}
-            <a
-              onClick={() => {
-                setAccount(undefined);
-                disconnect().catch(WatchTowerLogger.error);
-              }}
-            >
-              disconnect
-            </a>
+            {currentChain} wallet: <b>{displayWalletAddress(account)}</b>{" "}
+            <a onClick={handleDisconnect}>disconnect</a>
           </span>
         )}
         <br />
@@ -243,7 +304,7 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
             <span>
               Identity: <b>verified</b>
             </span>
-            <h1>YOU’RE ALL SET FREN</h1>
+            <h1>YOU&apos;RE ALL SET FREN</h1>
             <span>you shall close this tab</span>
           </div>
         )}
@@ -253,10 +314,15 @@ const VerifyPage = ({ discordServerName, starknetNetwork }: Props) => {
     </div>
   );
 };
+
 export async function getServerSideProps({ res, query }: any) {
   await setupDb();
   let discordServerName = null;
-  const { discordServerId, discordMemberId, customLink } = query;
+
+  const discordServerId = cleanDiscordId(query.discordServerId);
+  const discordMemberId = cleanDiscordId(query.discordMemberId);
+  const customLink = query.customLink;
+
   const discordMember = await DiscordMemberRepository.findOne({
     where: {
       customLink,
@@ -265,19 +331,20 @@ export async function getServerSideProps({ res, query }: any) {
     },
     relations: ["discordServer"],
   });
+
   if (!discordMember || discordMember.customLink !== customLink) {
     res.setHeader("location", "/");
     res.statusCode = 302;
     res.end();
     return { props: {} };
   }
+
   try {
-    discordServerName = await getDiscordServerName(
-      `Server ID: ${query.discordServerId}`
-    );
+    discordServerName = await getDiscordServerName(discordServerId);
   } catch (e: any) {
     WatchTowerLogger.error(e.message, e);
   }
+
   return {
     props: {
       discordServerName,
@@ -285,4 +352,5 @@ export async function getServerSideProps({ res, query }: any) {
     },
   };
 }
+
 export default VerifyPage;
