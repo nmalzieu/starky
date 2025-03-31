@@ -1,0 +1,31 @@
+.section {
+  margin-bottom: 0;
+  border-bottom: 1px solid #333;
+  
+  .sectionHeader {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 1rem 0;
+    text-align: left;
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    
+    &:hover {
+      color: #3b3b3b;
+    }
+  }
+  
+  .arrowRight, .arrowDown {
+    margin-right: 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .sectionContent {
+    padding: 1rem 0 1rem 1.5rem;
+    color: rgb(49, 49, 49);
+    text-align: left;
+  }
+}

@@ -6,8 +6,6 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
-import type { DiscordServer } from "./DiscordServer";
-
 @Entity({ name: "discord_analytics_token" })
 export class DiscordAnalyticsToken {
   @PrimaryGeneratedColumn()
@@ -28,6 +26,6 @@ export class DiscordAnalyticsToken {
   @Column({ type: "timestamptz" }) // Use UTC timestamps
   expiresAt: Date;
 
-  @ManyToOne("DiscordServer", "analyticsTokens")
-  discordServer: DiscordServer;
+  @ManyToOne("discord_server", "discord_analytics_token")
+  discordServer: any;
 }

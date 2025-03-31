@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -34,10 +34,28 @@ const getSignatureErrorMessage = (
         "your wallet is not yet initialized, please make a transaction (sending ETH to yourself works) to initialize it",
       advanced: error,
     };
+
+  // Handle the specific undefined property error
+  if (
+    error.includes("Cannot read properties of undefined") ||
+    error.includes("received empty result")
+  ) {
+    return {
+      short:
+        "your wallet signature verification failed, please try again or try using a different wallet",
+      advanced:
+        "The contract response was invalid. This may happen with some wallet implementations.",
+    };
+  }
+
   return {
     short: "your signature could not be verified, please try again",
     advanced: error,
   };
+};
+const truncateAddress = (address: string) => {
+  if (!address) return "";
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
 
 const VerifyPage = ({
@@ -58,6 +76,20 @@ const VerifyPage = ({
   const [isSwitching, setIsSwitching] = useState(false);
   const [switchError, setSwitchError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    handleResize(); // Check on initial render
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const connectToStarknet = useCallback(async () => {
     const { wallet } = await starknetConnect();
@@ -239,9 +271,12 @@ const VerifyPage = ({
         </div>
       )}
       {account && !verifyingSignature && !verifiedSignature && (
-        <a className={styles.sign} onClick={sign}>
-          sign a message to verify your identity
-        </a>
+        <>
+          <br></br>
+          <button className={styles.verify} onClick={sign}>
+            Sign a message to verify your identity
+          </button>
+        </>
       )}
       {verifyingSignature && (
         <span className={styles.sign}>verifying your signature...</span>
@@ -285,10 +320,12 @@ const VerifyPage = ({
           Discord server:
           <span className={styles.serverDisplay}>
             {discordServerIcon ? (
-              <img
+              <Image
                 src={discordServerIcon}
                 alt="Discord Server Icon"
                 className={styles.discordIcon}
+                width={24}
+                height={24}
               />
             ) : (
               <div className={styles.iconPlaceholder}>
@@ -310,9 +347,13 @@ const VerifyPage = ({
           <b>{starknetNetwork}</b>
         </span>
         <br />
+
         {account && (
           <span className={styles.starknetWallet}>
-            Starknet wallet: <b>{account.address}</b>{" "}
+            Starknet wallet:{" "}
+            <b>
+              {isMobile ? truncateAddress(account.address) : account.address}
+            </b>{" "}
             <a
               onClick={() => {
                 setAccount(undefined);
@@ -323,6 +364,7 @@ const VerifyPage = ({
             </a>
           </span>
         )}
+
         <br />
         {verifiedSignature && (
           <div>

@@ -7,7 +7,7 @@
     display: inline-block;
   }
 
-  .connect {
+  .connect, .verify {
     border: 1px solid black;
     border-radius: 0.5rem;         
     padding: 1rem 2rem;
@@ -20,12 +20,7 @@
       background-color: #fefee9;
     }
   }
-
-  .connect a {
-    font-weight: 600;
-    font-size: 15px;
-  }
-
+  
   .sign {
     margin-top: 10px;
     display: inline-block;
