@@ -1,10 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { hashMessage } from "ethers";
-
+import { verifySignature } from "../../utils/ethereum/verfiySignature";
 import { DiscordMemberRepository, setupDb } from "../../db";
 import { refreshDiscordMemberForAllConfigs } from "../../utils/discord/refreshRoles";
 import messageToSign from "../../utils/ethereum/message";
-import { verifySignature } from "../../utils/ethereum/verfiySignature";
 
 type Data = {
   message: string;
@@ -32,9 +30,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   ) {
     return res.status(400).json({
       message: "Incorrect body",
-      error: `Missing body: account, signature, discordServerId, discordMemberId, customLink & network required. Provided: ${JSON.stringify(
-        body
-      )}`,
+      error: `Missing required fields`,
     });
   }
 
@@ -42,7 +38,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     where: {
       discordServerId: body.discordServerId,
       discordMemberId: body.discordMemberId,
-      ethereumNetwork: body.network,
+      starknetNetwork: body.network,
     },
     relations: ["discordServer"],
   });
@@ -54,26 +50,32 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     });
   }
 
-  const messageHash = hashMessage(messageToSign);
+  const message = {
+    ...messageToSign,
+    domain: {
+      ...messageToSign.domain,
+      chainId: body.network === "mainnet" ? 1 : 11155111, // 1 for mainnet, 5 for sepolia
+    },
+  };
 
   const { signatureValid, error } = await verifySignature(
     body.account,
-    messageHash,
+    JSON.stringify(message.message),
     body.signature,
-    body.network
+    message.domain.chainId
   );
 
   if (!signatureValid) {
     return res.status(400).json({ message: "Signature is invalid", error });
-  } else {
-    discordMember.ethereumWalletAddress = body.account;
-
-    res.status(200).json({ message: "Successfully verified" });
-    await DiscordMemberRepository.save(discordMember);
-
-    // Refresh member status immediately
-    await refreshDiscordMemberForAllConfigs(discordMember);
   }
+
+  discordMember.starknetWalletAddress = body.account;
+  await DiscordMemberRepository.save(discordMember);
+
+  // Refresh roles
+  await refreshDiscordMemberForAllConfigs(discordMember);
+
+  return res.status(200).json({ message: "Successfully verified" });
 };
 
 export default handler;

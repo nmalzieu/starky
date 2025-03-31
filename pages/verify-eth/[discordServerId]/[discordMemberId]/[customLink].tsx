@@ -1,23 +1,23 @@
-import { useCallback, useEffect, useState } from "react";
-import axios from "axios";
-import Image from "next/image";
+import { useCallback } from "react";
 import { useRouter } from "next/router";
-import { useWallet } from "../../../../utils/ethereum/context/WalletConnect";
 import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerInfo } from "../../../../discord/utils";
 import WatchTowerLogger from "../../../../watchTower";
 import styles from "../../../../styles/Verify.module.scss";
+import { NetworkName } from "../../../../types/starknet";
+import messageToSign from "../../../../utils/starknet/message";
+import DiscordServerInfo from "../../../../components/verification/DiscordServerInfo";
+import TransactionList from "../../../../components/verification/TransactionList";
+import useWalletConnection from "../../../../hooks/useWalletConnection";
+import useSignatureVerification from "../../../../hooks/useSignatureVerification";
 
 type Props = {
   discordServerName: string;
   discordServerIcon?: string | null;
-  ethereumNetwork: string;
+  starknetNetwork: NetworkName;
 };
-
-const VERIFY_MESSAGE =
-  "Sign this message to verify your Ethereum identity with Starky.";
 
 const getSignatureErrorMessage = (
   error: string
@@ -40,71 +40,55 @@ const getSignatureErrorMessage = (
 const VerifyEthPage = ({
   discordServerName,
   discordServerIcon,
-  ethereumNetwork,
+  starknetNetwork,
 }: Props) => {
   const router = useRouter();
   const { discordServerId, discordMemberId, customLink } = router.query;
-  const { connect, disconnect, account, networkType, balance, signMessage } =
-    useWallet();
-  const [verifying, setVerifying] = useState<boolean>(false);
-  const [verified, setVerified] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const {
+    account,
+    connectWallet,
+    disconnect,
+    networkType,
+    balance,
+    signMessage,
+  } = useWalletConnection();
 
-  const connectWallet = useCallback(async () => {
-    try {
-      setError("");
-      await connect("Ethereum");
-    } catch (err: any) {
-      setError("Failed to connect wallet. Please try again.");
-      WatchTowerLogger.error("Wallet connection error:", err);
-    }
-  }, [connect]);
+  const {
+    verifyingSignature,
+    verifiedSignature,
+    unverifiedSignature,
+    verifySignature,
+  } = useSignatureVerification(
+    starknetNetwork,
+    discordServerId as string,
+    discordMemberId as string,
+    customLink as string
+  );
 
-  const verifySignature = useCallback(async () => {
+  const sign = useCallback(async () => {
     if (!account) return;
-    setError("");
-    setVerifying(true);
-
     try {
-      const signature = await signMessage(VERIFY_MESSAGE);
+      const messageCopy = {
+        ...messageToSign,
+        domain: {
+          ...messageToSign.domain,
+          chainId: "1",
+        },
+      };
 
-      await axios.post("/api/verify-eth", {
-        account,
+      const signature = await signMessage(JSON.stringify(messageCopy.message));
+
+      // Verify the signature
+      await verifySignature(
         signature,
-        discordServerId,
-        discordMemberId,
-        customLink,
-      });
-
-      setVerified(true);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.error || err.message;
-      const { short, advanced } = getSignatureErrorMessage(errorMessage);
-      setError(short);
-      WatchTowerLogger.error("Signature verification error:", advanced || err);
-    } finally {
-      setVerifying(false);
-    }
-  }, [account, signMessage, discordServerId, discordMemberId, customLink]);
-
-  const fetchTransactions = async (address: string) => {
-    try {
-      const response = await axios.get(
-        `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&sort=desc&apikey=${process.env.NEXT_PUBLIC_ETHERSCAN_API_KEY}`
+        account,
+        JSON.stringify(messageCopy.message),
+        parseInt(networkType || "1")
       );
-      return response.data.result;
-    } catch (error) {
-      console.error("Error fetching transactions", error);
-      return [];
+    } catch (e: any) {
+      WatchTowerLogger.error(e.message, e);
     }
-  };
-
-  useEffect(() => {
-    if (account) {
-      fetchTransactions(account).then(setTransactions);
-    }
-  }, [account]);
+  }, [account, signMessage, verifySignature, networkType]);
 
   let ethereumWalletDiv = (
     <div>
@@ -113,27 +97,27 @@ const VerifyEthPage = ({
           <button
             className={styles.connect}
             onClick={connectWallet}
-            disabled={verifying}
+            disabled={verifyingSignature}
           >
-            {verifying ? "Connecting..." : "Connect Ethereum Wallet"}
+            {verifyingSignature ? "Connecting..." : "Connect Ethereum Wallet"}
           </button>
         </div>
       )}
-      {account && !verifying && !verified && (
-        <a className={styles.sign} onClick={verifySignature}>
-          Sign Message to Verify Identity
+      {account && !verifyingSignature && !verifiedSignature && (
+        <a className={styles.sign} onClick={sign}>
+          sign a message to verify your identity
         </a>
       )}
-      {verifying && (
-        <span className={styles.sign}>Verifying your signature...</span>
+      {verifyingSignature && (
+        <span className={styles.sign}>verifying your signature...</span>
       )}
-      {error && (
+      {unverifiedSignature && (
         <div className="danger">
-          {error}
+          {getSignatureErrorMessage(unverifiedSignature).short}
           <br />
-          {getSignatureErrorMessage(error).advanced && (
+          {getSignatureErrorMessage(unverifiedSignature).advanced && (
             <span className={styles.advancedErrorMessage}>
-              Advanced: {getSignatureErrorMessage(error).advanced}
+              advanced: {getSignatureErrorMessage(unverifiedSignature).advanced}
             </span>
           )}
         </div>
@@ -145,34 +129,11 @@ const VerifyEthPage = ({
     <div className={styles.verify}>
       <Logo />
       <div>
-        <div className={styles.serverInfo}>
-          Discord server:
-          <span className={styles.serverDisplay}>
-            {discordServerIcon ? (
-              <img
-                src={discordServerIcon}
-                alt="Discord Server Icon"
-                className={styles.discordIcon}
-              />
-            ) : (
-              <div className={styles.iconPlaceholder}>
-                {discordServerName?.[0]?.toUpperCase()}
-              </div>
-            )}
-            <b>{discordServerName}</b>
-          </span>
-        </div>
-        <br />
-        <span className={styles.networkDisplay}>
-          Ethereum network:
-          <Image
-            src="/assets/ethereum-icon.png"
-            height={25}
-            width={25}
-            alt="Ethereum Icon"
-          />
-          <b>{ethereumNetwork}</b>
-        </span>
+        <DiscordServerInfo
+          discordServerName={discordServerName}
+          discordServerIcon={discordServerIcon}
+          starknetNetwork={starknetNetwork}
+        />
         <br />
         {account && (
           <span className={styles.starknetWallet}>
@@ -189,41 +150,19 @@ const VerifyEthPage = ({
           </span>
         )}
         <br />
-        {transactions.length > 0 ? (
-          <div>
-            <h3>Recent Transactions</h3>
-            <ul>
-              {transactions.slice(0, 5).map((tx) => (
-                <li key={tx.hash}>
-                  <a
-                    href={`https://etherscan.io/tx/${tx.hash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {tx.hash.slice(0, 10)}... ({tx.value / 1e18} ETH)
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <p className={styles.advancedErrorMessage}>
-            No recent transactions found.
-          </p>
-        )}
+        <TransactionList account={account} />
 
         <br />
-        {verified ? (
+        {verifiedSignature && (
           <div>
             <span>
               Identity: <b>verified</b>
             </span>
-            <h1>YOU'RE ALL SET FREN</h1>
-            <span>You can now close this tab</span>
+            <h1>YOU’RE ALL SET FREN</h1>
+            <span>you shall close this tab</span>
           </div>
-        ) : (
-          ethereumWalletDiv
         )}
+        {!verifiedSignature && ethereumWalletDiv}
       </div>
       {process.env.NEXT_PUBLIC_STARKY_OFFICIAL && <SocialLinks />}
     </div>
@@ -264,7 +203,7 @@ export async function getServerSideProps({ res, query }: any) {
     props: {
       discordServerName,
       discordServerIcon,
-      ethereumNetwork: discordMember.ethereumNetwork || "Ethereum",
+      starknetNetwork: discordMember.starknetNetwork,
     },
   };
 }

@@ -1,34 +1,32 @@
-import { log } from "../discord/logs";
-
 import { ethers } from "ethers";
+import { log } from "../discord/logs";
 
 type SignatureVerify = {
   signatureValid: boolean;
   error?: string;
 };
 
-export async function verifySignature(
-  account: string,
+export const verifySignature = async (
+  signerAddress: string,
   message: string,
   signature: string,
-  ethereumNetwork: "mainnet"
-): Promise<SignatureVerify> {
+  chainId: number
+): Promise<SignatureVerify> => {
   try {
-    // Recover the signer address from the signed message
+    // Recover the address from the signature
     const recoveredAddress = ethers.verifyMessage(message, signature);
 
     const signatureValid =
-      recoveredAddress.toLowerCase() === account.toLowerCase();
+      recoveredAddress.toLowerCase() === signerAddress.toLowerCase();
 
-    if (!signatureValid) {
-      return { signatureValid, error: "Signer Address mismatch" };
-    }
-
-    return { signatureValid };
+    return {
+      signatureValid,
+      error: signatureValid
+        ? undefined
+        : "Recovered address does not match signer",
+    };
   } catch (e: any) {
-    log(
-      `Error while verifying signature for ${account} on ${ethereumNetwork}. Error code: ${e.errorCode}, message: ${e.message} `
-    );
-    return { signatureValid: false, error: e.message || e.errorCode };
+    log(`Error verifying Ethereum signature: ${e.message}`);
+    return { signatureValid: false, error: e.message };
   }
-}
+};

@@ -39,12 +39,6 @@ export class DiscordMember {
   @Column({ nullable: true })
   starknetWalletAddress?: string;
 
-  @Column({ nullable: true })
-  ethereumNetwork?: string;
-
-  @Column({ nullable: true })
-  ethereumWalletAddress?: string;
-
   @Column()
   customLink: string;
 

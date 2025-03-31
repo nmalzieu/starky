@@ -20,7 +20,7 @@
   "url": "https://eth.llamarpc.com",
   "explorerUrl": "https://etherscan.io",
   "currency": "ETH",
-  "indexer": true,
+  "indexer": false,
   "description": "The Ethereum mainnet"
   }
   
