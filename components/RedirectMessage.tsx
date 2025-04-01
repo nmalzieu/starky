@@ -1,17 +1,4 @@
-/**
- * @description      :
- * @author           :
- * @group            :
- * @created          : 01/04/2025 - 13:53:03
- *
- * MODIFICATION LOG
- * - Version         : 1.0.0
- * - Date            : 01/04/2025
- * - Author          :
- * - Modification    :
- **/
-
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/RedirectMessage.module.scss";
 
@@ -20,47 +7,43 @@ interface RedirectMessageProps {
   description: string;
   buttonLabel: string;
   buttonLink: string;
-  redirectTime?: number;
+  redirectTo: string;
+  delay?: number;
 }
 
-export default function RedirectMessage({
+const RedirectMessage = ({
   title,
   description,
   buttonLabel,
   buttonLink,
-  redirectTime = 5000,
-}: RedirectMessageProps) {
+  redirectTo,
+  delay = 5000,
+}: RedirectMessageProps) => {
   const router = useRouter();
-  const [countdown, setCountdown] = useState(redirectTime / 1000);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
+    const timer = setTimeout(() => {
+      router.push(redirectTo);
+    }, delay);
 
-    const timeout = setTimeout(() => {
-      router.push(buttonLink);
-    }, redirectTime);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [router, buttonLink, redirectTime]);
+    return () => clearTimeout(timer);
+  }, [router, redirectTo, delay]);
 
   return (
     <div className={styles.container}>
-      <div className={styles.card}>
-        <h1 className={styles.cardHeader}>{title}</h1>
-        <p className={styles.description}>{description}</p>
-        <a href={buttonLink} className={styles.button}>
-          {buttonLabel}
-        </a>
-        <div className={styles.explanation}>
-          You will automatically be redirected in {countdown} seconds.
-          <div className={styles.loader}></div>
-        </div>
+      <h1 className={styles.title}>{title}</h1>
+      <p className={styles.description}>{description}</p>
+      <a href={buttonLink} className={styles.button}>
+        {buttonLabel}
+      </a>
+      <div className={styles.bottomNote}>
+        <span>
+          You will automatically be redirected in {delay / 1000} seconds.
+        </span>
+        <div className={styles.loader}></div>
       </div>
     </div>
   );
-}
+};
+
+export default RedirectMessage;
