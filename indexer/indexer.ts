@@ -15,7 +15,6 @@ import BlockStack, { Block } from "./blockStack";
 
 require("dotenv").config();
 
-// ====================== TYPE DEFINITIONS ======================
 interface StarknetBlockHeader {
   blockNumber: bigint;
   parentBlockHash: string;
@@ -43,7 +42,6 @@ interface ProcessBlockResult {
   newTransferEvents: number;
 }
 
-// ====================== CONFIGURATION ======================
 const abi = [
   {
     kind: "struct",
@@ -79,11 +77,7 @@ const NETWORK_ENDPOINTS: Record<NetworkName, string[]> = {
     "starknet-sepolia.public.blastapi.io",
     "starknet-sepolia-rpc.publicnode.com",
   ],
-  goerli: [
-    // Added goerli endpoints
-    "starknet-goerli.public.blastapi.io",
-    "free-rpc.starknet.io/goerli",
-  ],
+  goerli: ["starknet-goerli.public.blastapi.io", "free-rpc.starknet.io/goerli"],
   "stellar-mainnet": ["horizon.stellar.org"],
   "stellar-testnet": ["horizon-testnet.stellar.org"],
 };
@@ -93,7 +87,6 @@ const MAX_CONSECUTIVE_ERRORS = 10;
 const BASE_RETRY_DELAY_MS = 3000;
 const STREAM_TIMEOUT_MS = 1000 * 60 * 30; // 30 minutes
 
-// ====================== MAIN FUNCTIONS ======================
 const launchIndexers = () => {
   log("[Indexer] Launching indexers");
   log(`[Indexer] Found ${networks.length} networks`);
@@ -216,7 +209,6 @@ const launchIndexer = async (
   }
 };
 
-// ====================== HELPER FUNCTIONS ======================
 const initializeBlockNumber = async (
   networkName: NetworkName
 ): Promise<number> => {
