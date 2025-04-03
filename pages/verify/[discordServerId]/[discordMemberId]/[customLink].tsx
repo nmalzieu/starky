@@ -283,7 +283,16 @@ const VerifyPage = ({
       )}
       {unverifiedSignature && (
         <div className="danger">
-          {getSignatureErrorMessage(unverifiedSignature).short}
+          {getSignatureErrorMessage(unverifiedSignature).short === "your signature could not be verified, please try again" && (
+            <a 
+              href="https://t.me/+Mi34Im1Uafc1Y2Q8"
+              className={styles.connect}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Report on Telegram
+            </a>
+          )}
           <br />
           {getSignatureErrorMessage(unverifiedSignature).advanced && (
             <span className={styles.advancedErrorMessage}>
@@ -371,7 +380,7 @@ const VerifyPage = ({
             <span>
               Identity: <b>verified</b>
             </span>
-            <h1>YOU’RE ALL SET FREN</h1>
+            <h1>YOU'RE ALL SET FREN</h1>
             <span>you shall close this tab</span>
           </div>
         )}
