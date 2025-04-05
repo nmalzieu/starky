@@ -10,7 +10,6 @@ import {
   Tooltip,
 } from "chart.js";
 import { NextPageContext } from "next";
-
 import Logo from "../../../components/Logo";
 import SocialLinks from "../../../components/SocialLinks";
 import RedirectMessage from "../../../components/RedirectMessage";
@@ -38,6 +37,7 @@ interface AnalyticsPageProps {
   userStats: Record<string, number>;
   guildId: string;
   tokenExpired?: boolean;
+  serverNotFound?: boolean;
 }
 
 interface AnalyticsPageContext extends NextPageContext {
@@ -51,6 +51,7 @@ const AnalyticsPage = ({
   userStats,
   guildId,
   tokenExpired,
+  serverNotFound,
 }: AnalyticsPageProps) => {
   if (tokenExpired) {
     return (
@@ -60,11 +61,21 @@ const AnalyticsPage = ({
         buttonLabel="Request New Link"
         buttonLink="/request-link"
         redirectTo="/request-link"
-        delay={5000}
       />
     );
   }
 
+  if (serverNotFound) {
+    return (
+      <RedirectMessage
+        title="Server Not Found"
+        description="We could not find the server associated with this link. Redirecting to the home page."
+        buttonLabel="Go Home"
+        buttonLink="/"
+        redirectTo="/"
+      />
+    );
+  }
   const data = {
     labels: Object.keys(userStats),
     datasets: [
@@ -110,10 +121,7 @@ const AnalyticsPage = ({
   );
 };
 
-export const getServerSideProps = async ({
-  res,
-  query,
-}: AnalyticsPageContext) => {
+export const getServerSideProps = async ({ query }: AnalyticsPageContext) => {
   await setupDb();
   const { guildId, tokenId } = query;
 
@@ -140,10 +148,7 @@ export const getServerSideProps = async ({
 
   if (!discordServer) {
     return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
+      props: { serverNotFound: true },
     };
   }
 

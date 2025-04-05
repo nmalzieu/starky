@@ -8,7 +8,6 @@ const ExpiredAnalyticsPage = () => {
       buttonLabel="Home Page"
       buttonLink="/"
       redirectTo="/"
-      delay={5000}
     />
   );
 };
