@@ -4,24 +4,38 @@ import styles from "../../styles/Verify.module.scss";
 type DiscordServerInfoProps = {
   discordServerName: string;
   discordServerIcon?: string | null;
-  starknetNetwork: string;
+  network: string;
+  networkType: "ethereum" | "starknet";
 };
 
 const DiscordServerInfo = ({
   discordServerName,
   discordServerIcon,
-  starknetNetwork,
+  network,
+  networkType,
 }: DiscordServerInfoProps) => {
+  const networkIcons = {
+    ethereum: "/assets/ethereum-icon.png",
+    starknet: "/assets/starknet-icon.png",
+  };
+
+  const networkLabels = {
+    ethereum: "Ethereum network:",
+    starknet: "Starknet network:",
+  };
+
   return (
     <div>
       <div className={styles.serverInfo}>
         Discord server:
         <span className={styles.serverDisplay}>
           {discordServerIcon ? (
-            <img
+            <Image
               src={discordServerIcon}
               alt="Discord Server Icon"
               className={styles.discordIcon}
+              width={24}
+              height={24}
             />
           ) : (
             <div className={styles.iconPlaceholder}>
@@ -33,14 +47,14 @@ const DiscordServerInfo = ({
       </div>
       <br />
       <span className={styles.networkDisplay}>
-        Ethereum network:
+        {networkLabels[networkType]}
         <Image
-          src="/assets/ethereum-icon.png"
+          src={networkIcons[networkType]}
           height={25}
           width={25}
-          alt="Ethereum Icon"
+          alt={`${networkType} Icon`}
         />
-        <b>{starknetNetwork}</b>
+        <b>{network}</b>
       </span>
     </div>
   );

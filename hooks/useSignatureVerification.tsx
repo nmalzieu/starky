@@ -30,6 +30,7 @@ const useSignatureVerification = (
           discordMemberId,
           customLink,
           network: starknetNetwork,
+          message,
         });
         setVerifiedSignature(true);
         setVerifyingSignature(false);

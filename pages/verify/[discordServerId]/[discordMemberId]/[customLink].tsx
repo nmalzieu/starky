@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import axios from "axios";
-import Image from "next/image";
 import { useRouter } from "next/router";
 import { Signature } from "starknet";
 import { connect as starknetConnect, disconnect } from "starknetkit";
@@ -13,6 +12,8 @@ import { getDiscordServerInfo } from "../../../../discord/utils";
 import { NetworkName } from "../../../../types/starknet";
 import messageToSign from "../../../../utils/starknet/message";
 import WatchTowerLogger from "../../../../watchTower";
+import DiscordServerInfo from "../../../../components/verification/DiscordServerInfo";
+import WalletInfo from "../../../../components/verification/WalletInfo";
 
 import styles from "../../../../styles/Verify.module.scss";
 
@@ -53,10 +54,6 @@ const getSignatureErrorMessage = (
     advanced: error,
   };
 };
-const truncateAddress = (address: string) => {
-  if (!address) return "";
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-};
 
 const VerifyPage = ({
   discordServerName,
@@ -66,30 +63,17 @@ const VerifyPage = ({
   const router = useRouter();
   const { discordServerId, discordMemberId, customLink } = router.query;
   const [account, setAccount] = useState<any>(undefined);
-  const [noStarknetWallet, setNotStarknetWallet] = useState(false);
-  const [wrongStarknetNetwork, setWrongStarknetNetwork] = useState(false);
-  const [verifyingSignature, setVerifyingSignature] = useState(false);
-  const [verifiedSignature, setVerifiedSignature] = useState(false);
-  const [unverifiedSignature, setUnverifiedSignature] = useState("");
-  const [chainId, setChainId] = useState("");
-  const [isArgent, setIsArgent] = useState(false);
-  const [isSwitching, setIsSwitching] = useState(false);
-  const [switchError, setSwitchError] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    handleResize(); // Check on initial render
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  const [noStarknetWallet, setNotStarknetWallet] = useState<boolean>(false);
+  const [wrongStarknetNetwork, setWrongStarknetNetwork] =
+    useState<boolean>(false);
+  const [verifyingSignature, setVerifyingSignature] = useState<boolean>(false);
+  const [verifiedSignature, setVerifiedSignature] = useState<boolean>(false);
+  const [unverifiedSignature, setUnverifiedSignature] = useState<string>("");
+  const [chainId, setChainId] = useState<string>("");
+  const [isArgent, setIsArgent] = useState<boolean>(false);
+  const [isSwitching, setIsSwitching] = useState<boolean>(false);
+  const [switchError, setSwitchError] = useState<boolean>(false);
+  const [showSuccess, setShowSuccess] = useState<boolean>(false);
 
   const connectToStarknet = useCallback(async () => {
     const { wallet } = await starknetConnect();
@@ -316,54 +300,22 @@ const VerifyPage = ({
     <div className={styles.verify}>
       <Logo />
       <div>
-        <div className={styles.serverInfo}>
-          Discord server:
-          <span className={styles.serverDisplay}>
-            {discordServerIcon ? (
-              <Image
-                src={discordServerIcon}
-                alt="Discord Server Icon"
-                className={styles.discordIcon}
-                width={24}
-                height={24}
-              />
-            ) : (
-              <div className={styles.iconPlaceholder}>
-                {discordServerName?.[0]?.toUpperCase()}
-              </div>
-            )}
-            <b>{discordServerName}</b>
-          </span>
-        </div>
-        <br />
-        <span className={styles.networkDisplay}>
-          Starknet network:
-          <Image
-            src="/assets/starknet-icon.png"
-            height={25}
-            width={25}
-            alt="Starknet Icon"
-          />
-          <b>{starknetNetwork}</b>
-        </span>
+        <DiscordServerInfo
+          discordServerName={discordServerName}
+          discordServerIcon={discordServerIcon}
+          network={starknetNetwork}
+          networkType="starknet"
+        />
         <br />
 
-        {account && (
-          <span className={styles.starknetWallet}>
-            Starknet wallet:{" "}
-            <b>
-              {isMobile ? truncateAddress(account.address) : account.address}
-            </b>{" "}
-            <a
-              onClick={() => {
-                setAccount(undefined);
-                disconnect().catch(WatchTowerLogger.error);
-              }}
-            >
-              disconnect
-            </a>
-          </span>
-        )}
+        <WalletInfo
+          account={account}
+          networkType="starknet"
+          onDisconnect={() => {
+            setAccount(undefined);
+            disconnect().catch(WatchTowerLogger.error);
+          }}
+        />
 
         <br />
         {verifiedSignature && (

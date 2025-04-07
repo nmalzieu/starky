@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useRouter } from "next/router";
 import Logo from "../../../../components/Logo";
+
 import SocialLinks from "../../../../components/SocialLinks";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerInfo } from "../../../../discord/utils";
@@ -12,6 +13,7 @@ import DiscordServerInfo from "../../../../components/verification/DiscordServer
 import TransactionList from "../../../../components/verification/TransactionList";
 import useWalletConnection from "../../../../hooks/useWalletConnection";
 import useSignatureVerification from "../../../../hooks/useSignatureVerification";
+import WalletInfo from "../../../../components/verification/WalletInfo";
 
 type Props = {
   discordServerName: string;
@@ -132,23 +134,18 @@ const VerifyEthPage = ({
         <DiscordServerInfo
           discordServerName={discordServerName}
           discordServerIcon={discordServerIcon}
-          starknetNetwork={starknetNetwork}
+          network={starknetNetwork}
+          networkType="ethereum"
         />
         <br />
-        {account && (
-          <span className={styles.starknetWallet}>
-            Ethereum wallet: <b>{account}</b>{" "}
-            <a
-              onClick={() => {
-                disconnect();
-              }}
-            >
-              disconnect
-            </a>
-            <br />
-            Balance: <b>{balance ? `${balance} ETH` : "Loading..."}</b>
-          </span>
-        )}
+
+        <WalletInfo
+          account={account}
+          networkType="ethereum"
+          balance={balance}
+          onDisconnect={() => disconnect()}
+        />
+
         <br />
         <TransactionList account={account} />
 
