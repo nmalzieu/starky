@@ -283,10 +283,9 @@ const VerifyPage = ({
       )}
       {unverifiedSignature && (
         <div className="danger">
-          {getSignatureErrorMessage(unverifiedSignature).short === "your signature could not be verified, please try again" && (
+          {getSignatureErrorMessage(unverifiedSignature).short && (
             <a 
               href="https://t.me/+Mi34Im1Uafc1Y2Q8"
-              className={styles.connect}
               target="_blank"
               rel="noopener noreferrer"
             >
