@@ -18,7 +18,6 @@ import { DiscordMemberRepository, DiscordServerRepository } from "../../db";
 import { DiscordMember } from "../../db/entity/DiscordMember";
 import { DiscordServer } from "../../db/entity/DiscordServer";
 import WatchTowerLogger from "../../watchTower";
-import { d } from "@apibara/protocol/dist/shared/protocol.4b1cfe2c";
 
 export const otherNetwork = (network: string) => {
   const currentNetworkIndex = networks.findIndex(
