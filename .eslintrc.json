@@ -3,7 +3,7 @@
   "plugins": ["react", "simple-import-sort", "unused-imports"],
   "rules": {
     "simple-import-sort/imports": "error",
-    "simple-import-sort/exports": "error",
+    "simple-import-sort/exports": "error"
   },
   "overrides": [
     // override "simple-import-sort" config
