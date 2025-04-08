@@ -10,7 +10,7 @@ const useWalletConnection = () => {
   const connectWallet = useCallback(async () => {
     try {
       setError("");
-      await connect("Ethereum");
+      await connect("ethereum-mainnet");
     } catch (err: any) {
       setError("Failed to connect wallet. Please try again.");
       WatchTowerLogger.error("Wallet connection error:", err);

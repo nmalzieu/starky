@@ -45,7 +45,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     if (!network) throw new Error("Network not supported");
 
     try {
-      if (networkName === "Ethereum") {
+      if (networkName === "ethereum-mainnet") {
         //connect to Metamask or any injected extension
         if (typeof window !== "undefined" && (window as any).ethereum) {
           const ethersProvider = new ethers.BrowserProvider(
