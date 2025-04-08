@@ -283,15 +283,15 @@ const VerifyPage = ({
       )}
       {unverifiedSignature && (
         <div className="danger">
-          {getSignatureErrorMessage(unverifiedSignature).short && (
-            <a 
-              href="https://t.me/+Mi34Im1Uafc1Y2Q8"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Report on Telegram
-            </a>
-          )}
+          {getSignatureErrorMessage(unverifiedSignature).short}{" "}
+          <a
+            href="https://t.me/+Mi34Im1Uafc1Y2Q8"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.errorLink}
+          >
+            Report on Telegram
+          </a>
           <br />
           {getSignatureErrorMessage(unverifiedSignature).advanced && (
             <span className={styles.advancedErrorMessage}>
@@ -379,7 +379,7 @@ const VerifyPage = ({
             <span>
               Identity: <b>verified</b>
             </span>
-            <h1>YOU'RE ALL SET FREN</h1>
+            <h1>YOU’RE ALL SET FREN</h1>
             <span>you shall close this tab</span>
           </div>
         )}
