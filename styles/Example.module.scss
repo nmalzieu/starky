@@ -231,3 +231,16 @@
   font-weight: 500;
   color: #333;
 }
+backButton {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #0070f3;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #0366d6;
+    text-decoration: underline;
+  }
+}

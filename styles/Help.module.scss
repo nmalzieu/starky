@@ -98,3 +98,16 @@
 .helpSections {
   border-top: 1px solid #333;
 }
+.back-button {
+  display: inline-block;
+  margin: 1rem 0;
+  font-size: 1rem;
+  color: #444;
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #000;
+    text-decoration: underline;
+  }
+}
