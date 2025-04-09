@@ -1,5 +1,7 @@
 import { ExampleCard } from "../../components/example/ExampleCard";
 import styles from "../../styles/Example.module.scss";
+import Link from 'next/link';
+
 
 export default function ExamplesPage() {
   // Standard NFT Config
@@ -75,6 +77,9 @@ export default function ExamplesPage() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
+      <Link href="/" className={styles.backButton}>
+    ◀ Back
+      </Link>
         <h1 className={styles.title}>NFT Configuration Examples</h1>
         <p className={styles.description}>
           Below are example configurations for NFTs that can be used as
