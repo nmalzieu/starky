@@ -36,4 +36,4 @@ yarn-error.log*
 next-env.d.ts
 /dist-server
 fly.toml
-config.ts
+/config.ts
