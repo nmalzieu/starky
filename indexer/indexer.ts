@@ -229,12 +229,17 @@ const launchIndexer = async (
             `[Indexer] Skipping block ${lastLoadedBlockNumber} for ${networkName}`,
             networkName
           );
+          const networkStatus = await NetworkStatusRepository.findOneBy({
+            network: networkName,
+          });
           // Wait 3 seconds before reconnecting
           await new Promise((resolve) => setTimeout(resolve, 1000 * 3));
           request = StarknetStream.Request.make({
             filter: [filter],
             finality: "accepted",
-            startingCursor: { orderKey: BigInt(lastLoadedBlockNumber) },
+            startingCursor: {
+              orderKey: BigInt(networkStatus?.lastBlockNumber || 0),
+            },
           });
           continue;
         }
