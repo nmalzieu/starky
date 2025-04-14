@@ -20,6 +20,11 @@ const HelpPage = () => {
           <div className={styles.logoSvg}>
             <Logoblack />
           </div>
+
+          <Link href="/" className="back-button">
+            ◀ Back
+          </Link>
+
           <h1>Starky: wtf?</h1>
           <p className={styles.description}>
             Starky token-gates your Discord channels with Starknet assets.
