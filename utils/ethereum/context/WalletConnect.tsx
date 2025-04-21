@@ -8,6 +8,7 @@ import {
   connect as starknetConnect,
   disconnect as starknetDisconnect,
 } from "starknetkit";
+import { INFURA_PROJECT_ID, ETHEREUM_ENABLED } from "../ethereumEnv";
 
 type WalletContextType = {
   connect: (networkName: string) => Promise<void>;
@@ -32,20 +33,20 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [wcProvider, setWcProvider] = useState<any>(null);
   const [balance, setBalance] = useState<string | null>(null);
 
-  const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
+  // const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
 
-  if (!INFURA_PROJECT_ID) {
-    throw new Error(
-      "Missing NEXT_PUBLIC_INFURA_PROJECT_ID in .env or .env.local"
-    );
-  }
+  // if (!INFURA_PROJECT_ID) {
+  //   throw new Error(
+  //     "Missing NEXT_PUBLIC_INFURA_PROJECT_ID in .env or .env.local"
+  //   );
+  // }
 
   const connect = async (networkName: string) => {
     const network = networks.find((n) => n.name === networkName);
     if (!network) throw new Error("Network not supported");
 
     try {
-      if (networkName === "ethereum-mainnet") {
+      if (networkName === "ethereum-mainnet" && ETHEREUM_ENABLED) {
         //connect to Metamask or any injected extension
         if (typeof window !== "undefined" && (window as any).ethereum) {
           const ethersProvider = new ethers.BrowserProvider(
@@ -67,6 +68,11 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
             await ethersProvider.getNetwork().then((net) => Number(net.chainId))
           );
           setNetworkType("ethereum");
+        } else if (networkName === "ethereum-mainnet" && !ETHEREUM_ENABLED) {
+          console.warn(
+            "Ethereum features are disabled. Cannot connect to Ethereum."
+          );
+          return;
         } else {
           // Fallback to WalletConnect
           const wcProvider = new WalletConnectProvider({
