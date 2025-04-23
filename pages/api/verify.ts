@@ -22,7 +22,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const body = req.body;
   if (
     !body.account ||
-    !body.signature ||
+    !body.chain || // Added chain to the body
     !body.discordServerId ||
     !body.discordMemberId ||
     !body.customLink ||
@@ -30,7 +30,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   ) {
     res.status(400).json({
       message: "Incorrect body",
-      error: `Missing body: account, signature, discordServerId, discordMemberId, customLink & network required. Provided: ${JSON.stringify(
+      error: `Missing body: account, chain, discordServerId, discordMemberId, customLink & network required. Provided: ${JSON.stringify(
         body
       )}`,
     });
@@ -54,23 +54,44 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     return;
   }
 
-  const messageHexHash = typedData.getMessageHash(messageToSign, body.account);
-  const { signatureValid, error } = await verifySignature(
-    body.account,
-    messageHexHash,
-    body.signature,
-    body.network
-  );
-  if (!signatureValid) {
-    return res.status(400).json({ message: "Signature is invalid", error });
-  } else {
-    discordMember.starknetWalletAddress = body.account;
+  if (body.chain === "starknet") {
+    if (!body.signature) {
+      res.status(400).json({
+        message: "Incorrect body",
+        error: "Signature required for Starknet",
+      });
+      return;
+    }
 
-    res.status(200).json({ message: "Successfully verified" });
-    DiscordMemberRepository.save(discordMember);
-    // Let's refresh its status immediatly
-    await refreshDiscordMemberForAllConfigs(discordMember);
+    const messageHexHash = typedData.getMessageHash(
+      messageToSign,
+      body.account
+    );
+    const { signatureValid, error } = await verifySignature(
+      body.account,
+      messageHexHash,
+      body.signature,
+      body.network
+    );
+    if (!signatureValid) {
+      return res.status(400).json({ message: "Signature is invalid", error });
+    }
+
+    discordMember.starknetWalletAddress = body.account;
+  } else if (body.chain === "stellar") {
+    // For Stellar, we only store the address (no signature required)
+    discordMember.stellarWalletAddress = body.account; // Assumes stellarWalletAddress field exists
+  } else {
+    res.status(400).json({
+      message: "Unsupported chain",
+      error: `Chain ${body.chain} is not supported`,
+    });
+    return;
   }
+
+  res.status(200).json({ message: "Successfully verified" });
+  DiscordMemberRepository.save(discordMember);
+  await refreshDiscordMemberForAllConfigs(discordMember);
 };
 
 export default handler;

@@ -7,6 +7,7 @@ const nextConfig = {
   },
   transpilePackages: ["@reown/appkit"],
   images: {
+    domains: ["cdn.discordapp.com"],
     remotePatterns: [
       {
         protocol: 'https',

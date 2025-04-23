@@ -25,5 +25,21 @@
     "indexer": false,
     "description": "The Ethereum mainnet",
     "verifyPage": "verify-eth"
+  },
+  {
+    "label": "Stellar Mainnet",
+    "name": "stellar-mainnet",
+    "url": "https://horizon.stellar.org",
+    "indexer": false,
+    "description": "The Stellar mainnet",
+    "verifyPage": "verify"
+  },
+  {
+    "label": "Stellar Testnet",
+    "name": "stellar-testnet",
+    "url": "https://horizon-testnet.stellar.org",
+    "indexer": false,
+    "description": "The Stellar testnet",
+    "verifyPage": "verify"
   }
 ]
