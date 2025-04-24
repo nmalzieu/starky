@@ -55,7 +55,7 @@ const launchIndexers = () => {
       log(`[Indexer] Launching ${networkName} indexer`, networkName);
       launchIndexer(networkName, networkUrl, blockStack);
     } else {
-      log(`[Indexer] Skipping ${network.name} as indexer is disabled`);
+      log(`[Indexer] Skipping ${network.label} as indexer is disabled`);
     }
   }
 };

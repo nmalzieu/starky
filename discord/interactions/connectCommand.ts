@@ -117,7 +117,7 @@ export const handleReconnectNetworkCommand = async (
   const verificationUrl = `${config.BASE_URL}/${network.verifyPage}/${guildId}/${userId}/${customLink}`;
 
   await interaction.followUp({
-    content: `Go to this link: ${verificationUrl} and verify your identity on network: ${networkName}!`,
+    content: `Go to this link: ${verificationUrl} and verify your identity on network: ${network.label}!`,
     ephemeral: true,
   });
 };
@@ -166,7 +166,7 @@ export const handleConnectCommand = async (
       const reconnectButtons = networks.map((network) => {
         return new ButtonBuilder()
           .setCustomId(`reconnect_${network.name}`)
-          .setLabel(`Reconnect ${network.name}`)
+          .setLabel(`Reconnect ${network.label}`)
           .setStyle(ButtonStyle.Primary);
       });
 
@@ -280,7 +280,7 @@ export const handleUserNetworkConfigCommand = async (
   const verificationUrl = `${config.BASE_URL}/${network.verifyPage}/${guildId}/${userId}/${newDiscordMember.customLink}`;
 
   await interaction.followUp({
-    content: `Go to this link: ${verificationUrl} and verify your identity on network: ${selectedNetwork}!`,
+    content: `Go to this link: ${verificationUrl} and verify your identity on network: ${network.label}!`,
     ephemeral: true,
   });
 };

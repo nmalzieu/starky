@@ -6,6 +6,7 @@ import styles from "../styles/Help.module.scss";
 import Image from "next/image";
 import Logoblack from "../components/Logo-black";
 import github from "../components/github-icon.png";
+import SocialLinks from "../components/SocialLinks";
 
 const HelpPage = () => {
   return (
@@ -171,13 +172,7 @@ const HelpPage = () => {
               </p>
             </CollapsibleSection>
           </div>
-
-          <footer className={styles.helpFooter}>
-            <Link href="https://twitter.com/starky_wtf">Twitter</Link>
-            <Link href="https://starky.wtf/">Website</Link>
-            <Link href="https://t.me/+Mi34Im1Uafc1Y2Q8">Telegram</Link>
-            <Link href="https://github.com/nmalzieu/starky">Github</Link>
-          </footer>
+          <SocialLinks />
         </main>
       </div>
     </>
