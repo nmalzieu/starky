@@ -8,7 +8,6 @@ import Logo from "../components/Logo";
 import github from "../components/github-icon.png";
 import SocialLinks from "../components/SocialLinks";
 
-
 const HelpPage = () => {
   return (
     <>
@@ -18,7 +17,6 @@ const HelpPage = () => {
       </Head>
       <div className={styles.helpPageWrapper}>
         <main className={styles.helpContainer}>
-          {/* Logo - Now using the same Logo component as the main page */}
           <div className={styles.logoSvg}>
             <Logo />
           </div>
