@@ -33,14 +33,6 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [wcProvider, setWcProvider] = useState<any>(null);
   const [balance, setBalance] = useState<string | null>(null);
 
-  // const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
-
-  // if (!INFURA_PROJECT_ID) {
-  //   throw new Error(
-  //     "Missing NEXT_PUBLIC_INFURA_PROJECT_ID in .env or .env.local"
-  //   );
-  // }
-
   const connect = async (networkName: string) => {
     const network = networks.find((n) => n.name === networkName);
     if (!network) throw new Error("Network not supported");
