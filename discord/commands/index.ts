@@ -23,6 +23,7 @@ import {
   handleDisconnectConfirmCommand,
 } from "../interactions/disconnectCommand";
 import { handleAnalyticsCommand } from "../interactions/handleAnalyticsCommand";
+import { handleDashboardCommand } from "../interactions/handleDashboardCommand";
 import { handleHelpCommand } from "../interactions/helpCommand";
 import { handleListConfigsCommand } from "../interactions/listConfigs";
 import { handleRefreshCommand } from "../interactions/refreshCommand";
@@ -145,6 +146,11 @@ export const interactionHandlers: HandlerConfig[] = [
     type: "chatInput",
     identifier: "starky-analytics",
     handler: handleAnalyticsCommand,
+  },
+  {
+    type: "chatInput",
+    identifier: "starky-dashboard",
+    handler: handleDashboardCommand,
   },
   {
     type: "selectMenu",
@@ -282,5 +288,9 @@ export const slashCommandsArray: SlashCommandData[] = [
   {
     name: "starky-analytics",
     description: "View analytics for this server",
+  },
+  {
+    name: "starky-dashboard",
+    description: "View the Starky dashboard for this server",
   },
 ];

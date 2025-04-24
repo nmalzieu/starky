@@ -55,7 +55,7 @@ const launchIndexers = () => {
       log(`[Indexer] Launching ${networkName} indexer`, networkName);
       launchIndexer(networkName, networkUrl, blockStack);
     } else {
-      log(`[Indexer] Skipping ${network.name} as indexer is disabled`);
+      log(`[Indexer] Skipping ${network.label} as indexer is disabled`);
     }
   }
 };
@@ -229,17 +229,18 @@ const launchIndexer = async (
             `[Indexer] Skipping block ${lastLoadedBlockNumber} for ${networkName}`,
             networkName
           );
-          // Wait 3 seconds before reconnecting
-          await new Promise((resolve) => setTimeout(resolve, 1000 * 3));
-          request = StarknetStream.Request.make({
-            filter: [filter],
-            finality: "accepted",
-            startingCursor: { orderKey: BigInt(lastLoadedBlockNumber) },
-          });
-          continue;
+          // wait 10 seconds before reconnecting
+          await new Promise((resolve) => setTimeout(resolve, 1000 * 10));
         }
-        // wait 10 seconds before reconnecting
-        await new Promise((resolve) => setTimeout(resolve, 1000 * 10));
+        // Wait 3 seconds before reconnecting
+        await new Promise((resolve) => setTimeout(resolve, 1000 * 3));
+        request = StarknetStream.Request.make({
+          filter: [filter],
+          finality: "accepted",
+          startingCursor: {
+            orderKey: BigInt(lastLoadedBlockNumber),
+          },
+        });
         log(`[Indexer] Reconnecting ${networkName} indexer`, networkName);
       }
     }

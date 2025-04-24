@@ -6,7 +6,8 @@ import styles from "../styles/Help.module.scss";
 import Image from "next/image";
 import Logo from "../components/Logo";
 import github from "../components/github-icon.png";
-import Footer from "../components/Footer";
+import SocialLinks from "../components/SocialLinks";
+
 
 const HelpPage = () => {
   return (
@@ -172,9 +173,7 @@ const HelpPage = () => {
               </p>
             </CollapsibleSection>
           </div>
-
-          {/* Using the newly created Footer component */}
-          <Footer />
+          <SocialLinks />
         </main>
       </div>
     </>

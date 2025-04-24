@@ -4,13 +4,26 @@
     "name": "mainnet",
     "url": "https://starknet.preview.apibara.org",
     "indexer": true,
-    "description": "The Starknet mainnet"
+    "description": "The Starknet mainnet",
+    "verifyPage": "verify"
   },
   {
     "label": "Starknet Sepolia",
     "name": "sepolia",
     "url": "coming-soon",
     "indexer": false,
-    "description": "The Starknet testnet"
+    "description": "The Starknet testnet",
+    "verifyPage": "verify"
+  },
+  {
+    "label": "Ethereum Mainnet",
+    "name": "ethereum-mainnet",
+    "chainId": 1,
+    "url": "https://eth.llamarpc.com",
+    "explorerUrl": "https://etherscan.io",
+    "currency": "ETH",
+    "indexer": false,
+    "description": "The Ethereum mainnet",
+    "verifyPage": "verify-eth"
   }
 ]
