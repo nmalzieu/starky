@@ -207,10 +207,16 @@ export const handleInitialConfigCommand = async (
     });
 
   if (alreadyDiscordServerConfigForRole) {
+    const editConfigButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+          .setCustomId("starky-config-edit")
+          .setLabel("Edit Configuration")
+          .setStyle(ButtonStyle.Primary)
+  );
     await interaction.reply({
-      content: `❌ You already have setup a Starky configuration for the selected role. If you want to setup a new configuration for this role, please first delete the existing one with \`/starky-delete-config\``,
-      components: [],
-      ephemeral: true,
+        content: `⚠️ A configuration for this role already exists. You can edit it instead of creating a new one.`,
+        components: [editConfigButton],
+        ephemeral: true,
     });
     return;
   }
@@ -218,7 +224,6 @@ export const handleInitialConfigCommand = async (
   ongoingConfigurationsCache[interaction.guildId].roleId = selectedRole.id;
   ongoingConfigurationsCache[interaction.guildId].currentStep =
     CONFIG_STEPS.NETWORK;
-
   const selectRow =
     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
