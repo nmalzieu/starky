@@ -60,13 +60,12 @@ export async function switchStarknetNetwork(
   network: NetworkName
 ): Promise<StarknetConnectionResult> {
   try {
-    const targetChainId = chainAliasByNetwork[network][1]; // Use the second alias as the target chainId
+    const targetChainId = chainAliasByNetwork[network][1];
     await wallet.request({
       type: "wallet_switchStarknetChain",
       params: { chainId: targetChainId },
     });
 
-    // Wait for the wallet to update
     await new Promise((resolve) => setTimeout(resolve, 1000));
     const { wallet: refreshedWallet } = await connect();
     if (!refreshedWallet) {

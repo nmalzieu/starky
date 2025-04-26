@@ -42,9 +42,6 @@ export class DiscordMember {
   @Column()
   customLink: string;
 
-  @Column({ nullable: true })
-  stellarWalletAddress: string;
-
   @DeleteDateColumn()
   deletedAt?: Date;
 }

@@ -16,7 +16,6 @@ export async function connectStellarWallet(
   network: "stellar-mainnet" | "stellar-testnet"
 ): Promise<StellarConnectionResult> {
   try {
-    // Check if Freighter is installed
     if (!isConnected()) {
       return {
         address: null,
@@ -25,7 +24,6 @@ export async function connectStellarWallet(
       };
     }
 
-    // Check if the user has allowed the app to connect
     const isAppAllowed = await isAllowed();
     if (!isAppAllowed) {
       const allowResult = await setAllowed();
@@ -51,7 +49,6 @@ export async function connectStellarWallet(
       };
     }
 
-    // Get the public key (address)
     const publicKey = await getPublicKey();
     if (!publicKey) {
       return {

@@ -58,7 +58,6 @@ export async function switchNetwork(
         error: switchResult.error,
       };
     case "stellar":
-      // Stellar does not support dynamic network switching
       return {
         account: null,
         error:

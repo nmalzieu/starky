@@ -4,7 +4,7 @@ import styles from "../../styles/Verify.module.scss";
 type WalletInfoProps = {
   account: any;
   networkType: "starknet" | "stellar" | "ethereum";
-  balance?: string | null; // Agregar balance como prop opcional
+  balance?: string | null;
   onDisconnect: () => void;
 };
 
@@ -16,7 +16,6 @@ const WalletInfo: React.FC<WalletInfoProps> = ({
 }) => {
   if (!account) return null;
 
-  // Format the account address based on networkType
   const displayAddress =
     networkType === "starknet" && account?.address
       ? `${account.address.slice(0, 6)}...${account.address.slice(-4)}`
@@ -24,7 +23,6 @@ const WalletInfo: React.FC<WalletInfoProps> = ({
       ? `${account.slice(0, 6)}...${account.slice(-4)}`
       : "Unknown Address";
 
-  // Determine the label based on networkType
   const label =
     networkType === "starknet"
       ? "Starknet wallet"

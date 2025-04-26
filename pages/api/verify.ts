@@ -79,8 +79,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
 
     discordMember.starknetWalletAddress = body.account;
   } else if (body.chain === "stellar") {
-    // For Stellar, we only store the address (no signature required)
-    discordMember.stellarWalletAddress = body.account; // Assumes stellarWalletAddress field exists
+    discordMember.starknetWalletAddress = body.account;
   } else {
     res.status(400).json({
       message: "Unsupported chain",
@@ -89,9 +88,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     return;
   }
 
-  res.status(200).json({ message: "Successfully verified" });
-  DiscordMemberRepository.save(discordMember);
+  await DiscordMemberRepository.save(discordMember);
   await refreshDiscordMemberForAllConfigs(discordMember);
+  res.status(200).json({ message: "Successfully verified" });
 };
 
 export default handler;
