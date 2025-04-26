@@ -2,42 +2,16 @@ import WatchTowerLogger from "../../watchTower";
 import { callContract } from "./call";
 import { Provider, num, CallData } from "starknet";
 import { ec as EllipticEC } from "elliptic";
-import { jest } from "@jest/globals";
 
 type SignatureVerify = {
   signatureValid: boolean;
   error?: string;
 };
 
-const _mocks = {
-  mockIsAccountDeployed:
-    jest.fn<
-      (accountAddress: string, starknetNetwork: string) => Promise<boolean>
-    >(),
-  mockStarknetEcVerify:
-    jest.fn<
-      (pubkey: string, messageHash: string, signature: string[]) => boolean
-    >(),
-  mockVerifySignature:
-    jest.fn<
-      (
-        accountAddress: string,
-        hexHash: string,
-        signature: string[],
-        starknetNetwork: string,
-        pubkey?: string
-      ) => Promise<SignatureVerify>
-    >(),
-};
-
 export async function isAccountDeployed(
   accountAddress: string,
   starknetNetwork: string
 ): Promise<boolean> {
-  if (_mocks.mockIsAccountDeployed) {
-    return _mocks.mockIsAccountDeployed(accountAddress, starknetNetwork);
-  }
-
   const provider = new Provider({
     sequencer: {
       baseUrl:
@@ -62,10 +36,6 @@ export function starknetEcVerify(
   messageHash: string,
   signature: string[]
 ): boolean {
-  if (_mocks.mockStarknetEcVerify) {
-    return _mocks.mockStarknetEcVerify(pubkey, messageHash, signature);
-  }
-
   try {
     const curve = new EllipticEC("secp256k1");
     const key = curve.keyFromPublic(pubkey, "hex");
@@ -93,16 +63,6 @@ export const verifySignature = async (
   starknetNetwork: string,
   pubkey?: string
 ): Promise<SignatureVerify> => {
-  if (_mocks.mockVerifySignature) {
-    return _mocks.mockVerifySignature(
-      accountAddress,
-      hexHash,
-      signature,
-      starknetNetwork,
-      pubkey
-    );
-  }
-
   const isDeployed = await isAccountDeployed(accountAddress, starknetNetwork);
 
   if (isDeployed) {
@@ -193,5 +153,3 @@ export const verifySignature = async (
     };
   }
 };
-
-verifySignature._mocks = _mocks;
