@@ -5,7 +5,7 @@ import CollapsibleSection from "../components/CollapsibleSection";
 import styles from "../styles/Help.module.scss";
 import Image from "next/image";
 import Logoblack from "../components/Logo-black";
-import github from "../components/github-icon.png";
+import BackButton from "../components/BackButton";
 
 const HelpPage = () => {
   return (
@@ -21,9 +21,7 @@ const HelpPage = () => {
             <Logoblack />
           </div>
 
-          <Link href="/" className="back-button">
-            ◀ Back
-          </Link>
+          <BackButton/>
 
           <h1>Starky: wtf?</h1>
           <p className={styles.description}>
@@ -122,7 +120,7 @@ const HelpPage = () => {
                 <span className={styles.linksnotunderline}>
                   <Link href="https://github.com/nmalzieu/starky">
                     <Image
-                      src={github}
+                      src="/assets/github-icon.png"
                       alt="GitHub icon"
                       width={18}
                       height={18}
@@ -152,7 +150,7 @@ const HelpPage = () => {
                 <span className={styles.linksnotunderline}>
                   <Link href="https://github.com/nmalzieu/starky">
                     <Image
-                      src={github}
+                      src="/assets/github-icon.png"
                       alt="GitHub icon"
                       width={18}
                       height={18}
