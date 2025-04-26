@@ -9,6 +9,7 @@ import {
   disconnect as starknetDisconnect,
 } from "starknetkit";
 import { INFURA_PROJECT_ID, ETHEREUM_ENABLED } from "../ethereumEnv";
+import { Account } from "starknet"; 
 
 type WalletContextType = {
   connect: (networkName: string) => Promise<void>;
@@ -25,6 +26,7 @@ const WalletContext = createContext<WalletContextType>({} as WalletContextType);
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [account, setAccount] = useState<string | null>(null);
+  const [starknetAccount, setStarknetAccount] = useState<Account | null>(null);
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
   const [chainId, setChainId] = useState<number | string | null>(null);
   const [networkType, setNetworkType] = useState<
@@ -96,6 +98,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         setAccount(wallet.account.address);
         setChainId(chain);
         setNetworkType("starknet");
+        setStarknetAccount(wallet.account);
       }
     } catch (error) {
       console.error("Connection error:", error);
@@ -130,6 +133,32 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     if (networkType === "ethereum") {
       const signer = await provider.getSigner();
       return await signer.signMessage(message);
+    } else if (networkType === "starknet") {
+      if (!starknetAccount) throw new Error("No Starknet account");
+  
+      const signature = await starknetAccount.signMessage({
+        domain: {
+          name: "Braavos",
+          chainId: chainId?.toString() || "SN_MAIN",
+          version: "1",
+        },
+        types: {
+          StarknetDomain: [
+            { name: "name", type: "felt" },
+            { name: "chainId", type: "felt" },
+            { name: "version", type: "felt" },
+          ],
+          Message: [
+            { name: "content", type: "felt" },
+          ],
+        },
+        primaryType: "Message",
+        message: {
+          content: message,
+        },
+      });
+  
+      return JSON.stringify(signature); // return signature properly
     }
 
     throw new Error("Unsupported network for signing");
