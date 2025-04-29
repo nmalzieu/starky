@@ -1,7 +1,6 @@
 import BackButton from "../../components/BackButton";
 import { ExampleCard } from "../../components/example/ExampleCard";
 import styles from "../../styles/Example.module.scss";
-import Link from 'next/link';
 
 
 export default function ExamplesPage() {

@@ -6,6 +6,7 @@ import styles from "../styles/Help.module.scss";
 import Image from "next/image";
 import Logoblack from "../components/Logo-black";
 import BackButton from "../components/BackButton";
+import  { githubSvgUrl as github } from "../components/GithubIcon";
 
 const HelpPage = () => {
   return (
@@ -119,8 +120,8 @@ const HelpPage = () => {
                 Yes. Please find our GitHub project here:
                 <span className={styles.linksnotunderline}>
                   <Link href="https://github.com/nmalzieu/starky">
-                    <Image
-                      src="/assets/github-icon.png"
+                    <Image 
+                    src={github}
                       alt="GitHub icon"
                       width={18}
                       height={18}
@@ -150,7 +151,7 @@ const HelpPage = () => {
                 <span className={styles.linksnotunderline}>
                   <Link href="https://github.com/nmalzieu/starky">
                     <Image
-                      src="/assets/github-icon.png"
+                      src={github}
                       alt="GitHub icon"
                       width={18}
                       height={18}
