@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import styles from "../styles/RedirectMessage.module.scss";
+import styles from "./RedirectMessage.module.scss";
 
 interface RedirectMessageProps {
   title: string;
@@ -17,30 +17,40 @@ const RedirectMessage = ({
   buttonLabel,
   buttonLink,
   redirectTo,
-  delay = 5000,
+  delay = 4000,
 }: RedirectMessageProps) => {
   const router = useRouter();
+  const [countdown, setCountdown] = useState(Math.floor(delay / 1000));
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const interval = setInterval(() => {
+      setCountdown((prev) => (prev > 1 ? prev - 1 : prev));
+    }, 1000);
+
+    const timeout = setTimeout(() => {
       router.push(redirectTo);
     }, delay);
 
-    return () => clearTimeout(timer);
-  }, [router, redirectTo, delay]);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [redirectTo, delay, router]);
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>{title}</h1>
-      <p className={styles.description}>{description}</p>
-      <a href={buttonLink} className={styles.button}>
-        {buttonLabel}
-      </a>
-      <div className={styles.bottomNote}>
-        <span>
-          You will automatically be redirected in {delay / 1000} seconds.
-        </span>
-        <div className={styles.loader}></div>
+      <div className={styles.card}>
+        <div className={styles.cardHeader}>{title}</div>
+        <p className={styles.description}>{description}</p>
+        <div className={styles.cardContent}>
+          <a href={buttonLink} className={styles.button}>
+            {buttonLabel}
+          </a>
+          <div className={styles.bottomNote}>
+            Redirecting in {countdown} second{countdown !== 1 ? "s" : ""}...
+            <span className={styles.loader} />
+          </div>
+        </div>
       </div>
     </div>
   );

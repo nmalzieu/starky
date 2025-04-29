@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useRouter } from "next/router";
 import { Pie } from "react-chartjs-2";
 import {
   ArcElement,
@@ -18,12 +19,12 @@ import {
   DiscordMemberRepository,
   DiscordServerRepository,
   setupDb,
-} from "../../../db"; // Adjust based on your structure
+} from "../../../db";
 
 import styles from "../../../styles/Verify.module.scss";
 import { validateToken } from "../../../utils/validateToken";
 
-// Register necessary chart components
+// Register chart components
 ChartJS.register(
   Title,
   Tooltip,
@@ -53,11 +54,23 @@ const AnalyticsPage = ({
   tokenExpired,
   serverNotFound,
 }: AnalyticsPageProps) => {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (tokenExpired) {
+      const timeout = setTimeout(() => {
+        router.push("/request-link");
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [tokenExpired, router]);
+
   if (tokenExpired) {
     return (
       <RedirectMessage
         title="Session Expired"
-        description="Your access token has expired. Redirecting to the request page."
+        description="Your access token has expired. You’ll be redirected shortly."
         buttonLabel="Request New Link"
         buttonLink="/request-link"
         redirectTo="/request-link"
@@ -76,6 +89,7 @@ const AnalyticsPage = ({
       />
     );
   }
+
   const data = {
     labels: Object.keys(userStats),
     datasets: [
@@ -114,6 +128,7 @@ const AnalyticsPage = ({
           No data available for the selected guild.
         </p>
       )}
+
       <div style={{ marginTop: "2rem" }}>
         <SocialLinks />
       </div>
@@ -138,7 +153,7 @@ export const getServerSideProps = async ({ query }: AnalyticsPageContext) => {
 
   if (!isValidToken) {
     return {
-      props: { tokenExpired: true }, // Show ExpiredAnalyticsPage
+      props: { tokenExpired: true },
     };
   }
 
@@ -157,7 +172,6 @@ export const getServerSideProps = async ({ query }: AnalyticsPageContext) => {
   });
 
   const userStats: Record<string, number> = {};
-
   members.forEach((member) => {
     const network = member.starknetNetwork.toLowerCase();
     userStats[network] = (userStats[network] || 0) + 1;

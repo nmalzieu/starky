@@ -1,41 +1,47 @@
 .container {
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0rem 0rem 2.5rem 0rem;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100vh;
   text-align: center;
-  background-color: #f8f9fa; 
+  background-color: #f8f9fa;
 }
 
 .card {
-  border: 1px solid #e0e0e0;
-  border-radius: 0.75rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.5rem;
   background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 2.5rem;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   max-width: 450px;
   text-align: center;
   transition: transform 0.2s ease-in-out;
+}
 
-  &:hover {
-    transform: translateY(-2px);
-  }
+.card:hover {
+  transform: translateY(-2px);
 }
 
 .cardHeader {
-  font-size: 1.6rem;
-  font-weight: bold;
+  padding: 1.25rem 1.25rem 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #333;
-  margin-bottom: 1rem;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .description {
-  color: #555;
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 0.875rem;
+  color: #666;
+  padding: 0 1.25rem;
   margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.cardContent {
+  padding: 1.25rem;
 }
 
 .button {
@@ -50,14 +56,14 @@
   cursor: pointer;
   text-decoration: none;
   transition: background-color 0.3s ease-in-out;
-  
-  &:hover {
-    background-color: #0056b3;
-  }
+}
+
+.button:hover {
+  background-color: #0056b3;
 }
 
 .explanation {
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: #666;
   margin-top: 1.5rem;
   display: flex;
@@ -92,5 +98,14 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .container {
+    width: 100%;
+    padding: 1rem;
+    height: auto;
   }
 }
