@@ -114,11 +114,18 @@ const launchIndexer = async (
     contractChanges: [{}],
     nonceUpdates: [{}],
   });
-  let request = StarknetStream.Request.make({
-    filter: [filter],
-    finality: "accepted",
-    startingCursor: { orderKey: BigInt(lastBlockNumber) },
-  });
+
+  const buildRequest = (blockNumber: number) => {
+    return StarknetStream.Request.make({
+      filter: [filter],
+      finality: "accepted",
+      startingCursor: {
+        orderKey: BigInt(blockNumber),
+      },
+    });
+  };
+
+  let request = buildRequest(lastBlockNumber);
 
   while (true) {
     try {
@@ -196,6 +203,8 @@ const launchIndexer = async (
               // Insert block
               if (blockNumber) {
                 lastLoadedBlockNumber = parseInt(blockNumber);
+                if (lastLoadedBlockNumber % 10 == 0)
+                  request = buildRequest(lastLoadedBlockNumber);
                 const parsedBlock: Block = new Block(
                   parseInt(blockNumber),
                   blockMembers,
@@ -235,13 +244,7 @@ const launchIndexer = async (
         }
         // Wait 3 seconds before reconnecting
         await new Promise((resolve) => setTimeout(resolve, 1000 * 3));
-        request = StarknetStream.Request.make({
-          filter: [filter],
-          finality: "accepted",
-          startingCursor: {
-            orderKey: BigInt(lastLoadedBlockNumber),
-          },
-        });
+        request = buildRequest(lastLoadedBlockNumber);
         log(`[Indexer] Reconnecting ${networkName} indexer`, networkName);
       }
     }
