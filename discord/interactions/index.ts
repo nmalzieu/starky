@@ -12,6 +12,11 @@ import {
 import config from "../../config";
 import WatchTowerLogger from "../../watchTower";
 
+import {
+  handleInitialConfigCommand,
+  handleEditConfigButton, //  Importing the handleEditConfigButton function
+} from "../interactions/addConfigCommand";
+
 export const restClient = new REST({ version: "10" }).setToken(
   config.DISCORD_BOT_TOKEN
 );
@@ -85,6 +90,21 @@ export const setupInteractions = (client: Client) => {
             );
           }
           break;
+      }
+    }
+
+    // Handle specific interactions
+    if (
+      interaction.isChatInputCommand() &&
+      interaction.commandName === "starky-config"
+    ) {
+      return handleInitialConfigCommand(interaction, client, restClient); // Handles initial configuration
+    }
+
+    if (interaction.isButton()) {
+      if (interaction.customId === "starky-config-edit") {
+        //  Handle "Edit Configuration" button
+        return handleEditConfigButton(interaction, client, restClient); // Use the handleEditConfigButton function
       }
     }
 
