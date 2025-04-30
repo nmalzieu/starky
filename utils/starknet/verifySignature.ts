@@ -13,8 +13,6 @@ export const verifySignature = async (
   signature: string[],
   starknetNetwork: string
 ): Promise<SignatureVerify> => {
-  // We can verify this message hash against the signature generated in the frontend
-  // by calling the is_valid_signature method on the Account contract
   try {
     const response = await callContract({
       starknetNetwork:
@@ -24,7 +22,6 @@ export const verifySignature = async (
       calldata: [hexHash, `${signature.length}`, ...signature],
     });
 
-    // Check if response and result exist
     if (!response || !response.result || response.result.length === 0) {
       return {
         signatureValid: false,
@@ -50,7 +47,6 @@ export const verifySignature = async (
         calldata: [hexHash, `${signature.length}`, ...signature],
       });
 
-      // Check if response and result exist
       if (!response || !response.result || response.result.length === 0) {
         return {
           signatureValid: false,
