@@ -99,6 +99,7 @@ const launchIndexer = async (
     network: networkName,
   })) || { lastBlockNumber: 0 };
   const resetBlockNumbers = process.env[`APIBARA_RESET_BLOCK_NUMBERS`];
+  if (resetBlockNumbers) log(`[Indexer] Resetting block numbers`);
   if (lastBlockNumber < configFirstBlockNumber || resetBlockNumbers)
     lastBlockNumber = configFirstBlockNumber;
   lastLoadedBlockNumber = lastBlockNumber;
