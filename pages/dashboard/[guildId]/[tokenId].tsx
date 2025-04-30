@@ -9,6 +9,8 @@ import {
   DiscordServerRepository,
 } from "../../../db";
 import { StarkyModuleConfig } from "../../../types/starkyModules";
+import { getDiscordServerInfo } from "../../../discord/utils";
+import Guild from "../../../components/guild/Guild";
 
 interface Config {
   id: string;
@@ -21,12 +23,16 @@ interface Config {
 interface DashboardPageProps {
   configs: Config[];
   guildId: string;
+  discordServerName: string | null;
+  discordServerIcon: string | null;
   error?: string;
 }
 
 const DashboardPage: NextPage<DashboardPageProps> = ({
   configs,
   guildId,
+  discordServerName,
+  discordServerIcon,
   error,
 }) => {
   if (error) {
@@ -44,7 +50,10 @@ const DashboardPage: NextPage<DashboardPageProps> = ({
     <div className={styles.container}>
       <Logo />
       <h1>Dashboard</h1>
-      <h2>Guild: {guildId}</h2>
+      <Guild
+        discordServerName={discordServerName!}
+        discordServerIcon={discordServerIcon}
+      />{" "}
       <section className={styles.configSection}>
         <h3>Configurations</h3>
         {configs.length > 0 ? (
@@ -115,7 +124,18 @@ export const getServerSideProps: GetServerSideProps = async ({
   const configs = await DiscordServerConfigRepository.findBy({
     discordServerId: guildId,
   });
-
+  let discordServerName: string | null = null;
+  let discordServerIcon: string | null = null;
+  try {
+    const info = await getDiscordServerInfo(guildId);
+    discordServerName = info.name;
+    if (info.icon) {
+      const ext = info.icon.startsWith("a_") ? ".gif" : ".png";
+      discordServerIcon = `https://cdn.discordapp.com/icons/${guildId}/${info.icon}${ext}`;
+    }
+  } catch (error) {
+    console.error("Failed to fetch guild info:", error);
+  }
   return {
     props: {
       configs: configs.map((c) => ({
@@ -126,6 +146,8 @@ export const getServerSideProps: GetServerSideProps = async ({
         starkyModuleConfig: c.starkyModuleConfig,
       })),
       guildId,
+      discordServerName,
+      discordServerIcon,
     },
   };
 };
