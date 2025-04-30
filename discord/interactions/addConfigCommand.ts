@@ -73,6 +73,90 @@ const addBackButton = (previousStepId: string) => {
   );
 };
 
+export const handleEditConfigButton = async (
+  interaction: ButtonInteraction,
+  client: Client,
+  restClient: REST
+) => {
+  await assertManageRoles(interaction);
+
+  if (!interaction.guildId) {
+    await interaction.reply({
+      content: "❌ This interaction must be used in a server.",
+      ephemeral: true,
+    });
+    return;
+  }
+
+  // Retrieve the configuration for the role
+  const roleId = interaction.customId.split("-").pop(); // Extract the role ID from the custom ID
+  const existingConfig = await DiscordServerConfigRepository.findOneBy({
+    discordServerId: interaction.guildId,
+    discordRoleId: roleId,
+  });
+
+  if (!existingConfig) {
+    await interaction.reply({
+      content: "❌ No existing configuration found for this role.",
+      ephemeral: true,
+    });
+    return;
+  }
+
+  // Create a modal for editing the configuration
+  const modal = new ModalBuilder()
+    .setCustomId("starky-config-edit-modal")
+    .setTitle("Edit Configuration");
+
+  // Create input fields for the modal
+  const networkInput = new TextInputBuilder()
+    .setCustomId("edit-network")
+    .setLabel("Starknet Network")
+    .setStyle(TextInputStyle.Short)
+    .setValue(existingConfig.starknetNetwork || "")
+    .setRequired(true);
+
+  const roleInput = new TextInputBuilder()
+    .setCustomId("edit-role")
+    .setLabel("Discord Role ID")
+    .setStyle(TextInputStyle.Short)
+    .setValue(existingConfig.discordRoleId || "")
+    .setRequired(true);
+
+  const moduleTypeInput = new TextInputBuilder()
+    .setCustomId("edit-module-type")
+    .setLabel("Module Type")
+    .setStyle(TextInputStyle.Short)
+    .setValue(existingConfig.starkyModuleType || "")
+    .setRequired(true);
+
+  const moduleConfigInput = new TextInputBuilder()
+    .setCustomId("edit-module-config")
+    .setLabel("Module Config (JSON)")
+    .setStyle(TextInputStyle.Paragraph)
+    .setValue(JSON.stringify(existingConfig.starkyModuleConfig || {}, null, 2))
+    .setRequired(false);
+
+  // Add input fields to the modal
+  modal.addComponents(
+    new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+      networkInput
+    ),
+    new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+      roleInput
+    ),
+    new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+      moduleTypeInput
+    ),
+    new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
+      moduleConfigInput
+    )
+  );
+
+  // Show the modal to the user
+  await interaction.showModal(modal);
+};
+
 export const handleBackButton = async (
   interaction: ButtonInteraction,
   client: Client,
@@ -207,16 +291,17 @@ export const handleInitialConfigCommand = async (
     });
 
   if (alreadyDiscordServerConfigForRole) {
-    const editConfigButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
+    const editConfigButton =
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
           .setCustomId("starky-config-edit")
           .setLabel("Edit Configuration")
           .setStyle(ButtonStyle.Primary)
-  );
+      );
     await interaction.reply({
-        content: `⚠️ A configuration for this role already exists. You can edit it instead of creating a new one.`,
-        components: [editConfigButton],
-        ephemeral: true,
+      content: `⚠️ A configuration for this role already exists. You can edit it instead of creating a new one.`,
+      components: [editConfigButton],
+      ephemeral: true,
     });
     return;
   }
@@ -224,6 +309,7 @@ export const handleInitialConfigCommand = async (
   ongoingConfigurationsCache[interaction.guildId].roleId = selectedRole.id;
   ongoingConfigurationsCache[interaction.guildId].currentStep =
     CONFIG_STEPS.NETWORK;
+
   const selectRow =
     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
