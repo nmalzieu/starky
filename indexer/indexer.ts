@@ -120,7 +120,6 @@ const launchIndexer = async (
     startingCursor: { orderKey: BigInt(lastBlockNumber) },
   });
 
-  let transferEventsCount = 0;
   while (true) {
     try {
       for await (const message of client.streamData(request, {
@@ -140,6 +139,7 @@ const launchIndexer = async (
                 ({ keys }) => BigInt(keys[0]) === BigInt(transferEventKey)
               );
               // Transfer Events
+              let transferEventsCount = 0;
               for (const transferEvent of transferEvents) {
                 transferEventsCount++;
                 // Transfer event from invoke transaction
