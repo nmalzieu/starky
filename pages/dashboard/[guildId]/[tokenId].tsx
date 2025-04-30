@@ -11,6 +11,7 @@ import {
 import { StarkyModuleConfig } from "../../../types/starkyModules";
 import { getDiscordServerInfo } from "../../../discord/utils";
 import Guild from "../../../components/guild/Guild";
+import { validateToken } from "../../../utils/validateToken";
 
 interface Config {
   id: string;
@@ -93,17 +94,27 @@ export const getServerSideProps: GetServerSideProps = async ({
 }) => {
   await setupDb();
 
-  const { guildId } = query;
+  const { guildId, tokenId } = query;
 
-  if (!guildId || typeof guildId !== "string") {
-    if (res) res.statusCode = 400;
-    return {
-      props: {
-        configs: [],
-        guildId: "",
-        error: "Missing or invalid guild ID.",
-      },
-    };
+  if (!guildId || typeof guildId !== "string" || !tokenId || typeof tokenId !== "string") {
+    if (res) {
+      res.setHeader("location", "/");
+      res.statusCode = 302;
+      res.end();
+    }
+    return { props: {} }; // Redirect to home if guildId or tokenId is missing
+  }
+
+  // Verify token validity
+  const isValidToken = await validateToken(guildId, tokenId);
+
+  if (!isValidToken) {
+    if (res) {
+      res.setHeader("location", "/");
+      res.statusCode = 302;
+      res.end();
+    }
+    return { props: {} }; // Redirect to home if token is invalid or expired
   }
 
   const discordServer = await DiscordServerRepository.findOneBy({
@@ -111,14 +122,12 @@ export const getServerSideProps: GetServerSideProps = async ({
   });
 
   if (!discordServer) {
-    if (res) res.statusCode = 404;
-    return {
-      props: {
-        configs: [],
-        guildId,
-        error: "Guild not found.",
-      },
-    };
+    if (res) {
+      res.setHeader("location", "/");
+      res.statusCode = 302;
+      res.end();
+    }
+    return { props: {} }; // Redirect to home if no matching server found
   }
 
   const configs = await DiscordServerConfigRepository.findBy({
