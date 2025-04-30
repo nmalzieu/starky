@@ -127,10 +127,27 @@ const launchIndexer = async (
 
   let request = buildRequest(lastBlockNumber);
 
+  let previousBlock = 0;
+  let stuckCounter = 0;
   while (true) {
+    log(
+      `[Indexer] Iterating indexer. Stuckcounter = ${stuckCounter}`,
+      networkName
+    );
+    if (previousBlock == lastLoadedBlockNumber) stuckCounter++;
+    else stuckCounter = 0;
+    previousBlock = lastLoadedBlockNumber;
+    if (stuckCounter > 10) {
+      log(
+        `[Indexer] Stuck for too long. Skipping block ${lastLoadedBlockNumber}`,
+        networkName
+      );
+      request = buildRequest(lastLoadedBlockNumber + 1);
+    }
+
     try {
       for await (const message of client.streamData(request, {
-        timeout: 1000 * 60 * 30, // 30 minutes
+        timeout: 1000 * 60 * 10, // 10 minutes
       })) {
         switch (message._tag) {
           case "data": {
@@ -204,7 +221,7 @@ const launchIndexer = async (
               if (blockNumber) {
                 lastLoadedBlockNumber = parseInt(blockNumber);
                 if (lastLoadedBlockNumber % 10 == 0)
-                  request = buildRequest(lastLoadedBlockNumber);
+                  request = buildRequest(lastLoadedBlockNumber + 1);
                 const parsedBlock: Block = new Block(
                   parseInt(blockNumber),
                   blockMembers,
