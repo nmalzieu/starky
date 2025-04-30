@@ -1,7 +1,6 @@
 import { NextPage, GetServerSideProps } from "next";
 import Logo from "../../../components/Logo";
 import SocialLinks from "../../../components/SocialLinks";
-import DiscordServerInfo from "../../../components/verification/DiscordServerInfo";
 import styles from "../../../styles/Dashboard.module.scss";
 
 import {
@@ -11,6 +10,7 @@ import {
 } from "../../../db";
 import { StarkyModuleConfig } from "../../../types/starkyModules";
 import { getDiscordServerInfo } from "../../../discord/utils";
+import Guild from "../../../components/guild/Guild";
 
 interface Config {
   id: string;
@@ -50,11 +50,9 @@ const DashboardPage: NextPage<DashboardPageProps> = ({
     <div className={styles.container}>
       <Logo />
       <h1>Dashboard</h1>
-      <DiscordServerInfo
+      <Guild
         discordServerName={discordServerName!}
         discordServerIcon={discordServerIcon}
-        network={""}
-        networkType="starknet"
       />{" "}
       <section className={styles.configSection}>
         <h3>Configurations</h3>
