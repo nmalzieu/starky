@@ -99,6 +99,7 @@ const launchIndexer = async (
     network: networkName,
   })) || { lastBlockNumber: 0 };
   const resetBlockNumbers = process.env[`APIBARA_RESET_BLOCK_NUMBERS`];
+  if (resetBlockNumbers) log(`[Indexer] Resetting block numbers`);
   if (lastBlockNumber < configFirstBlockNumber || resetBlockNumbers)
     lastBlockNumber = configFirstBlockNumber;
   lastLoadedBlockNumber = lastBlockNumber;
@@ -113,17 +114,40 @@ const launchIndexer = async (
     contractChanges: [{}],
     nonceUpdates: [{}],
   });
-  let request = StarknetStream.Request.make({
-    filter: [filter],
-    finality: "accepted",
-    startingCursor: { orderKey: BigInt(lastBlockNumber) },
-  });
 
-  let transferEventsCount = 0;
+  const buildRequest = (blockNumber: number) => {
+    return StarknetStream.Request.make({
+      filter: [filter],
+      finality: "accepted",
+      startingCursor: {
+        orderKey: BigInt(blockNumber),
+      },
+    });
+  };
+
+  let request = buildRequest(lastBlockNumber);
+
+  let previousBlock = 0;
+  let stuckCounter = 0;
   while (true) {
+    log(
+      `[Indexer] Iterating indexer. Stuckcounter = ${stuckCounter}`,
+      networkName
+    );
+    if (previousBlock == lastLoadedBlockNumber) stuckCounter++;
+    else stuckCounter = 0;
+    previousBlock = lastLoadedBlockNumber;
+    if (stuckCounter > 10) {
+      log(
+        `[Indexer] Stuck for too long. Skipping block ${lastLoadedBlockNumber}`,
+        networkName
+      );
+      request = buildRequest(lastLoadedBlockNumber + 1);
+    }
+
     try {
       for await (const message of client.streamData(request, {
-        timeout: 1000 * 60 * 30, // 30 minutes
+        timeout: 1000 * 60 * 10, // 10 minutes
       })) {
         switch (message._tag) {
           case "data": {
@@ -139,6 +163,7 @@ const launchIndexer = async (
                 ({ keys }) => BigInt(keys[0]) === BigInt(transferEventKey)
               );
               // Transfer Events
+              let transferEventsCount = 0;
               for (const transferEvent of transferEvents) {
                 transferEventsCount++;
                 // Transfer event from invoke transaction
@@ -195,6 +220,8 @@ const launchIndexer = async (
               // Insert block
               if (blockNumber) {
                 lastLoadedBlockNumber = parseInt(blockNumber);
+                if (lastLoadedBlockNumber % 10 == 0)
+                  request = buildRequest(lastLoadedBlockNumber + 1);
                 const parsedBlock: Block = new Block(
                   parseInt(blockNumber),
                   blockMembers,
@@ -234,13 +261,7 @@ const launchIndexer = async (
         }
         // Wait 3 seconds before reconnecting
         await new Promise((resolve) => setTimeout(resolve, 1000 * 3));
-        request = StarknetStream.Request.make({
-          filter: [filter],
-          finality: "accepted",
-          startingCursor: {
-            orderKey: BigInt(lastLoadedBlockNumber),
-          },
-        });
+        request = buildRequest(lastLoadedBlockNumber);
         log(`[Indexer] Reconnecting ${networkName} indexer`, networkName);
       }
     }
