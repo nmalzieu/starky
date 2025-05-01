@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import styles from "./RedirectMessage.module.scss";
+import styles from "../styles/RedirectMessage.module.scss";
 
 interface RedirectMessageProps {
   title: string;

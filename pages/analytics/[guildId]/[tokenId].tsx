@@ -59,7 +59,7 @@ const AnalyticsPage = ({
   useEffect(() => {
     if (tokenExpired) {
       const timeout = setTimeout(() => {
-        router.push("/request-link");
+        router.push("/");
       }, 3000);
 
       return () => clearTimeout(timeout);
