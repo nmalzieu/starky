@@ -68,7 +68,7 @@ LOG_EVERY_X_BLOCK=1
 Install the required Node.js dependencies:
 
 ```sh
-yarn install 
+yarn install
 ```
 
 ---

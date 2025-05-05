@@ -1,4 +1,3 @@
-import React from "react";
 import { Pie } from "react-chartjs-2";
 
 import {
@@ -22,6 +21,7 @@ import {
 
 import styles from "../../../styles/Verify.module.scss";
 import { validateToken } from "../../../utils/validateToken";
+import { getDiscordServerInfo } from "../../../discord/utils";
 
 // Register necessary chart components
 ChartJS.register(
@@ -37,6 +37,7 @@ ChartJS.register(
 interface AnalyticsPageProps {
   userStats: Record<string, number>; // Number of users connected to each network
   guildId: string; // Guild ID
+  discordServerIcon?: string | null; // Server icon URL
 }
 
 // Type for context parameter
@@ -47,7 +48,11 @@ interface AnalyticsPageContext extends NextPageContext {
   };
 }
 
-const AnalyticsPage = ({ userStats, guildId }: AnalyticsPageProps) => {
+const AnalyticsPage = ({
+  userStats,
+  guildId,
+  discordServerIcon,
+}: AnalyticsPageProps) => {
   // Prepare data for the pie chart
   const data = {
     labels: Object.keys(userStats), // Network names (e.g., Mainnet, Sepolia)
@@ -65,7 +70,21 @@ const AnalyticsPage = ({ userStats, guildId }: AnalyticsPageProps) => {
         <Logo />
       </div>
       <div className={styles.serverInfo}>
-        Server Analytics for Guild:<b> {guildId}</b>
+        Server Analytics for Guild:
+        {discordServerIcon && (
+          <img
+            src={discordServerIcon}
+            alt="Server Icon"
+            style={{
+              width: "24px",
+              height: "24px",
+              marginLeft: "8px",
+              verticalAlign: "middle",
+              borderRadius: "50%",
+            }}
+          />
+        )}
+        <b> {guildId}</b>
       </div>
 
       <div style={{ marginTop: "2rem" }}>
@@ -140,6 +159,19 @@ export const getServerSideProps = async ({
     return { props: {} }; // Redirect to home if no matching server found
   }
 
+  // Get server info including icon
+  let discordServerIcon = null;
+  try {
+    const serverInfo = await getDiscordServerInfo(guildId as string);
+    discordServerIcon = serverInfo.icon
+      ? `https://cdn.discordapp.com/icons/${guildId}/${serverInfo.icon}${
+          serverInfo.icon.startsWith("a_") ? ".gif" : ".png"
+        }`
+      : null;
+  } catch (e: any) {
+    console.error("Error fetching server info:", e);
+  }
+
   // Get all members for this guild
   const members = await DiscordMemberRepository.findBy({
     discordServerId: guildId,
@@ -177,6 +209,7 @@ export const getServerSideProps = async ({
     props: {
       userStats: formattedUserStats, // Pass user stats with formatted network names
       guildId, // Pass guildId to the frontend
+      discordServerIcon, // Pass server icon to the frontend
     },
   };
 };
