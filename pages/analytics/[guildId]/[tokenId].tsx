@@ -1,5 +1,4 @@
-import React, { useEffect } from "react";
-import { useRouter } from "next/router";
+import React from "react";
 import { Pie } from "react-chartjs-2";
 import {
   ArcElement,
@@ -54,26 +53,12 @@ const AnalyticsPage = ({
   tokenExpired,
   serverNotFound,
 }: AnalyticsPageProps) => {
-  const router = useRouter();
-
-  useEffect(() => {
-    if (tokenExpired) {
-      const timeout = setTimeout(() => {
-        router.push("/");
-      }, 3000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [tokenExpired, router]);
-
   if (tokenExpired) {
     return (
       <RedirectMessage
         title="Session Expired"
         description="Your access token has expired. You’ll be redirected shortly."
-        buttonLabel="Request New Link"
-        buttonLink="/request-link"
-        redirectTo="/request-link"
+        redirectTo="/"
       />
     );
   }
@@ -83,8 +68,6 @@ const AnalyticsPage = ({
       <RedirectMessage
         title="Server Not Found"
         description="We could not find the server associated with this link. Redirecting to the home page."
-        buttonLabel="Go Home"
-        buttonLink="/"
         redirectTo="/"
       />
     );

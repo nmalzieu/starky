@@ -1,12 +1,10 @@
 .container {
   margin: 0 auto;
-  padding: 0rem 0rem 2.5rem 0rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100%;
   text-align: center;
-  background-color: #f8f9fa;
 }
 
 .card {
@@ -36,12 +34,11 @@
   font-size: 0.875rem;
   color: #666;
   padding: 0 1.25rem;
-  margin-bottom: 1.5rem;
   line-height: 1.5;
 }
 
 .cardContent {
-  padding: 1.25rem;
+  padding-bottom: 1.25rem;
 }
 
 .button {
@@ -75,7 +72,6 @@
 .bottomNote {
   font-size: 0.85rem;
   color: #666;
-  margin-top: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -105,7 +101,6 @@
 @media (max-width: 900px) {
   .container {
     width: 100%;
-    padding: 1rem;
     height: auto;
   }
 }

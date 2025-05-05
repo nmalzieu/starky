@@ -5,8 +5,6 @@ import styles from "../styles/RedirectMessage.module.scss";
 interface RedirectMessageProps {
   title: string;
   description: string;
-  buttonLabel: string;
-  buttonLink: string;
   redirectTo: string;
   delay?: number;
 }
@@ -14,8 +12,6 @@ interface RedirectMessageProps {
 const RedirectMessage = ({
   title,
   description,
-  buttonLabel,
-  buttonLink,
   redirectTo,
   delay = 4000,
 }: RedirectMessageProps) => {
@@ -43,9 +39,6 @@ const RedirectMessage = ({
         <div className={styles.cardHeader}>{title}</div>
         <p className={styles.description}>{description}</p>
         <div className={styles.cardContent}>
-          <a href={buttonLink} className={styles.button}>
-            {buttonLabel}
-          </a>
           <div className={styles.bottomNote}>
             Redirecting in {countdown} second{countdown !== 1 ? "s" : ""}...
             <span className={styles.loader} />
