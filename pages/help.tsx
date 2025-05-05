@@ -2,8 +2,15 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import CollapsibleSection from "../components/CollapsibleSection";
+
 import Logoblack from "../components/Logo-black";
+
 import styles from "../styles/Help.module.scss";
+import Image from "next/image";
+import Logo from "../components/Logo";
+import github from "../components/github-icon.png";
+import SocialLinks from "../components/SocialLinks";
+
 
 const HelpPage = () => {
   return (
@@ -14,9 +21,8 @@ const HelpPage = () => {
       </Head>
       <div className={styles.helpPageWrapper}>
         <main className={styles.helpContainer}>
-          {/* Logo */}
           <div className={styles.logoSvg}>
-            <Logoblack />
+            <Logo />
           </div>
           <h1>Starky: wtf?</h1>
           <p className={styles.description}>
@@ -169,13 +175,7 @@ const HelpPage = () => {
               </p>
             </CollapsibleSection>
           </div>
-
-          <footer className={styles.helpFooter}>
-            <Link href="https://twitter.com/starky_wtf">Twitter</Link>
-            <Link href="https://starky.wtf/">Website</Link>
-            <Link href="https://t.me/+Mi34Im1Uafc1Y2Q8">Telegram</Link>
-            <Link href="https://github.com/nmalzieu/starky">Github</Link>
-          </footer>
+          <SocialLinks />
         </main>
       </div>
     </>

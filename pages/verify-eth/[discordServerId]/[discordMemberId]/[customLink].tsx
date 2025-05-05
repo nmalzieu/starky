@@ -145,8 +145,6 @@ const VerifyEthPage = ({
           balance={balance}
           onDisconnect={() => disconnect()}
         />
-
-        <br />
         <TransactionList account={account} />
 
         <br />

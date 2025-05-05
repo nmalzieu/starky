@@ -18,6 +18,10 @@ import { DiscordMemberRepository, DiscordServerRepository } from "../../db";
 import { DiscordMember } from "../../db/entity/DiscordMember";
 import { DiscordServer } from "../../db/entity/DiscordServer";
 import WatchTowerLogger from "../../watchTower";
+import {
+  ETHEREUM_ENABLED,
+  INFURA_PROJECT_ID,
+} from "./../../utils/ethereum/ethereumEnv";
 
 export const otherNetwork = (network: string) => {
   const currentNetworkIndex = networks.findIndex(
@@ -30,19 +34,13 @@ export const otherNetwork = (network: string) => {
   return networks[nextNetworkIndex].name;
 };
 
-const INFURA_PROJECT_ID = process.env.NEXT_PUBLIC_INFURA_PROJECT_ID;
-
-if (!INFURA_PROJECT_ID) {
-  throw new Error(
-    "Missing NEXT_PUBLIC_INFURA_PROJECT_ID in .env or .env.local"
-  );
-}
-
 export const initializeProvider = async (networkName: string) => {
   const network = networks.find(({ name }) => name === networkName);
   if (!network) throw new Error("Network not found");
 
   if (networkName === "Ethereum") {
+    if (!ETHEREUM_ENABLED) return null;
+
     return new ethers.JsonRpcProvider(
       `https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`
     );
@@ -119,7 +117,7 @@ export const handleReconnectNetworkCommand = async (
   const verificationUrl = `${config.BASE_URL}/${network.verifyPage}/${guildId}/${userId}/${customLink}`;
 
   await interaction.followUp({
-    content: `Go to this link: ${verificationUrl} and verify your identity on network: ${networkName}!`,
+    content: `Go to this link: ${verificationUrl} and verify your identity on network: ${network.label}!`,
     ephemeral: true,
   });
 };
@@ -168,7 +166,7 @@ export const handleConnectCommand = async (
       const reconnectButtons = networks.map((network) => {
         return new ButtonBuilder()
           .setCustomId(`reconnect_${network.name}`)
-          .setLabel(`Reconnect ${network.name}`)
+          .setLabel(`Reconnect ${network.label}`)
           .setStyle(ButtonStyle.Primary);
       });
 
@@ -282,7 +280,7 @@ export const handleUserNetworkConfigCommand = async (
   const verificationUrl = `${config.BASE_URL}/${network.verifyPage}/${guildId}/${userId}/${newDiscordMember.customLink}`;
 
   await interaction.followUp({
-    content: `Go to this link: ${verificationUrl} and verify your identity on network: ${selectedNetwork}!`,
+    content: `Go to this link: ${verificationUrl} and verify your identity on network: ${network.label}!`,
     ephemeral: true,
   });
 };
