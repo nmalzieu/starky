@@ -54,6 +54,17 @@ const DashboardPage: NextPage<DashboardPageProps> = ({
         discordServerName={discordServerName!}
         discordServerIcon={discordServerIcon}
       />{" "}
+      <button
+        onClick={() => {
+          const a = document.createElement("a");
+          a.href = `/api/guilds/${guildId}/download-members`;
+          a.download = `members_${guildId}.csv`;
+          a.click();
+        }}
+        className={styles.downloadButton}
+      >
+        Download addresses
+      </button>
       <section className={styles.configSection}>
         <h3>Configurations</h3>
         {configs.length > 0 ? (
