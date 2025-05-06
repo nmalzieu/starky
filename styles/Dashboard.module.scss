@@ -24,6 +24,22 @@
   }
 }
 
+.downloadButton {
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  background-color: #5865f2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #4752c4;
+  }
+}
+
+
 .configBlock {
   margin-bottom: 0.75rem;
   color: #333;
