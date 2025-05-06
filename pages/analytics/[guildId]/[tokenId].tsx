@@ -1,6 +1,5 @@
 import React from "react";
 import { Pie } from "react-chartjs-2";
-
 import {
   ArcElement,
   CategoryScale,
@@ -11,19 +10,20 @@ import {
   Tooltip,
 } from "chart.js";
 import { NextPageContext } from "next";
-
 import Logo from "../../../components/Logo";
 import SocialLinks from "../../../components/SocialLinks";
+import RedirectMessage from "../../../components/RedirectMessage";
+
 import {
   DiscordMemberRepository,
   DiscordServerRepository,
   setupDb,
-} from "../../../db"; // Assuming these exist in your codebase
+} from "../../../db";
 
 import styles from "../../../styles/Verify.module.scss";
 import { validateToken } from "../../../utils/validateToken";
 
-// Register necessary chart components
+// Register chart components
 ChartJS.register(
   Title,
   Tooltip,
@@ -33,28 +33,52 @@ ChartJS.register(
   LinearScale
 );
 
-// Type for props
 interface AnalyticsPageProps {
-  userStats: Record<string, number>; // Number of users connected to each network
-  guildId: string; // Guild ID
+  userStats: Record<string, number>;
+  guildId: string;
+  tokenExpired?: boolean;
+  serverNotFound?: boolean;
 }
 
-// Type for context parameter
 interface AnalyticsPageContext extends NextPageContext {
   query: {
-    guildId: string; // Fetch guildId directly from the query
+    guildId: string;
     tokenId: string;
   };
 }
 
-const AnalyticsPage = ({ userStats, guildId }: AnalyticsPageProps) => {
-  // Prepare data for the pie chart
+const AnalyticsPage = ({
+  userStats,
+  guildId,
+  tokenExpired,
+  serverNotFound,
+}: AnalyticsPageProps) => {
+  if (tokenExpired) {
+    return (
+      <RedirectMessage
+        title="Session Expired"
+        description="Your access token has expired. You’ll be redirected shortly."
+        redirectTo="/"
+      />
+    );
+  }
+
+  if (serverNotFound) {
+    return (
+      <RedirectMessage
+        title="Server Not Found"
+        description="We could not find the server associated with this link. Redirecting to the home page."
+        redirectTo="/"
+      />
+    );
+  }
+
   const data = {
-    labels: Object.keys(userStats), // Network names (e.g., Mainnet, Sepolia)
+    labels: Object.keys(userStats),
     datasets: [
       {
-        data: Object.values(userStats), // Number of users per network
-        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"], // Pie chart colors
+        data: Object.values(userStats),
+        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
       },
     ],
   };
@@ -72,7 +96,7 @@ const AnalyticsPage = ({ userStats, guildId }: AnalyticsPageProps) => {
         <b>Distribution of networks among connected wallets:</b>
       </div>
 
-      {userStats && Object.keys(userStats).length > 0 ? (
+      {Object.keys(userStats).length > 0 ? (
         <div style={{ width: "30%", height: "250px", marginTop: "20px" }}>
           <Pie
             data={data}
@@ -87,6 +111,7 @@ const AnalyticsPage = ({ userStats, guildId }: AnalyticsPageProps) => {
           No data available for the selected guild.
         </p>
       )}
+
       <div style={{ marginTop: "2rem" }}>
         <SocialLinks />
       </div>
@@ -94,90 +119,56 @@ const AnalyticsPage = ({ userStats, guildId }: AnalyticsPageProps) => {
   );
 };
 
-export const getServerSideProps = async ({
-  res,
-  query,
-}: AnalyticsPageContext) => {
-  await setupDb(); // Initialize the database
-  const { guildId, tokenId } = query; // Now directly accessing query parameters
+export const getServerSideProps = async ({ query }: AnalyticsPageContext) => {
+  await setupDb();
+  const { guildId, tokenId } = query;
 
-  // Validate guildId and tokenId
   if (!guildId || !tokenId) {
-    if (res) {
-      res.setHeader("location", "/");
-      res.statusCode = 302;
-      res.end();
-    }
-    return { props: {} }; // Redirect to home if guildId or tokenId is missing
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
   }
 
-  // Verify token validity
-  const isValidToken = await validateToken(
-    guildId as string,
-    tokenId as string
-  );
+  const isValidToken = await validateToken(guildId, tokenId);
 
   if (!isValidToken) {
-    if (res) {
-      res.setHeader("location", "/");
-      res.statusCode = 302;
-      res.end();
-    }
-    return { props: {} }; // Redirect to home if token is invalid or expired
+    return {
+      props: { tokenExpired: true },
+    };
   }
 
-  // Verify if the guild exists
   const discordServer = await DiscordServerRepository.findOneBy({
     id: guildId,
   });
 
   if (!discordServer) {
-    if (res) {
-      res.setHeader("location", "/");
-      res.statusCode = 302;
-      res.end();
-    }
-    return { props: {} }; // Redirect to home if no matching server found
+    return {
+      props: { serverNotFound: true },
+    };
   }
 
-  // Get all members for this guild
   const members = await DiscordMemberRepository.findBy({
     discordServerId: guildId,
   });
 
-  // Initialize user stats for the networks
-  const userStats: Record<string, number> = {
-    mainnet: 0,
-    sepolia: 0,
-    // Add more networks here if necessary
-  };
-
-  // Populate user stats based on members' networks
-  if (members && members.length > 0) {
-    members.forEach((member) => {
-      const network = member.starknetNetwork.toLowerCase();
-      if (userStats.hasOwnProperty(network)) {
-        userStats[network] += 1;
-      } else {
-        // Handle other networks if needed
-        userStats[network] = 1;
-      }
-    });
-  }
-
-  // Format network names for display
-  const formattedUserStats: Record<string, number> = {};
-  Object.entries(userStats).forEach(([network, count]) => {
-    // Capitalize the first letter of each network name
-    const formattedNetwork = network.charAt(0).toUpperCase() + network.slice(1);
-    formattedUserStats[formattedNetwork] = count;
+  const userStats: Record<string, number> = {};
+  members.forEach((member) => {
+    const network = member.starknetNetwork.toLowerCase();
+    userStats[network] = (userStats[network] || 0) + 1;
   });
 
+  const formattedUserStats = Object.fromEntries(
+    Object.entries(userStats).map(([network, count]) => [
+      network.charAt(0).toUpperCase() + network.slice(1),
+      count,
+    ])
+  );
+
   return {
-    props: {
-      userStats: formattedUserStats, // Pass user stats with formatted network names
-      guildId, // Pass guildId to the frontend
-    },
+    props: { userStats: formattedUserStats, guildId },
   };
 };
 
