@@ -11,6 +11,7 @@ import {
 } from "discord.js";
 import { nanoid } from "nanoid";
 import { ethers } from "ethers";
+import { Not, IsNull } from "typeorm";
 
 import config from "../../config";
 import networks from "../../configs/networks.json";
@@ -160,7 +161,7 @@ export const handleConnectCommand = async (
   if (
     alreadyDiscordMembers.length > 0 &&
     (alreadyConnectedOnAllNetworks ||
-      alreadyDiscordMembers.find((d) => d.starknetWalletAddress === null))
+      alreadyDiscordMembers.find((d: DiscordMember) => d.starknetWalletAddress === null))
   ) {
     if (alreadyConnectedOnAllNetworks) {
       const reconnectButtons = networks.map((network) => {
@@ -183,7 +184,7 @@ export const handleConnectCommand = async (
       return;
     } else {
       const memberData = alreadyDiscordMembers.find(
-        (d) => d.starknetWalletAddress === null
+        (d: DiscordMember) => d.starknetWalletAddress === null
       );
       if (!memberData) {
         await interaction.reply({
@@ -258,6 +259,54 @@ export const handleUserNetworkConfigCommand = async (
       ephemeral: true,
     });
     return;
+  }
+
+  // Get all existing connections for this user
+  const existingMembers = await DiscordMemberRepository.find({
+    where: {
+      discordMemberId: userId,
+      discordServerId: guildId,
+      starknetWalletAddress: Not(IsNull())
+    },
+  });
+
+  // Check if the selected network is a Starknet network
+  const isStarknetNetwork = selectedNetwork === 'mainnet' || selectedNetwork === 'sepolia';
+
+  if (isStarknetNetwork) {
+    // Get all connected networks
+    const connectedNetworks = existingMembers.map((member: DiscordMember) => member.starknetNetwork);
+    
+    // Check if user has connected to both Starknet networks
+    const hasConnectedToBothStarknet = 
+      connectedNetworks.includes('mainnet') && 
+      connectedNetworks.includes('sepolia');
+    
+    // Check if user has not connected to Ethereum
+    const hasNotConnectedToEthereum = !connectedNetworks.includes('ethereum-mainnet');
+
+    // If user has connected to both Starknet networks but not Ethereum
+    if (hasConnectedToBothStarknet && hasNotConnectedToEthereum) {
+      const network = networks.find((n) => n.name === selectedNetwork);
+      await interaction.reply({
+        content: `Already connected to the ${network?.label} network. Please disconnect first using /starky-disconnect.`,
+        ephemeral: true,
+      });
+      return;
+    }
+
+    // If user is already connected to the selected Starknet network
+    const existingMember = existingMembers.find(
+      (member: DiscordMember) => member.starknetNetwork === selectedNetwork
+    );
+    if (existingMember) {
+      const network = networks.find((n) => n.name === selectedNetwork);
+      await interaction.reply({
+        content: `Already connected to the ${network?.label} network. Please disconnect first using /starky-disconnect.`,
+        ephemeral: true,
+      });
+      return;
+    }
   }
 
   const newDiscordMember = new DiscordMember();

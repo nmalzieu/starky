@@ -3,7 +3,13 @@
   "compilerOptions": {
     "module": "commonjs",
     "outDir": "dist-server",
-    "noEmit": false
+    "noEmit": false,
+    "moduleResolution": "node",
+    "types": [
+      "node",
+      "discord.js",
+      "ethers"
+    ]
   },
-  "include": ["server.ts", "db/migration/**/*.ts"]
+  "include": ["server.ts", "db/migration/**/*.ts", "discord/**/*.ts"]
 }
