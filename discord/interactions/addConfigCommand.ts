@@ -73,7 +73,6 @@ const addBackButton = (previousStepId: string) => {
   );
 };
 
-
 export const handleBackButton = async (
   interaction: ButtonInteraction,
   client: Client,
@@ -284,7 +283,7 @@ export const handleEditConfigButton = async (
     // Create input fields for the modal
     const networkInput = new TextInputBuilder()
       .setCustomId("edit-network")
-      .setLabel("Starknet Network")
+      .setLabel("Network")
       .setStyle(TextInputStyle.Short)
       .setValue(existingConfig.starknetNetwork || "")
       .setRequired(true);
@@ -307,7 +306,9 @@ export const handleEditConfigButton = async (
       .setCustomId("edit-module-config")
       .setLabel("Module Config (JSON)")
       .setStyle(TextInputStyle.Paragraph)
-      .setValue(JSON.stringify(existingConfig.starkyModuleConfig || {}, null, 2))
+      .setValue(
+        JSON.stringify(existingConfig.starkyModuleConfig || {}, null, 2)
+      )
       .setRequired(false);
 
     // Add input fields to the modal
@@ -345,40 +346,45 @@ export const handleEditConfigButton = async (
       ephemeral: true,
     });
   }
-}
-
+};
 
 // Added this function to handle the edit modal submission
-export const handleEditModalSubmit = async (interaction: ModalSubmitInteraction, client: Client, restClient: REST) => {
-  await assertManageRoles(interaction)
+export const handleEditModalSubmit = async (
+  interaction: ModalSubmitInteraction,
+  client: Client,
+  restClient: REST
+) => {
+  await assertManageRoles(interaction);
 
   if (!interaction.guildId) {
     await interaction.reply({
       content: "❌ This interaction must be used in a server.",
       ephemeral: true,
-    })
-    return
+    });
+    return;
   }
   const existingConfig = ongoingConfigurationsCache[interaction.guildId];
   const roleId = existingConfig.roleId;
 
   try {
     // Get values from the modal
-    const network = interaction.fields.getTextInputValue("edit-network")
-    const role = interaction.fields.getTextInputValue("edit-role")
-    const moduleType = interaction.fields.getTextInputValue("edit-module-type")
-    const moduleConfigJson = interaction.fields.getTextInputValue("edit-module-config")
+    const network = interaction.fields.getTextInputValue("edit-network");
+    const role = interaction.fields.getTextInputValue("edit-role");
+    const moduleType = interaction.fields.getTextInputValue("edit-module-type");
+    const moduleConfigJson =
+      interaction.fields.getTextInputValue("edit-module-config");
 
     // Parse the module config JSON
-    let moduleConfig
+    let moduleConfig;
     try {
-      moduleConfig = JSON.parse(moduleConfigJson)
+      moduleConfig = JSON.parse(moduleConfigJson);
     } catch (error) {
       await interaction.reply({
-        content: "❌ Invalid JSON in module config. Please check your formatting.",
+        content:
+          "❌ Invalid JSON in module config. Please check your formatting.",
         ephemeral: true,
-      })
-      return
+      });
+      return;
     }
 
     // Validate the network
@@ -386,54 +392,56 @@ export const handleEditModalSubmit = async (interaction: ModalSubmitInteraction,
       await interaction.reply({
         content: "❌ Invalid network. Must be 'mainnet' or 'sepolia'.",
         ephemeral: true,
-      })
-      return
+      });
+      return;
     }
 
     // Validate the module type
     if (!(moduleType in starkyModules)) {
       await interaction.reply({
-        content: `❌ Invalid module type. Available modules: ${Object.keys(starkyModules).join(", ")}`,
+        content: `❌ Invalid module type. Available modules: ${Object.keys(
+          starkyModules
+        ).join(", ")}`,
         ephemeral: true,
-      })
-      return
+      });
+      return;
     }
 
     // Get the existing config
     const existingConfig = await DiscordServerConfigRepository.findOneBy({
       discordServerId: interaction.guildId,
       discordRoleId: roleId,
-    })
+    });
 
     if (!existingConfig) {
       await interaction.reply({
         content: "❌ No existing configuration found for this role.",
         ephemeral: true,
-      })
-      return
+      });
+      return;
     }
 
     // Update the config
-    existingConfig.starknetNetwork = network as NetworkName
-    existingConfig.discordRoleId = role
-    existingConfig.starkyModuleType = moduleType
-    existingConfig.starkyModuleConfig = moduleConfig
+    existingConfig.starknetNetwork = network as NetworkName;
+    existingConfig.discordRoleId = role;
+    existingConfig.starkyModuleType = moduleType;
+    existingConfig.starkyModuleConfig = moduleConfig;
 
     // Save the updated config
-    await DiscordServerConfigRepository.save(existingConfig)
+    await DiscordServerConfigRepository.save(existingConfig);
 
     await interaction.reply({
       content: "✅ Configuration updated successfully!",
       ephemeral: true,
-    })
+    });
   } catch (error) {
-    console.error("Error updating configuration:", error)
+    console.error("Error updating configuration:", error);
     await interaction.reply({
       content: "❌ An error occurred while updating the configuration.",
       ephemeral: true,
-    })
+    });
   }
-}
+};
 export const handleNetworkConfigCommand = async (
   interaction: StringSelectMenuInteraction,
   client: Client,
