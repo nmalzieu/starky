@@ -231,7 +231,8 @@ export const interactionHandlers: HandlerConfig[] = [
     type: "modalSubmit",
     identifier: "starky-config-edit-modal",
     handler: handleEditModalSubmit,
-  }
+    matchType: "startsWith",
+  },
 ];
 
 export const slashCommandsArray: SlashCommandData[] = [
