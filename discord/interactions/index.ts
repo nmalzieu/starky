@@ -40,7 +40,9 @@ export const setupInteractions = (client: Client) => {
         case "modalSubmit":
           return (
             interaction.isModalSubmit() &&
-            interaction.customId === config.identifier
+            (config.matchType === "startsWith"
+              ? interaction.customId.startsWith(config.identifier)
+              : interaction.customId === config.identifier)
           );
         default:
           return false;
