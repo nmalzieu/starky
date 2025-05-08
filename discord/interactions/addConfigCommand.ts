@@ -206,6 +206,10 @@ export const handleInitialConfigCommand = async (
       discordRoleId: selectedRole.id,
     });
 
+  ongoingConfigurationsCache[interaction.guildId].roleId = selectedRole.id;
+  ongoingConfigurationsCache[interaction.guildId].currentStep =
+    CONFIG_STEPS.NETWORK;
+
   if (alreadyDiscordServerConfigForRole) {
     const editConfigButton =
       new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -221,10 +225,6 @@ export const handleInitialConfigCommand = async (
     });
     return;
   }
-
-  ongoingConfigurationsCache[interaction.guildId].roleId = selectedRole.id;
-  ongoingConfigurationsCache[interaction.guildId].currentStep =
-    CONFIG_STEPS.NETWORK;
 
   const selectRow =
     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -258,6 +258,7 @@ export const handleEditConfigButton = async (
     return;
   }
   const currentConfig = ongoingConfigurationsCache[interaction.guildId];
+  if (!currentConfig) return;
   const roleId = currentConfig.roleId;
 
   try {
@@ -329,16 +330,6 @@ export const handleEditConfigButton = async (
 
     // Show the modal to the user
     await interaction.showModal(modal);
-
-    // Call the handleEditModalSubmit function when the modal is submitted
-    client.on("interactionCreate", async (modalInteraction) => {
-      if (
-        modalInteraction.isModalSubmit() &&
-        modalInteraction.customId === `starky-config-edit-modal-${roleId}`
-      ) {
-        await handleEditModalSubmit(modalInteraction, client, restClient);
-      }
-    });
   } catch (error) {
     console.error("Error showing edit modal:", error);
     await interaction.reply({
@@ -376,9 +367,11 @@ export const handleEditModalSubmit = async (
 
     // Parse the module config JSON
     let moduleConfig;
+    console.log(moduleConfigJson);
     try {
       moduleConfig = JSON.parse(moduleConfigJson);
     } catch (error) {
+      console.error("Invalid JSON in module config:", error);
       await interaction.reply({
         content:
           "❌ Invalid JSON in module config. Please check your formatting.",
