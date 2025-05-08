@@ -1,12 +1,16 @@
-import React from "react";
 import Head from "next/head";
+import Image from "next/image";
 import Link from "next/link";
 import CollapsibleSection from "../components/CollapsibleSection";
+
+import Logoblack from "../components/Logo-black";
+
 import styles from "../styles/Help.module.scss";
 import Image from "next/image";
 import Logo from "../components/Logo";
 import github from "../components/github-icon.png";
 import SocialLinks from "../components/SocialLinks";
+
 
 const HelpPage = () => {
   return (
@@ -117,7 +121,7 @@ const HelpPage = () => {
                 <span className={styles.linksnotunderline}>
                   <Link href="https://github.com/nmalzieu/starky">
                     <Image
-                      src={github}
+                      src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
                       alt="GitHub icon"
                       width={18}
                       height={18}
@@ -147,7 +151,7 @@ const HelpPage = () => {
                 <span className={styles.linksnotunderline}>
                   <Link href="https://github.com/nmalzieu/starky">
                     <Image
-                      src={github}
+                      src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
                       alt="GitHub icon"
                       width={18}
                       height={18}

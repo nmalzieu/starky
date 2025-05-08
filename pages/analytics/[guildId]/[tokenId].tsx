@@ -1,4 +1,3 @@
-import React from "react";
 import { Pie } from "react-chartjs-2";
 import {
   ArcElement,
@@ -22,6 +21,7 @@ import {
 
 import styles from "../../../styles/Verify.module.scss";
 import { validateToken } from "../../../utils/validateToken";
+import { getDiscordServerInfo } from "../../../discord/utils";
 
 // Register chart components
 ChartJS.register(
@@ -34,10 +34,15 @@ ChartJS.register(
 );
 
 interface AnalyticsPageProps {
-  userStats: Record<string, number>;
-  guildId: string;
+
+  userStats: Record<string, number>; 
+  guildId: string; 
+  discordServerIcon?: string | null; 
+
+
   tokenExpired?: boolean;
   serverNotFound?: boolean;
+
 }
 
 interface AnalyticsPageContext extends NextPageContext {
@@ -50,6 +55,11 @@ interface AnalyticsPageContext extends NextPageContext {
 const AnalyticsPage = ({
   userStats,
   guildId,
+
+  discordServerIcon,
+}: AnalyticsPageProps) => {
+  // Prepare data for the pie chart
+
   tokenExpired,
   serverNotFound,
 }: AnalyticsPageProps) => {
@@ -73,6 +83,7 @@ const AnalyticsPage = ({
     );
   }
 
+
   const data = {
     labels: Object.keys(userStats),
     datasets: [
@@ -89,7 +100,21 @@ const AnalyticsPage = ({
         <Logo />
       </div>
       <div className={styles.serverInfo}>
-        Server Analytics for Guild:<b> {guildId}</b>
+        Server Analytics for Guild:
+        {discordServerIcon && (
+          <img
+            src={discordServerIcon}
+            alt="Server Icon"
+            style={{
+              width: "24px",
+              height: "24px",
+              marginLeft: "8px",
+              verticalAlign: "middle",
+              borderRadius: "50%",
+            }}
+          />
+        )}
+        <b> {guildId}</b>
       </div>
 
       <div style={{ marginTop: "2rem" }}>
@@ -150,6 +175,22 @@ export const getServerSideProps = async ({ query }: AnalyticsPageContext) => {
     };
   }
 
+
+  // Get server info including icon
+  let discordServerIcon = null;
+  try {
+    const serverInfo = await getDiscordServerInfo(guildId as string);
+    discordServerIcon = serverInfo.icon
+      ? `https://cdn.discordapp.com/icons/${guildId}/${serverInfo.icon}${
+          serverInfo.icon.startsWith("a_") ? ".gif" : ".png"
+        }`
+      : null;
+  } catch (e: any) {
+    console.error("Error fetching server info:", e);
+  }
+
+  // Get all members for this guild
+
   const members = await DiscordMemberRepository.findBy({
     discordServerId: guildId,
   });
@@ -168,7 +209,15 @@ export const getServerSideProps = async ({ query }: AnalyticsPageContext) => {
   );
 
   return {
-    props: { userStats: formattedUserStats, guildId },
+
+    props: {
+      userStats: formattedUserStats,
+      guildId, 
+      discordServerIcon, 
+        formattedUserStats
+    },
+
+
   };
 };
 
