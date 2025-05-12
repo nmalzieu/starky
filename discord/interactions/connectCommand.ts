@@ -252,6 +252,22 @@ export const handleUserNetworkConfigCommand = async (
     return;
   }
 
+  const existingConnection = await DiscordMemberRepository.findOne({
+    where: {
+      discordMemberId: userId,
+      discordServerId: guildId,
+      starknetNetwork: selectedNetwork,
+    },
+  });
+
+  if (existingConnection && existingConnection.starknetWalletAddress !== null) {
+    await interaction.reply({
+      content: `Already connected to the ${selectedNetwork} network. Please disconnect first using /starky-disconnect.`,
+      ephemeral: true,
+    });
+    return;
+  }
+
   if (!networks.find((n) => n.name === interaction.values[0])) {
     await interaction.reply({
       content: "Invalid network selected.",
