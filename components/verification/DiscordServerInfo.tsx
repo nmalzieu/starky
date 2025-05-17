@@ -1,5 +1,5 @@
 import React from "react";
-import Image from "next/image"; // Importar Image de Next.js
+import Image from "next/image";
 import styles from "../../styles/Verify.module.scss";
 
 type DiscordServerInfoProps = {
@@ -15,7 +15,6 @@ const DiscordServerInfo: React.FC<DiscordServerInfoProps> = ({
   network,
   networkType,
 }) => {
-  // Determine the network label based on networkType
   const networkLabel =
     networkType === "starknet"
       ? "Starknet network"
@@ -23,7 +22,6 @@ const DiscordServerInfo: React.FC<DiscordServerInfoProps> = ({
       ? "Stellar network"
       : "Ethereum network";
 
-  // Determine the icon path based on networkType (optional)
   const networkIcon =
     networkType === "starknet"
       ? "/assets/starknet-icon.png"
@@ -44,13 +42,12 @@ const DiscordServerInfo: React.FC<DiscordServerInfoProps> = ({
           />
         ) : (
           <span className={styles.serverIconPlaceholder}>
-            {discordServerName.charAt(0).toUpperCase()}
+            {discordServerName?.charAt(0)?.toUpperCase() || ""}
           </span>
         )}
         <span className={styles.serverName}>{discordServerName}</span>
       </div>
       <div className={styles.network}>
-        {/* Only show network icon if the path exists */}
         {networkIcon && (
           <Image
             src={networkIcon}

@@ -40,7 +40,8 @@ const WalletInfo: React.FC<WalletInfoProps> = ({
           Balance: <b>{balance}</b>
         </span>
       )}
-      <button className={styles.disconnect} onClick={onDisconnect}>
+      <br />
+      <button className={styles.verifyButton} onClick={onDisconnect}>
         Disconnect
       </button>
     </div>

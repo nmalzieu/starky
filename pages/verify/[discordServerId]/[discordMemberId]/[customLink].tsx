@@ -96,12 +96,12 @@ const VerifyPage = ({
       try {
         await axios.post("/api/verify", {
           account: networkType === "starknet" ? account?.address : account,
+          chain: networkType,
           signature,
           discordServerId,
           discordMemberId,
           customLink,
           network: starknetNetwork,
-          networkType,
         });
         setVerifiedSignature(true);
         setVerifyingSignature(false);
@@ -114,7 +114,7 @@ const VerifyPage = ({
         setUnverifiedSignature(`
         ${e.response?.data?.message}.
         ${e.response?.data?.error}
-          `);
+      `);
       }
     },
     [
@@ -151,34 +151,39 @@ const VerifyPage = ({
 
   return (
     <div className={styles.verify}>
-      <Logo />
-      <div>
-        <DiscordServerInfo
-          discordServerName={discordServerName}
-          discordServerIcon={discordServerIcon}
-          network={starknetNetwork}
-          networkType={networkType}
-        />
-        <br />
+      <div className={styles.header}>
+        <Logo />
+        <div className={styles.serverInfo}>
+          <DiscordServerInfo
+            discordServerName={discordServerName}
+            discordServerIcon={discordServerIcon}
+            network={starknetNetwork}
+            networkType={networkType}
+          />
+        </div>
+      </div>
 
+      <div className={styles.content}>
         <WalletInfo
           account={account}
           networkType={networkType}
           onDisconnect={handleDisconnect}
         />
 
-        <br />
         {verifiedSignature && (
-          <div>
-            <span>
+          <div className={styles.successMessage}>
+            <span className={styles.identityStatus}>
               Identity: <b>verified</b>
             </span>
-            <h1>YOU’RE ALL SET FREN</h1>
-            <span>you shall close this tab</span>
+            <h1 className={styles.successTitle}>Verification Successful!</h1>
+            <span className={styles.closeTabMessage}>
+              You can now close this tab.
+            </span>
           </div>
         )}
+
         {!verifiedSignature && (
-          <div>
+          <div className={styles.actionContainer}>
             {!account && (
               <WalletConnectPopup
                 networkType={networkType}
@@ -188,27 +193,34 @@ const VerifyPage = ({
               />
             )}
             {account && !verifyingSignature && !verifiedSignature && (
-              <>
-                <br />
+              <div className={styles.verifyButtonContainer}>
                 {networkType === "starknet" ? (
-                  <button className={styles.verify} onClick={handleVerify}>
+                  <button
+                    className={styles.verifyButton}
+                    onClick={handleVerify}
+                  >
                     Sign a message to verify your identity
                   </button>
                 ) : (
-                  <button className={styles.verify} onClick={handleVerify}>
+                  <button
+                    className={styles.verifyButton}
+                    onClick={handleVerify}
+                  >
                     Verify your{" "}
                     {networkType === "stellar" ? "Stellar" : "Ethereum"}{" "}
                     identity
                   </button>
                 )}
-              </>
+              </div>
             )}
             {verifyingSignature && (
-              <span className={styles.sign}>verifying your identity...</span>
+              <span className={styles.sign}>Verifying your identity...</span>
             )}
             {unverifiedSignature && (
-              <div className="danger">
-                {getSignatureErrorMessage(unverifiedSignature).short}{" "}
+              <div className={styles.errorMessage}>
+                <span>
+                  {getSignatureErrorMessage(unverifiedSignature).short}
+                </span>{" "}
                 <a
                   href="https://t.me/+Mi34Im1Uafc1Y2Q8"
                   target="_blank"
@@ -217,19 +229,19 @@ const VerifyPage = ({
                 >
                   Report on Telegram
                 </a>
-                <br />
                 {getSignatureErrorMessage(unverifiedSignature).advanced && (
-                  <span className={styles.advancedErrorMessage}>
-                    advanced:{" "}
-                    {getSignatureErrorMessage(unverifiedSignature).advanced}
-                  </span>
+                  <span className={styles.advancedErrorMessage}></span>
                 )}
               </div>
             )}
           </div>
         )}
       </div>
-      {process.env.NEXT_PUBLIC_STARKY_OFFICIAL && <SocialLinks />}
+      {process.env.NEXT_PUBLIC_STARKY_OFFICIAL && (
+        <div className={styles.socialLinks}>
+          <SocialLinks />
+        </div>
+      )}
     </div>
   );
 };

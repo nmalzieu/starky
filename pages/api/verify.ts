@@ -22,7 +22,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   const body = req.body;
   if (
     !body.account ||
-    !body.chain || // Added chain to the body
+    !body.chain ||
     !body.discordServerId ||
     !body.discordMemberId ||
     !body.customLink ||

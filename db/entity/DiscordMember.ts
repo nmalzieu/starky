@@ -3,15 +3,14 @@ import {
   DeleteDateColumn,
   Entity,
   Index,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 
 import { DiscordServer } from "./DiscordServer";
 
-@Entity({
-  name: "discord_member",
-})
+@Entity({ name: "discord_member" })
 @Index(["discordMemberId", "discordServerId", "starknetNetwork", "deletedAt"], {
   unique: true,
   where: '"deletedAt" IS NOT NULL',
@@ -24,24 +23,25 @@ export class DiscordMember {
   @PrimaryGeneratedColumn()
   id: string;
 
-  @Column()
+  @Column({ name: "discord_member_id" })
   discordMemberId: string;
 
-  @Column()
+  @Column({ name: "discord_server_id" })
   discordServerId: string;
 
-  @ManyToOne((type) => DiscordServer, (server) => server.members)
+  @ManyToOne(() => DiscordServer, (server) => server.members)
+  @JoinColumn({ name: "discord_server_id" })
   discordServer: DiscordServer;
 
-  @Column()
+  @Column({ name: "starknet_network" })
   starknetNetwork: string;
 
-  @Column({ nullable: true })
+  @Column({ name: "starknet_wallet_address", nullable: true })
   starknetWalletAddress?: string;
 
-  @Column()
+  @Column({ name: "custom_link" })
   customLink: string;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ name: "deleted_at" })
   deletedAt?: Date;
 }

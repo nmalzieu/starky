@@ -1,90 +1,122 @@
+
 .verify {
   display: flex;
   flex-direction: column;
-  height: 100%;
-
-  a {
-    display: inline-block;
-  }
-
-  .connect, .verify {
-    border: 1px solid black;
-    border-radius: 0.5rem;         
-    padding: 1rem 2rem;
-    background-color: transparent;    
-    transition: background-color 0.3s ease;
-    cursor: pointer;
-    margin-bottom: 1rem;
-  
-    &:hover {
-      background-color: #fefee9;
-    }
-  }
-  
-  .sign {
-    margin-top: 10px;
-    display: inline-block;
-  }
-
-  h1 {
-    margin-top: 18px;
-    margin-bottom: 38px;
-  }
-
-  .starknetWallet {
-    word-wrap: break-word;
-  }
-  .advancedErrorMessage {
-    font-size: 12px;
-    color: rgba(128, 128, 128, 0.765);
-    word-break: break-all;
-  }
-  /* cursor select effect */
-  .advancedErrorMessage::selection {
-    background: black;
-    color: white;
-  }
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+  font-family: "Poppins", sans-serif;
 }
 
-
-.discordIcon {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-}
-
-.iconPlaceholder {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: #cccccc;
+.header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: #333;
-  font-size: 12px;
+  gap: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
 }
 
 .serverInfo {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.serverDisplay {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: 8px;
+.content {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
 }
 
-.networkDisplay {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+.actionContainer {
+  margin-top: 20px;
+}
+
+.verifyButtonContainer {
+  margin-top: 20px;
+}
+
+.verifyButton {
+  background: linear-gradient(90deg, #007bff 0%, #00c4ff 100%); /* Gradiente azul */
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.verifyButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.sign {
+  font-size: 16px;
+  color: #666;
+  font-style: italic;
+  display: block;
+  margin-top: 20px;
+}
+
+.successMessage {
+  margin-top: 20px;
+}
+
+.identityStatus {
+  font-size: 16px;
+  color: #28a745; /* Verde para éxito */
+  font-weight: 500;
+}
+
+.successTitle {
+  font-size: 24px;
+  color: #333;
+  margin: 10px 0;
+  font-weight: 600;
+}
+
+.closeTabMessage {
+  font-size: 14px;
+  color: #666;
+}
+
+.errorMessage {
+  margin-top: 20px;
+  padding: 15px;
+  background: #ffe6e6;
+  border-radius: 10px;
+  color: #d32f2f;
+  font-size: 14px;
 }
 
 .errorLink {
-  color: #c3453f;
-  font-weight: bold;
+  color: #007bff;
+  text-decoration: underline;
+  margin-left: 5px;
+}
+
+.errorLink:hover {
+  color: #0056b3;
+}
+
+.advancedErrorMessage {
+  display: block;
+  font-size: 12px;
+  color: #555;
+  font-style: italic;
+  margin-top: 5px;
+}
+
+.socialLinks {
+  margin-top: 30px;
 }

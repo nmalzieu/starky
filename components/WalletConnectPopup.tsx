@@ -82,7 +82,7 @@ const WalletConnectPopup: React.FC<WalletConnectPopupProps> = ({
   return (
     <div>
       <button
-        className={styles.connect}
+        className={styles.verifyButton}
         onClick={handleConnect}
         disabled={connecting || switching}
       >
@@ -101,7 +101,7 @@ const WalletConnectPopup: React.FC<WalletConnectPopupProps> = ({
                 )}
                 {!switchError && !switchSuccess && (
                   <button
-                    className={styles.connect}
+                    className={styles.verifyButton}
                     onClick={handleSwitchNetwork}
                     disabled={switching}
                   >
