@@ -6,7 +6,7 @@ import styles from "../styles/Help.module.scss";
 import Image from "next/image";
 import Logoblack from "../components/Logo-black";
 import BackButton from "../components/BackButton";
-import  { githubSvgUrl as github } from "../components/GithubIcon";
+import github from "../components/github-icon.png";
 
 const HelpPage = () => {
   return (
@@ -17,13 +17,11 @@ const HelpPage = () => {
       </Head>
       <div className={styles.helpPageWrapper}>
         <main className={styles.helpContainer}>
-          {/* Logo */}
-          <div className={styles.logoSvg}>
+          <div className={styles.helpHeader}>
+            <BackButton />
+
             <Logoblack />
           </div>
-
-          <BackButton/>
-
           <h1>Starky: wtf?</h1>
           <p className={styles.description}>
             Starky token-gates your Discord channels with Starknet assets.
@@ -120,8 +118,8 @@ const HelpPage = () => {
                 Yes. Please find our GitHub project here:
                 <span className={styles.linksnotunderline}>
                   <Link href="https://github.com/nmalzieu/starky">
-                    <Image 
-                    src={github}
+                    <Image
+                      src={github}
                       alt="GitHub icon"
                       width={18}
                       height={18}

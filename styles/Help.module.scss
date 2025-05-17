@@ -8,6 +8,12 @@
 .helpContainer {
   max-width: 800px;
   margin: 0 auto; 
+
+  .helpHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
   
 
   h1 {
@@ -92,6 +98,9 @@
       }
     }
   }
+  @media (max-width: 768px) {
+    padding-top: 2rem;
+  } 
 }
 
 
