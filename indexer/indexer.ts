@@ -1,6 +1,7 @@
 import { ClientError, createClient, Status } from "@apibara/protocol";
 import { type Abi, Filter, StarknetStream } from "@apibara/starknet";
 import { events } from "starknet";
+import { credentials, Metadata } from "@grpc/grpc-js";
 
 import config from "../config";
 import networks from "../configs/networks.json";
@@ -73,8 +74,35 @@ const launchIndexer = async (
   const AUTH_TOKEN =
     process.env[`APIBARA_AUTH_TOKEN_${networkName.toUpperCase()}`];
 
-  // Use token when streaming data
-  const client = createClient(StarknetStream, networkUrl);
+  // Ensure that token is loaded correctly
+  if (!AUTH_TOKEN) {
+    throw new Error(
+      `[Indexer] AUTH_TOKEN not set for ${networkName}. stream will be unauthenticated and fail.`
+    );
+  }
+
+  // build auth for metadata
+  const metadata = new Metadata();
+  metadata.add(`authorization`, `Bearer ${AUTH_TOKEN}`);
+
+  const callCredentials = credentials.createFromMetadataGenerator(
+    (_, callback) => {
+      callback(null, metadata);
+    }
+  );
+
+  const channelCredentials = credentials.createSsl();
+
+  // combine channel and call-level credentials
+  const combinedCredentials = credentials.combineChannelCredentials(
+    channelCredentials,
+    callCredentials
+  );
+
+  // Use credentials when streaming data
+  const client = createClient(StarknetStream, networkUrl, {
+    credentials: combinedCredentials,
+  });
 
   // Read block number from file
   const networkStatus = await NetworkStatusRepository.findOneBy({
