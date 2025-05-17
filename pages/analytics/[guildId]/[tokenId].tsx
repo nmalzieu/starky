@@ -13,7 +13,7 @@ import { NextPageContext } from "next";
 import Logo from "../../../components/Logo";
 import SocialLinks from "../../../components/SocialLinks";
 import RedirectMessage from "../../../components/RedirectMessage";
-
+import { getDiscordServerInfo } from "../../../discord/utils";
 import {
   DiscordMemberRepository,
   DiscordServerRepository,
@@ -35,23 +35,24 @@ ChartJS.register(
 
 interface AnalyticsPageProps {
   userStats: Record<string, number>;
-  guildId: string;
   tokenExpired?: boolean;
   serverNotFound?: boolean;
+  guildName?: string;
 }
 
 interface AnalyticsPageContext extends NextPageContext {
   query: {
     guildId: string;
     tokenId: string;
+    guildName: string;
   };
 }
 
 const AnalyticsPage = ({
   userStats,
-  guildId,
   tokenExpired,
   serverNotFound,
+  guildName,
 }: AnalyticsPageProps) => {
   if (tokenExpired) {
     return (
@@ -89,7 +90,8 @@ const AnalyticsPage = ({
         <Logo />
       </div>
       <div className={styles.serverInfo}>
-        Server Analytics for Guild:<b> {guildId}</b>
+        <span>Server Analytics for Guild:</span>{" "}
+        <b className={styles.serverDisplay}> {guildName}</b>
       </div>
 
       <div style={{ marginTop: "2rem" }}>
@@ -150,6 +152,10 @@ export const getServerSideProps = async ({ query }: AnalyticsPageContext) => {
     };
   }
 
+  const guild = await getDiscordServerInfo(guildId);
+
+  const guildName = guild.name;
+
   const members = await DiscordMemberRepository.findBy({
     discordServerId: guildId,
   });
@@ -168,7 +174,7 @@ export const getServerSideProps = async ({ query }: AnalyticsPageContext) => {
   );
 
   return {
-    props: { userStats: formattedUserStats, guildId },
+    props: { userStats: formattedUserStats, guildName },
   };
 };
 
