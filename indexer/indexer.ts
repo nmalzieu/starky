@@ -86,7 +86,7 @@ const launchIndexer = async (
   metadata.add(`authorization`, `Bearer ${AUTH_TOKEN}`);
 
   const callCredentials = credentials.createFromMetadataGenerator(
-    (args, callback) => {
+    (_, callback) => {
       callback(null, metadata);
     }
   );
