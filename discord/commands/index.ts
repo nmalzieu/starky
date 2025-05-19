@@ -3,6 +3,8 @@ import {
   handleBackButton,
   handleConfigCancelCommand,
   handleConfigConfirmCommand,
+  handleEditConfigButton,
+  handleEditModalSubmit,
   handleInitialConfigCommand,
   handleModuleConfigCommand,
   handleModuleTypeConfigCommand,
@@ -217,6 +219,18 @@ export const interactionHandlers: HandlerConfig[] = [
     type: "button",
     identifier: "reconnect_",
     handler: handleReconnectNetworkCommand,
+    matchType: "startsWith",
+  },
+  {
+    type: "button",
+    identifier: "starky-config-edit",
+    handler: handleEditConfigButton,
+    matchType: "startsWith",
+  },
+  {
+    type: "modalSubmit",
+    identifier: "starky-config-edit-modal",
+    handler: handleEditModalSubmit,
     matchType: "startsWith",
   },
 ];

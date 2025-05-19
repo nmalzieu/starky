@@ -1,5 +1,6 @@
 import Image from "next/image";
 import styles from "../../styles/Verify.module.scss";
+import Guild from "../guild/Guild";
 
 type DiscordServerInfoProps = {
   discordServerName: string;
@@ -26,25 +27,10 @@ const DiscordServerInfo = ({
 
   return (
     <div>
-      <div className={styles.serverInfo}>
-        Discord server:
-        <span className={styles.serverDisplay}>
-          {discordServerIcon ? (
-            <Image
-              src={discordServerIcon}
-              alt="Discord Server Icon"
-              className={styles.discordIcon}
-              width={24}
-              height={24}
-            />
-          ) : (
-            <div className={styles.iconPlaceholder}>
-              {discordServerName?.[0]?.toUpperCase()}
-            </div>
-          )}
-          <b>{discordServerName}</b>
-        </span>
-      </div>
+      <Guild
+        discordServerName={discordServerName}
+        discordServerIcon={discordServerIcon}
+      />
       <br />
       <span className={styles.networkDisplay}>
         {networkLabels[networkType]}

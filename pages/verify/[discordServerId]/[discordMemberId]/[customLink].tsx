@@ -319,6 +319,7 @@ const VerifyPage = ({
         <WalletInfo
           account={account}
           networkType="starknet"
+          verifiedSignature={verifiedSignature}
           onDisconnect={() => {
             setAccount(undefined);
             disconnect().catch(WatchTowerLogger.error);

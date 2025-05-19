@@ -10,6 +10,7 @@ type WalletInfoProps = {
   networkType: "ethereum" | "starknet";
   balance?: string | null;
   onDisconnect: () => void;
+  verifiedSignature?: boolean;
 };
 
 const WalletInfo = ({
@@ -17,6 +18,7 @@ const WalletInfo = ({
   networkType,
   balance,
   onDisconnect,
+  verifiedSignature,
 }: WalletInfoProps) => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
 
@@ -51,7 +53,7 @@ const WalletInfo = ({
     <span className={styles.starknetWallet}>
       {networkType === "ethereum" ? "Ethereum wallet" : "Starknet wallet"}:{" "}
       <b>{isMobile ? truncateAddress(address) : address}</b>{" "}
-      <a onClick={onDisconnect}>disconnect</a>
+      {!verifiedSignature && <a onClick={onDisconnect}>disconnect</a>}
       {networkType === "ethereum" && balance && (
         <>
           <br />
