@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { FunctionComponent, useState } from "react";
 
 import styles from "../styles/Logo.module.scss";
 
-const Logo = () => {
+type LogoProps = {
+  marginBottom?: number;
+};
+
+const Logo: FunctionComponent<LogoProps> = ({ marginBottom }) => {
   const [isHover, setIsHover] = useState(false);
   return (
     <div>
@@ -10,6 +14,7 @@ const Logo = () => {
         className={styles.logo}
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
+        style={marginBottom ? { marginBottom } : {}}
       >
         {isHover && (
           <svg
