@@ -252,6 +252,7 @@ export const handleUserNetworkConfigCommand = async (
     return;
   }
 
+  // Check if theres an existing connection to the network
   const existingConnection = await DiscordMemberRepository.findOne({
     where: {
       discordMemberId: userId,
