@@ -18,7 +18,7 @@ const WalletInfo = ({
   networkType,
   balance,
   onDisconnect,
-  verifiedSignature
+  verifiedSignature,
 }: WalletInfoProps) => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
 

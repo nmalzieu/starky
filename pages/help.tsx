@@ -5,6 +5,7 @@ import CollapsibleSection from "../components/CollapsibleSection";
 import styles from "../styles/Help.module.scss";
 import Image from "next/image";
 import Logo from "../components/Logo";
+import BackButton from "../components/BackButton";
 import github from "../components/github-icon.png";
 import SocialLinks from "../components/SocialLinks";
 
@@ -17,10 +18,11 @@ const HelpPage = () => {
       </Head>
       <div className={styles.helpPageWrapper}>
         <main className={styles.helpContainer}>
-          <div className={styles.logoSvg}>
-            <Logo />
+          <BackButton />
+          <div className={styles.helpHeader}>
+            <Logo marginBottom={32} />
+            <h1>: wtf?</h1>
           </div>
-          <h1>Starky: wtf?</h1>
           <p className={styles.description}>
             Starky token-gates your Discord channels with Starknet assets.
           </p>
