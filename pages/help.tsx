@@ -18,11 +18,11 @@ const HelpPage = () => {
       </Head>
       <div className={styles.helpPageWrapper}>
         <main className={styles.helpContainer}>
+          <BackButton />
           <div className={styles.helpHeader}>
-            <BackButton />
-            <Logo />
+            <Logo marginBottom={32} />
+            <h1>: wtf?</h1>
           </div>
-          <h1>Starky: wtf?</h1>
           <p className={styles.description}>
             Starky token-gates your Discord channels with Starknet assets.
           </p>
