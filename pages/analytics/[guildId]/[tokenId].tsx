@@ -58,7 +58,7 @@ const AnalyticsPage = ({
     return (
       <RedirectMessage
         title="Session Expired"
-        description="Your access token has expired. You’ll be redirected shortly."
+        description="Your access token has expired. You'll be redirected shortly."
         redirectTo="/"
       />
     );
@@ -94,12 +94,12 @@ const AnalyticsPage = ({
         <b className={styles.serverDisplay}> {guildName}</b>
       </div>
 
-      <div style={{ marginTop: "2rem" }}>
+      <div className={styles.sectionHeading}>
         <b>Distribution of networks among connected wallets:</b>
       </div>
 
       {Object.keys(userStats).length > 0 ? (
-        <div style={{ width: "30%", height: "250px", marginTop: "20px" }}>
+        <div className={styles.chartContainer}>
           <Pie
             data={data}
             options={{
@@ -109,12 +109,12 @@ const AnalyticsPage = ({
           />
         </div>
       ) : (
-        <p style={{ textAlign: "center", marginTop: "20px" }}>
+        <p className={styles.noDataMessage}>
           No data available for the selected guild.
         </p>
       )}
 
-      <div style={{ marginTop: "2rem" }}>
+      <div className={styles.sectionHeading}>
         <SocialLinks />
       </div>
     </div>
