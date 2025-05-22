@@ -13,9 +13,8 @@ export const verifySignature = async (
   signature: string[],
   starknetNetwork: string
 ): Promise<SignatureVerify> => {
-  // We can verify this message hash against the signature generated in the frontend
-  // by calling the is_valid_signature method on the Account contract
   try {
+    // First try with isValidSignature (Argent X style)
     const response = await callContract({
       starknetNetwork:
         starknetNetwork === "mainnet" ? "mainnet" : ("sepolia" as any),
@@ -24,23 +23,11 @@ export const verifySignature = async (
       calldata: [hexHash, `${signature.length}`, ...signature],
     });
 
-    // Check if response and result exist
-    if (!response || !response.result || response.result.length === 0) {
-      return {
-        signatureValid: false,
-        error: "Invalid signature: received empty result",
-      };
+    if (response?.result?.[0] === "0x1") {
+      return { signatureValid: true };
     }
-
-    const signatureValid = response.result[0] === "0x1";
-
-    return {
-      signatureValid,
-      error: signatureValid
-        ? undefined
-        : `Invalid signature ${response.result[0]}`,
-    };
   } catch (e: any) {
+    // If isValidSignature fails, try is_valid_signature (Braavos style)
     try {
       const response = await callContract({
         starknetNetwork:
@@ -58,21 +45,29 @@ export const verifySignature = async (
         };
       }
 
+      // Braavos returns 0x56414c4944 (VALID in hex) for valid signatures
       const signatureValid =
         response.result[0] === "0x1" ||
-        response.result[0] === "0x0" ||
         response.result[0] === "0x56414c4944";
 
       return {
         signatureValid,
-        error: signatureValid ? undefined : response.result[0],
+        error: signatureValid ? undefined : `Invalid signature: ${response.result[0]}`,
       };
-    } catch (e: any) {
+    } catch (innerError: any) {
       log(
-        `Error while verifying signature for ${accountAddress} on ${starknetNetwork}. Error code: ${e.errorCode}, message: ${e.message} `
+        `Error while verifying signature for ${accountAddress} on ${starknetNetwork}. Error code: ${innerError.errorCode}, message: ${innerError.message}`
       );
 
-      return { signatureValid: false, error: e.message || e.errorCode };
+      return {
+        signatureValid: false,
+        error: `Signature verification failed: ${innerError.message || innerError.errorCode}`,
+      };
     }
   }
+
+  return {
+    signatureValid: false,
+    error: "Signature verification failed: Invalid signature format",
+  };
 };
