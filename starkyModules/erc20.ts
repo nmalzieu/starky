@@ -4,19 +4,19 @@ import { callContract } from "../utils/starknet/call";
 import WatchTowerLogger from "../watchTower";
 import { uint256 } from "starknet";
 
-export const name = "ERC-20";
+export const name = "ERC20";
 export const refreshInCron = false;
 export const refreshOnTransfer = true;
 
 export const fields: StarkyModuleField[] = [
   {
     id: "contractAddress",
-    question: "What's the ERC-20 contract address?",
+    question: "ERC20 contract address :",
   },
   {
     id: "minimumBalance",
     question:
-      "What's the minimum token balance required for the role? (in normal units, not raw units)",
+      "Minimum token balance required :",
   },
 ];
 
