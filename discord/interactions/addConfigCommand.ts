@@ -367,7 +367,6 @@ export const handleEditModalSubmit = async (
 
     // Parse the module config JSON
     let moduleConfig;
-    console.log(moduleConfigJson);
     try {
       moduleConfig = JSON.parse(moduleConfigJson);
     } catch (error) {

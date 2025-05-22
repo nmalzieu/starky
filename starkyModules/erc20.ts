@@ -15,8 +15,7 @@ export const fields: StarkyModuleField[] = [
   },
   {
     id: "minimumBalance",
-    question:
-      "Minimum token balance required :",
+    question: "Minimum token balance required :",
   },
 ];
 
@@ -45,9 +44,11 @@ export const shouldHaveRole: ShouldHaveRole = async (
     }
 
     // Calculate minimum balance with proper decimal formatting
-    const minimumBalanceHuman = BigInt(starkyModuleConfig.minimumBalance || 0);
-    const minimumBalanceRaw = minimumBalanceHuman * BigInt(10 ** decimals);
-
+    const minimumBalanceHuman = parseFloat(starkyModuleConfig.minimumBalance);
+    const minimumBalanceRaw =
+      minimumBalanceHuman > 1000
+        ? BigInt(starkyModuleConfig.minimumBalance) * BigInt(10 ** decimals)
+        : BigInt(parseFloat(starkyModuleConfig.minimumBalance) * 10 ** 18);
     // If we already have the balance cached, we can just check if it's above the minimum
     if (cachedData.balance) {
       const balance = BigInt(cachedData.balance);
@@ -55,7 +56,7 @@ export const shouldHaveRole: ShouldHaveRole = async (
     }
 
     // Otherwise, fetch the balance from the contract
-    const result = await execWithRateLimit(async () => {
+    const res = await execWithRateLimit(async () => {
       return await callContract({
         starknetNetwork,
         contractAddress: starkyModuleConfig.contractAddress,
@@ -66,17 +67,16 @@ export const shouldHaveRole: ShouldHaveRole = async (
 
     // Handle uint256 response (low, high parts)
     let balance;
-    if (result?.data && result.data.length >= 2) {
+    if (res.result && res.result.length >= 2) {
       // Convert using uint256 format
       balance = uint256.uint256ToBN({
-        low: result.data[0],
-        high: result.data[1],
+        low: res.result[0],
+        high: res.result[1],
       });
     } else {
       // Fallback to single value format
-      balance = BigInt(result?.data?.[0] ?? 0);
+      balance = BigInt(res.result[0] ?? 0);
     }
-
     return balance >= minimumBalanceRaw;
   } catch (e: any) {
     WatchTowerLogger.error(`ERC-20 module error: ${e.message}`, e);
