@@ -1,5 +1,6 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import ReactConfetti from "react-confetti";
 import Logo from "../../../../components/Logo";
 
 import SocialLinks from "../../../../components/SocialLinks";
@@ -54,6 +55,18 @@ const VerifyEthPage = ({
     balance,
     signMessage,
   } = useWalletConnection();
+
+  const [windowDimension, setWindowDimension] = useState<{
+    width: number;
+    height: number;
+  }>({ width: 0, height: 0 });
+
+  useEffect(() => {
+    setWindowDimension({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  }, []);
 
   const {
     verifyingSignature,
@@ -150,6 +163,15 @@ const VerifyEthPage = ({
         <br />
         {verifiedSignature && (
           <div>
+            {typeof window !== "undefined" && (
+              <ReactConfetti
+                width={windowDimension.width}
+                height={windowDimension.height}
+                recycle={false}
+                numberOfPieces={200}
+                gravity={0.3}
+              />
+            )}
             <span>
               Identity: <b>verified</b>
             </span>

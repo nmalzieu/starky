@@ -1,8 +1,9 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Signature } from "starknet";
 import { connect as starknetConnect, disconnect } from "starknetkit";
+import ReactConfetti from "react-confetti";
 
 import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
@@ -74,6 +75,17 @@ const VerifyPage = ({
   const [isSwitching, setIsSwitching] = useState<boolean>(false);
   const [switchError, setSwitchError] = useState<boolean>(false);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
+  const [windowDimension, setWindowDimension] = useState<{
+    width: number;
+    height: number;
+  }>({ width: 0, height: 0 });
+
+  useEffect(() => {
+    setWindowDimension({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  }, []);
 
   const connectToStarknet = useCallback(async () => {
     const { wallet } = await starknetConnect();
@@ -329,6 +341,15 @@ const VerifyPage = ({
         <br />
         {verifiedSignature && (
           <div>
+            {typeof window !== "undefined" && (
+              <ReactConfetti
+                width={windowDimension.width}
+                height={windowDimension.height}
+                recycle={false}
+                numberOfPieces={200}
+                gravity={0.3}
+              />
+            )}
             <span>
               Identity: <b>verified</b>
             </span>
