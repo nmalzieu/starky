@@ -10,5 +10,9 @@
   "unknown": {
     "maxCallsPerSecond": 100,
     "maxCallStackSize": 100
+  },
+  "etherscan": {
+    "maxCallsPerSecond": 5,
+    "maxCallStackSize": 100
   }
 }
