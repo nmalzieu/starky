@@ -1,1 +1,1 @@
-export type NetworkName = "mainnet" | "goerli" | "sepolia" | "ethereum";
+export type NetworkName = "mainnet" | "goerli" | "sepolia" | "ethereum-mainnet";
