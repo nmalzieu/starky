@@ -28,7 +28,7 @@ const loadAssets = async (
     await Promise.all(
       moduleConfigs.map(async (config) => {
         const assets = await retrieveAssets({
-          starknetNetwork: networkName,
+          network: networkName,
           contractAddress: config.contractAddress,
           ownerAddress: walletAddress,
           customApi: {
