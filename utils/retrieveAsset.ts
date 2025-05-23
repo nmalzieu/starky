@@ -1,15 +1,15 @@
 import axios from "axios";
-
-import { NetworkName } from "../types/starknet";
+import { NetworkName } from "../types/networks";
 import { CustomApi } from "../types/starkyModules";
 import WatchTowerLogger from "../watchTower";
 
 import { hexToDecimal } from "./data/felt";
 import { retrieveAssetsFromStarkscan } from "./starkscan/retrieveAssetsFromStarkscan";
 import { execWithRateLimit } from "./execWithRateLimit";
+import { retrieveAssetsFromEtherscan } from "./ethereum/retrieveAssetsFromEtherscan";
 
 type RetrieveAssetsParameters = {
-  starknetNetwork: NetworkName;
+  network: NetworkName;
   contractAddress: string;
   ownerAddress: string;
   customApi?: CustomApi;
@@ -17,21 +17,34 @@ type RetrieveAssetsParameters = {
 };
 
 export const retrieveAssets = async ({
-  starknetNetwork,
+  network,
   contractAddress,
   ownerAddress,
   customApi,
   address,
 }: RetrieveAssetsParameters) => {
-  if (!customApi || !customApi.apiUri)
+  if (!customApi || !customApi.apiUri) {
+    if (network === "ethereum-mainnet") {
+      // Ethereum
+      const result = await retrieveAssetsFromEtherscan(
+        contractAddress,
+        ownerAddress
+      );
+      return result;
+    }
+    // Starknet
     return retrieveAssetsFromStarkscan({
-      starknetNetwork,
+      starknetNetwork: network,
       contractAddress,
       ownerAddress,
     });
+  }
+
   const apiUri = customApi.apiUri;
   const apiParamName = customApi.paramName;
+
   if (!address) return [];
+
   let nextUrl = parseApiUri(apiUri, address);
   const assets = [];
   let calls = 0;
@@ -72,7 +85,9 @@ export const parseApiUri = (apiUri: string, address: string) => {
   // Example: https://api.starknet.id/addr_to_full_ids?addr={ADDRESS_INT}
   const addressHex = address;
   const addressInt = hexToDecimal(addressHex);
-  return apiUri
+  const result = apiUri
     .replace("{ADDRESS_HEX}", addressHex || "0x0")
     .replace("{ADDRESS_INT}", addressInt || "0");
+
+  return result;
 };

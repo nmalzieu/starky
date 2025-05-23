@@ -1,6 +1,6 @@
 import { DiscordMember } from "../db/entity/DiscordMember";
 import { DiscordServerConfig } from "../db/entity/DiscordServerConfig";
-import { NetworkName } from "../types/starknet";
+import { NetworkName } from "../types/networks";
 
 import { compareTwoHexStrings } from "./data/string";
 import { retrieveAssets } from "./retrieveAsset";
@@ -28,7 +28,7 @@ const loadAssets = async (
     await Promise.all(
       moduleConfigs.map(async (config) => {
         const assets = await retrieveAssets({
-          starknetNetwork: networkName,
+          network: networkName,
           contractAddress: config.contractAddress,
           ownerAddress: walletAddress,
           customApi: {

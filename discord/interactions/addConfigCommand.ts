@@ -23,7 +23,7 @@ import {
 import { DiscordServer } from "../../db/entity/DiscordServer";
 import { DiscordServerConfig } from "../../db/entity/DiscordServerConfig";
 import starkyModules from "../../starkyModules";
-import { NetworkName } from "../../types/starknet";
+import { NetworkName } from "../../types/networks";
 import { assertManageRoles } from "../../utils/discord/permissions";
 import { getRoles, isBotRole } from "../role";
 import networks from "../../configs/networks.json";

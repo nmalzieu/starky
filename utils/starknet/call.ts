@@ -1,10 +1,10 @@
 import { BigNumberish, RawCalldata, RpcProvider } from "starknet";
 
 import chainAliasByNetwork from "../../configs/chainAliasByNetwork.json";
-import { NetworkName } from "../../types/starknet";
+import { StarknetNetworkName } from "../../types/networks";
 
 type CallContractParameters = {
-  starknetNetwork: NetworkName;
+  starknetNetwork: StarknetNetworkName;
   contractAddress: string;
   entrypoint: string;
   calldata?: any[];

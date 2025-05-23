@@ -9,7 +9,7 @@ import SocialLinks from "../../../../components/SocialLinks";
 import chainAliasByNetwork from "../../../../configs/chainAliasByNetwork.json";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerInfo } from "../../../../discord/utils";
-import { NetworkName } from "../../../../types/starknet";
+import { StarknetNetworkName } from "../../../../types/networks";
 import messageToSign from "../../../../utils/starknet/message";
 import WatchTowerLogger from "../../../../watchTower";
 import DiscordServerInfo from "../../../../components/verification/DiscordServerInfo";
@@ -20,7 +20,7 @@ import styles from "../../../../styles/Verify.module.scss";
 type Props = {
   discordServerName: string;
   discordServerIcon?: string | null;
-  starknetNetwork: NetworkName;
+  starknetNetwork: StarknetNetworkName;
 };
 
 const getSignatureErrorMessage = (

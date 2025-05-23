@@ -7,10 +7,10 @@ import config from "../config";
 import networks from "../configs/networks.json";
 import { DiscordMemberRepository, NetworkStatusRepository } from "../db";
 import { BlockMember } from "../types/indexer";
-import { NetworkName } from "../types/starknet";
+import { NetworkName } from "../types/networks";
 import { log } from "../utils/discord/logs";
 import { execWithRateLimit } from "../utils/execWithRateLimit";
-import { retrieveTx } from "../utils/starkscan/retrieveTx";
+import { retrieveTx } from "../utils/starkscan/retrieveTxFromStarkscan";
 
 import BlockStack, { Block } from "./blockStack";
 

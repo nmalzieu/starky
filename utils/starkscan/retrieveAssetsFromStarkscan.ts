@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import config from "../../config";
-import { NetworkName } from "../../types/starknet";
+import { NetworkName } from "../../types/networks";
 import WatchTowerLogger from "../../watchTower";
 import { execWithRateLimit } from "../execWithRateLimit";
 
