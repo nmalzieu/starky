@@ -6,7 +6,7 @@ import { connect as starknetConnect, disconnect } from "starknetkit";
 
 import Logo from "../../../../components/Logo";
 import SocialLinks from "../../../../components/SocialLinks";
-import chainAliasByNetwork from "../../../../configs/chainAliasByNetwork.json";
+// import chainAliasByNetwork from "../../../../configs/chainAliasByNetwork.json";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerInfo } from "../../../../discord/utils";
 import { NetworkName } from "../../../../types/starknet";
@@ -14,8 +14,11 @@ import messageToSign from "../../../../utils/starknet/message";
 import WatchTowerLogger from "../../../../watchTower";
 import DiscordServerInfo from "../../../../components/verification/DiscordServerInfo";
 import WalletInfo from "../../../../components/verification/WalletInfo";
-// import rawChainAlias from "../../../../configs/chainAliasByNetwork.json";
-// const chainAliasByNetwork = rawChainAlias as Record<NetworkName, string[]>;
+import rawChainAlias from "../../../../configs/chainAliasByNetwork.json";
+const chainAliasByNetwork = rawChainAlias as unknown as Record<
+  NetworkName,
+  string[]
+>;
 
 import styles from "../../../../styles/Verify.module.scss";
 
