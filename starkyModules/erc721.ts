@@ -21,6 +21,8 @@ export const shouldHaveRole: ShouldHaveRole = async (
   starkyModuleConfig,
   cachedData = {}
 ) => {
+  if (starknetNetwork !== "mainnet" && starknetNetwork !== "sepolia")
+    return false;
   // If we already have the assets, we can just check if the user has at least one
   if (cachedData.assets?.length) {
     const assets = cachedData.assets;

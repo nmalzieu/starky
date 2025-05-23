@@ -1,4 +1,4 @@
-import { NetworkName } from "../types/starknet";
+import { NetworkName } from "../types/networks";
 import { StarkyModuleConfig, StarkyModuleField } from "../types/starkyModules";
 import { execWithRateLimit } from "../utils/execWithRateLimit";
 import { callContract } from "../utils/starknet/call";

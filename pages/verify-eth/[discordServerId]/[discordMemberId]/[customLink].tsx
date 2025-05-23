@@ -8,7 +8,7 @@ import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerInfo } from "../../../../discord/utils";
 import WatchTowerLogger from "../../../../watchTower";
 import styles from "../../../../styles/Verify.module.scss";
-import { NetworkName } from "../../../../types/starknet";
+import { NetworkName } from "../../../../types/networks";
 import messageToSign from "../../../../utils/starknet/message";
 import DiscordServerInfo from "../../../../components/verification/DiscordServerInfo";
 import TransactionList from "../../../../components/verification/TransactionList";

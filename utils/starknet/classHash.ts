@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { NetworkName } from "../../types/starknet";
+import { NetworkName } from "../../types/networks";
 
 type ClassHashParameters = {
   starknetNetwork: NetworkName;

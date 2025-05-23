@@ -7,7 +7,7 @@ import { DiscordServerConfig } from "../../db/entity/DiscordServerConfig";
 import { restDiscordClient } from "../../discord/client";
 import { addRole, removeRole } from "../../discord/role";
 import modules from "../../starkyModules";
-import { NetworkName } from "../../types/starknet";
+import { NetworkName } from "../../types/networks";
 import { StarkyModule } from "../../types/starkyModules";
 import preLoadMemberAssets from "../../utils/preLoadMemberAssets";
 import WatchTowerLogger from "../../watchTower";

@@ -6,7 +6,7 @@ import {
   DiscordMemberRepository,
   DiscordServerConfigRepository,
 } from "../../db";
-import { NetworkName } from "../../types/starknet";
+import { NetworkName } from "../../types/networks";
 import { assertModerator } from "../../utils/discord/permissions";
 import { refreshDiscordMemberForAllConfigs } from "../../utils/discord/refreshRoles";
 import preLoadMemberAssets from "../../utils/preLoadMemberAssets";

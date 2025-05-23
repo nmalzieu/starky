@@ -8,7 +8,8 @@
     "build:server": "tsc --project tsconfig.server.json",
     "build": "cross-env NODE_ENV=production yarn build:next && cross-env NODE_ENV=production yarn build:server",
     "typeorm": "ts-node ./node_modules/typeorm/cli.js",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
     "@apibara/protocol": "2.0.0-beta.42",
@@ -48,6 +49,7 @@
   },
   "devDependencies": {
     "@types/bn.js": "^5.1.0",
+    "@types/jest": "^29.5.14",
     "@types/node": "^18.7.1",
     "@types/react": "18.0.17",
     "@types/react-dom": "18.0.6",
@@ -56,9 +58,11 @@
     "eslint-config-next": "12.2.4",
     "eslint-config-prettier": "^8.5.0",
     "husky": "^8.0.3",
+    "jest": "^29.7.0",
     "lint-staged": "^13.0.3",
     "nodemon": "^3.1.9",
     "prettier": "^2.7.1",
+    "ts-jest": "^29.3.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },

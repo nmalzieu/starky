@@ -1,4 +1,4 @@
-import { NetworkName } from "./starknet";
+import { NetworkName } from "./networks";
 
 export type StarkyModuleField = {
   id: string;

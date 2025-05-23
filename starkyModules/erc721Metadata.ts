@@ -37,7 +37,7 @@ export const shouldHaveRole: ShouldHaveRole = async (
   const ownedAssets = cachedData.assets
     ? cachedData.assets
     : await retrieveAssets({
-        starknetNetwork,
+        network: starknetNetwork,
         contractAddress: starkyModuleConfig.contractAddress,
         ownerAddress: starknetWalletAddress,
         customApi: {
