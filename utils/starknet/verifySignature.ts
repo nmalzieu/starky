@@ -13,9 +13,8 @@ export const verifySignature = async (
   signature: string[],
   starknetNetwork: string
 ): Promise<SignatureVerify> => {
-  // We can verify this message hash against the signature generated in the frontend
-  // by calling the is_valid_signature method on the Account contract
   try {
+    // First try with isValidSignature (Argent X style)
     const response = await callContract({
       starknetNetwork:
         starknetNetwork === "mainnet" ? "mainnet" : ("sepolia" as any),
@@ -24,23 +23,15 @@ export const verifySignature = async (
       calldata: [hexHash, `${signature.length}`, ...signature],
     });
 
-    // Check if response and result exist
-    if (!response || !response.result || response.result.length === 0) {
-      return {
-        signatureValid: false,
-        error: "Invalid signature: received empty result",
-      };
+    if (response?.result?.[0] === "0x1") {
+      return { signatureValid: true };
     }
-
-    const signatureValid = response.result[0] === "0x1";
-
-    return {
-      signatureValid,
-      error: signatureValid
-        ? undefined
-        : `Invalid signature ${response.result[0]}`,
-    };
   } catch (e: any) {
+    log(
+      `First attempt (isValidSignature) failed for ${accountAddress} on ${starknetNetwork}. Error: ${e.message}`
+    );
+
+    // If isValidSignature fails, try is_valid_signature (Braavos style)
     try {
       const response = await callContract({
         starknetNetwork:
@@ -52,27 +43,66 @@ export const verifySignature = async (
 
       // Check if response and result exist
       if (!response || !response.result || response.result.length === 0) {
+        log(
+          `Empty result from is_valid_signature for ${accountAddress} on ${starknetNetwork}`
+        );
         return {
           signatureValid: false,
           error: "Invalid signature: received empty result",
         };
       }
 
+      // Log the actual response for debugging
+      log(
+        `Signature verification response for ${accountAddress} on ${starknetNetwork}: ${JSON.stringify(
+          response.result
+        )}`
+      );
+
+      // Handle different success codes
       const signatureValid =
         response.result[0] === "0x1" ||
-        response.result[0] === "0x0" ||
-        response.result[0] === "0x56414c4944";
+        response.result[0] === "0x56414c4944" || // VALID in hex
+        response.result[0] === "0x0"; // Some implementations return 0x0 for success
+
+      if (!signatureValid) {
+        log(
+          `Invalid signature response for ${accountAddress} on ${starknetNetwork}: ${response.result[0]}`
+        );
+      }
 
       return {
         signatureValid,
-        error: signatureValid ? undefined : response.result[0],
+        error: signatureValid
+          ? undefined
+          : `Invalid signature: ${response.result[0]}`,
       };
-    } catch (e: any) {
+    } catch (innerError: any) {
+      // Check for specific error codes
+      const errorMessage = innerError.message || innerError.errorCode;
+      const revertError = innerError.revert_error;
+      
       log(
-        `Error while verifying signature for ${accountAddress} on ${starknetNetwork}. Error code: ${e.errorCode}, message: ${e.message} `
+        `Error while verifying signature for ${accountAddress} on ${starknetNetwork}. Error code: ${innerError.errorCode}, message: ${errorMessage}, revert_error: ${revertError}`
       );
 
-      return { signatureValid: false, error: e.message || e.errorCode };
+      // Handle specific error cases
+      if (revertError === "0x494e56414c49445f534947") {
+        return {
+          signatureValid: false,
+          error: "Invalid signature format for this network",
+        };
+      }
+
+      return {
+        signatureValid: false,
+        error: `Signature verification failed: ${errorMessage}`,
+      };
     }
   }
+
+  return {
+    signatureValid: false,
+    error: "Signature verification failed: Invalid signature format",
+  };
 };
