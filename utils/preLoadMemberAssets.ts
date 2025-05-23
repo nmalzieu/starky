@@ -1,6 +1,6 @@
 import { DiscordMember } from "../db/entity/DiscordMember";
 import { DiscordServerConfig } from "../db/entity/DiscordServerConfig";
-import { NetworkName } from "../types/starknet";
+import { NetworkName } from "../types/networks";
 
 import { compareTwoHexStrings } from "./data/string";
 import { retrieveAssets } from "./retrieveAsset";

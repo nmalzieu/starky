@@ -1,15 +1,8 @@
-// **
-//  * Fetches asset information from Etherscan API
-//  * @param contractAddress - The contract address to fetch assets for
-//  * @param ownerAddress - The owner address (for potential future use)
-//  * @returns Promise<any[]> - Array of assets or empty array on error
-
 import axios from "axios";
 import WatchTowerLogger from "../../watchTower";
 import { execWithRateLimit } from "../execWithRateLimit";
 
-//  */
-export const fetchFromEtherscan = async (
+export const retrieveAssetsFromEtherscan = async (
   contractAddress: string,
   ownerAddress: string
 ): Promise<any[]> => {
@@ -69,13 +62,7 @@ export const fetchFromEtherscan = async (
         }));
 
         return mappedTransfers;
-      } else {
-        console.log(
-          "ℹ️ DEBUG - No NFT transfers found, checking ERC-20 balance"
-        );
       }
-    } else {
-      console.log("💰 DEBUG - Not an NFT contract, checking ERC-20 balance");
     }
 
     // For ERC-20 tokens, fetch balance

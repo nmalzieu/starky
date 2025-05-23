@@ -9,7 +9,7 @@ import SocialLinks from "../../../../components/SocialLinks";
 import chainAliasByNetwork from "../../../../configs/chainAliasByNetwork.json";
 import { DiscordMemberRepository, setupDb } from "../../../../db";
 import { getDiscordServerInfo } from "../../../../discord/utils";
-import { StarknetNetworkName } from "../../../../types/starknet";
+import { StarknetNetworkName } from "../../../../types/networks";
 import messageToSign from "../../../../utils/starknet/message";
 import WatchTowerLogger from "../../../../watchTower";
 import DiscordServerInfo from "../../../../components/verification/DiscordServerInfo";

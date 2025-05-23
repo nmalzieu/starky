@@ -1,5 +1,6 @@
 import { ShouldHaveRole, StarkyModuleField } from "../types/starkyModules";
 import { execWithRateLimit } from "../utils/execWithRateLimit";
+import { isStarknetNetwork } from "../utils/networks";
 import { callContract } from "../utils/starknet/call";
 import WatchTowerLogger from "../watchTower";
 import { uint256 } from "starknet";
@@ -25,6 +26,7 @@ export const shouldHaveRole: ShouldHaveRole = async (
   starkyModuleConfig,
   cachedData = {}
 ) => {
+  if (!isStarknetNetwork(starknetNetwork)) return false;
   try {
     // Get token decimals if not cached
     let decimals;

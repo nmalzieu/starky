@@ -1,5 +1,5 @@
 import { BlockMember } from "../types/indexer";
-import { NetworkName } from "../types/starknet";
+import { NetworkName } from "../types/networks";
 
 import processBlocks from "./processBlocks";
 
