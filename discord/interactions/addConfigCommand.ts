@@ -138,7 +138,6 @@ const handleBackToNetwork = async (
   });
 };
 
-
 const handleBackToModule = async (
   interaction: ButtonInteraction,
   client: Client,
@@ -222,19 +221,18 @@ export const handleInitialConfigCommand = async (
   }
 
   const selectRow =
-  new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-    new StringSelectMenuBuilder()
-      .setCustomId("starky-config-network")
-      .setPlaceholder("Select a network")
-      .addOptions(
-        ...networks.map((network) => ({
-          label: network.label,
-          description: network.description,
-          value: network.name,
-        }))
-      )
-  );
-
+    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId("starky-config-network")
+        .setPlaceholder("Select a network")
+        .addOptions(
+          ...networks.map((network) => ({
+            label: network.label,
+            description: network.description,
+            value: network.name,
+          }))
+        )
+    );
 
   const backRow = addBackButton(CONFIG_STEPS.NETWORK);
 
@@ -383,13 +381,13 @@ export const handleEditModalSubmit = async (
 
     // Validate the network
     if (!networks.find((n) => n.name === network)) {
-  await interaction.reply({
-    content: "❌ Invalid network. Please select a valid option from the list.",
-    ephemeral: true,
-  });
-  return;
-}
-
+      await interaction.reply({
+        content:
+          "❌ Invalid network. Please select a valid option from the list.",
+        ephemeral: true,
+      });
+      return;
+    }
 
     // Validate the module type
     if (!(moduleType in starkyModules)) {
@@ -447,7 +445,8 @@ export const handleNetworkConfigCommand = async (
   const network = interaction.values[0];
   if (!networks.find((n) => n.name === network)) return;
 
-  ongoingConfigurationsCache[interaction.guildId].network = network;
+  ongoingConfigurationsCache[interaction.guildId].network =
+    network as NetworkName;
   ongoingConfigurationsCache[interaction.guildId].currentStep =
     CONFIG_STEPS.MODULE;
 
@@ -568,10 +567,10 @@ export const finishUpConfiguration = async (
   );
 
   let summaryContent = `Thanks for configuring Starky 🎉\n\nHere is a summary of your configuration:\n\n__Network:__ \`${
-  currentConfig.network
-}\`\n__Discord role to assign:__ \`${role?.name}\`\n__Starky module:__ \`${
-  currentConfig.moduleType
-}\`${currentConfig.moduleConfig ? "\n\nModule specific settings:\n" : ""}`;
+    currentConfig.network
+  }\`\n__Discord role to assign:__ \`${role?.name}\`\n__Starky module:__ \`${
+    currentConfig.moduleType
+  }\`${currentConfig.moduleConfig ? "\n\nModule specific settings:\n" : ""}`;
   for (const fieldId in currentConfig.moduleConfig) {
     summaryContent = `${summaryContent}\n${fieldId}: \`${currentConfig.moduleConfig[fieldId]}\``;
   }
@@ -650,10 +649,10 @@ export const handleConfigConfirmCommand = async (
 
   discordServerConfig.discordServerId = interaction.guildId;
   if (!networks.find((n) => n.name === currentConfig.network)) {
-  throw new Error("Wrong network config");
-}
+    throw new Error("Wrong network config");
+  }
 
-  discordServerConfig.starknetNetwork = currentConfig.network;
+  discordServerConfig.starknetNetwork = currentConfig.network as NetworkName;
   if (!currentConfig.roleId) {
     throw new Error("Wrong role config");
   }

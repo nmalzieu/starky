@@ -8,7 +8,8 @@
     "build:server": "tsc --project tsconfig.server.json",
     "build": "cross-env NODE_ENV=production yarn build:next && cross-env NODE_ENV=production yarn build:server",
     "typeorm": "ts-node ./node_modules/typeorm/cli.js",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
     "@apibara/protocol": "2.0.0-beta.42",
