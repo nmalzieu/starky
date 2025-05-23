@@ -353,7 +353,7 @@ const VerifyPage = ({
             <span>
               Identity: <b>verified</b>
             </span>
-            <h1>YOU'RE ALL SET FREN</h1>
+            <h1>YOU’RE ALL SET FREN</h1>
             <span>you shall close this tab</span>
           </div>
         )}
