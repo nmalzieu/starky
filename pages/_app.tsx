@@ -3,8 +3,6 @@ import Head from "next/head";
 import { WalletProvider } from "../utils/ethereum/context/WalletConnect";
 
 import "../styles/globals.scss";
-import { useEffect } from "react";
-import { retrieveAssets } from "../utils/retrieveAsset";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
