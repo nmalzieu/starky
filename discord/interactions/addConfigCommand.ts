@@ -26,6 +26,7 @@ import starkyModules from "../../starkyModules";
 import { NetworkName } from "../../types/starknet";
 import { assertManageRoles } from "../../utils/discord/permissions";
 import { getRoles, isBotRole } from "../role";
+import networks from "../../configs/networks.json";
 
 type ConfigStep = "role" | "network" | "module" | "module-config" | "summary";
 
@@ -48,19 +49,6 @@ const CONFIG_STEPS = {
   MODULE_CONFIG: "module-config",
   SUMMARY: "summary",
 } as const;
-
-const NETWORK_OPTIONS = [
-  {
-    label: "Sepolia",
-    description: "The Sepolia Starknet testnet",
-    value: "sepolia",
-  },
-  {
-    label: "Mainnet",
-    description: "The Starknet mainnet",
-    value: "mainnet",
-  },
-] as const;
 
 const ongoingConfigurationsCache: OngoingConfigurationsCache = {};
 
@@ -132,17 +120,24 @@ const handleBackToNetwork = async (
     new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId("starky-config-network")
-        .setPlaceholder("Starknet Network")
-        .addOptions(...NETWORK_OPTIONS)
+        .setPlaceholder("Select a network")
+        .addOptions(
+          ...networks.map((network) => ({
+            label: network.label,
+            description: network.description,
+            value: network.name,
+          }))
+        )
     );
 
   const backRow = addBackButton("network");
 
   await interaction.update({
-    content: "On what Starknet network do you want to set up Starky?",
+    content: "On what network do you want to set up Starky?",
     components: [selectRow, backRow],
   });
 };
+
 
 const handleBackToModule = async (
   interaction: ButtonInteraction,
@@ -227,17 +222,24 @@ export const handleInitialConfigCommand = async (
   }
 
   const selectRow =
-    new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-      new StringSelectMenuBuilder()
-        .setCustomId("starky-config-network")
-        .setPlaceholder("Starknet Network")
-        .addOptions(...NETWORK_OPTIONS)
-    );
+  new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId("starky-config-network")
+      .setPlaceholder("Select a network")
+      .addOptions(
+        ...networks.map((network) => ({
+          label: network.label,
+          description: network.description,
+          value: network.name,
+        }))
+      )
+  );
+
 
   const backRow = addBackButton(CONFIG_STEPS.NETWORK);
 
   await interaction.reply({
-    content: "On what Starknet network do you want to set up Starky?",
+    content: "On what network do you want to set up Starky?",
     components: [selectRow, backRow],
     ephemeral: true,
   });
@@ -380,13 +382,14 @@ export const handleEditModalSubmit = async (
     }
 
     // Validate the network
-    if (network !== "mainnet" && network !== "sepolia") {
-      await interaction.reply({
-        content: "❌ Invalid network. Must be 'mainnet' or 'sepolia'.",
-        ephemeral: true,
-      });
-      return;
-    }
+    if (!networks.find((n) => n.name === network)) {
+  await interaction.reply({
+    content: "❌ Invalid network. Please select a valid option from the list.",
+    ephemeral: true,
+  });
+  return;
+}
+
 
     // Validate the module type
     if (!(moduleType in starkyModules)) {
@@ -442,7 +445,7 @@ export const handleNetworkConfigCommand = async (
   await assertManageRoles(interaction);
   if (!interaction.guildId) return;
   const network = interaction.values[0];
-  if (network !== "mainnet" && network !== "sepolia") return;
+  if (!networks.find((n) => n.name === network)) return;
 
   ongoingConfigurationsCache[interaction.guildId].network = network;
   ongoingConfigurationsCache[interaction.guildId].currentStep =
@@ -564,11 +567,11 @@ export const finishUpConfiguration = async (
     (r) => r.id === currentConfig.roleId
   );
 
-  let summaryContent = `Thanks for configuring Starky 🎉\n\nHere is a summary of your configuration:\n\n__Starknet network:__ \`${
-    currentConfig.network
-  }\`\n__Discord role to assign:__ \`${role?.name}\`\n__Starky module:__ \`${
-    currentConfig.moduleType
-  }\`${currentConfig.moduleConfig ? "\n\nModule specific settings:\n" : ""}`;
+  let summaryContent = `Thanks for configuring Starky 🎉\n\nHere is a summary of your configuration:\n\n__Network:__ \`${
+  currentConfig.network
+}\`\n__Discord role to assign:__ \`${role?.name}\`\n__Starky module:__ \`${
+  currentConfig.moduleType
+}\`${currentConfig.moduleConfig ? "\n\nModule specific settings:\n" : ""}`;
   for (const fieldId in currentConfig.moduleConfig) {
     summaryContent = `${summaryContent}\n${fieldId}: \`${currentConfig.moduleConfig[fieldId]}\``;
   }
@@ -646,12 +649,10 @@ export const handleConfigConfirmCommand = async (
   discordServer.id = interaction.guildId;
 
   discordServerConfig.discordServerId = interaction.guildId;
-  if (
-    currentConfig.network !== "mainnet" &&
-    currentConfig.network !== "sepolia"
-  ) {
-    throw new Error("Wrong network config");
-  }
+  if (!networks.find((n) => n.name === currentConfig.network)) {
+  throw new Error("Wrong network config");
+}
+
   discordServerConfig.starknetNetwork = currentConfig.network;
   if (!currentConfig.roleId) {
     throw new Error("Wrong role config");
