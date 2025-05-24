@@ -143,13 +143,23 @@ const handleBackToModule = async (
   client: Client,
   restClient: REST
 ) => {
+  const config = ongoingConfigurationsCache[interaction.guildId!];
+  const selectedNetwork = config.network;
+
   const modulesOptions: SelectMenuComponentOptionData[] = [];
   for (const starkyModuleId in starkyModules) {
     const starkyModule = starkyModules[starkyModuleId];
-    modulesOptions.push({
-      label: starkyModule.name,
-      value: starkyModuleId,
-    });
+    // Filter modules based on network support
+    if (
+      starkyModule.networks &&
+      selectedNetwork &&
+      starkyModule.networks.includes(selectedNetwork)
+    ) {
+      modulesOptions.push({
+        label: starkyModule.name,
+        value: starkyModuleId,
+      });
+    }
   }
 
   const selectRow =
@@ -455,13 +465,17 @@ export const handleNetworkConfigCommand = async (
     components: [],
   });
 
+  // Filter modules based on selected network
   const modulesOptions: SelectMenuComponentOptionData[] = [];
   for (const starkyModuleId in starkyModules) {
     const starkyModule = starkyModules[starkyModuleId];
-    modulesOptions.push({
-      label: starkyModule.name,
-      value: starkyModuleId,
-    });
+    // Only include modules that support the selected network
+    if (starkyModule.networks && starkyModule.networks.includes(network)) {
+      modulesOptions.push({
+        label: starkyModule.name,
+        value: starkyModuleId,
+      });
+    }
   }
 
   const selectRow =

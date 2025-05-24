@@ -20,6 +20,7 @@ export type StarkyModule = {
   shouldHaveRole: ShouldHaveRole;
   refreshInCron: boolean;
   refreshOnTransfer: boolean;
+  networks?: (StarknetNetworkName | string)[]; // Add this line to fix the TypeScript errors
 };
 
 export type StarkyModules = {

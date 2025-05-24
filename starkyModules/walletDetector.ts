@@ -8,6 +8,7 @@ export const name = "Wallet detector (Argent only)";
 // Only refreshing when connecting the wallet or when using the /starky-refresh command
 export const refreshInCron = false;
 export const refreshOnTransfer = false;
+export const networks = ["mainnet", "sepolia"];
 
 // TODO => add field to ask for Argent or Braavos
 // we need to be able to validate config first

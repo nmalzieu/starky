@@ -7,6 +7,7 @@ import { callContract } from "../utils/starknet/call";
 export const name = "ERC-721";
 export const refreshInCron = false;
 export const refreshOnTransfer = true;
+export const networks = ["mainnet", "sepolia", "ethereum-mainnet"];
 
 export const fields: StarkyModuleField[] = [
   {
