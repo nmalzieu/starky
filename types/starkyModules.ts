@@ -20,7 +20,7 @@ export type StarkyModule = {
   shouldHaveRole: ShouldHaveRole;
   refreshInCron: boolean;
   refreshOnTransfer: boolean;
-  networks?: (NetworkName | string)[];
+  networks: NetworkName[];
 };
 
 export type StarkyModules = {
