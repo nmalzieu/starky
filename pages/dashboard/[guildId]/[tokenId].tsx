@@ -2,6 +2,8 @@ import { NextPage, GetServerSideProps } from "next";
 import Logo from "../../../components/Logo";
 import SocialLinks from "../../../components/SocialLinks";
 import styles from "../../../styles/Dashboard.module.scss";
+import { validateDashboardToken } from "../../../utils/validateDashboardToken";
+import RedirectMessage from "../../../components/RedirectMessage"; // optional if you want same UI
 
 import {
   setupDb,
@@ -35,6 +37,15 @@ const DashboardPage: NextPage<DashboardPageProps> = ({
   discordServerIcon,
   error,
 }) => {
+  if (error == "Invalid or expired token.") {
+    return (
+      <RedirectMessage
+        title="Session Expired"
+        description="Your access token has expired. You'll be redirected shortly."
+        redirectTo="/"
+      />
+    );
+  }
   if (error) {
     return (
       <div className={styles.container}>
@@ -104,15 +115,33 @@ export const getServerSideProps: GetServerSideProps = async ({
 }) => {
   await setupDb();
 
-  const { guildId } = query;
+  const { guildId, tokenId } = query;
 
-  if (!guildId || typeof guildId !== "string") {
+  if (
+    !guildId ||
+    typeof guildId !== "string" ||
+    !tokenId ||
+    typeof tokenId !== "string"
+  ) {
     if (res) res.statusCode = 400;
     return {
       props: {
         configs: [],
         guildId: "",
-        error: "Missing or invalid guild ID.",
+        error: "Missing or invalid guild or token ID.",
+      },
+    };
+  }
+  // ✅ Step: validate token
+  const isValidToken = await validateDashboardToken(guildId, tokenId);
+
+  if (!isValidToken) {
+    if (res) res.statusCode = 403;
+    return {
+      props: {
+        configs: [],
+        guildId,
+        error: "Invalid or expired token.",
       },
     };
   }
