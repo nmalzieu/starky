@@ -27,6 +27,7 @@ interface DashboardPageProps {
   guildId: string;
   discordServerName: string | null;
   discordServerIcon: string | null;
+  token: string;
   error?: string;
 }
 
@@ -35,6 +36,7 @@ const DashboardPage: NextPage<DashboardPageProps> = ({
   guildId,
   discordServerName,
   discordServerIcon,
+  token,
   error,
 }) => {
   if (error == "Invalid or expired token.") {
@@ -68,7 +70,7 @@ const DashboardPage: NextPage<DashboardPageProps> = ({
       <button
         onClick={() => {
           const a = document.createElement("a");
-          a.href = `/api/guilds/${guildId}/download-members`;
+          a.href = `/api/guilds/${guildId}/download-members?token=${token}`;
           a.download = `members_${guildId}.csv`;
           a.click();
         }}
@@ -188,6 +190,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       guildId,
       discordServerName,
       discordServerIcon,
+      token: tokenId,
     },
   };
 };
