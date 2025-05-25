@@ -2,7 +2,7 @@ import { NextPage, GetServerSideProps } from "next";
 import Logo from "../../../components/Logo";
 import SocialLinks from "../../../components/SocialLinks";
 import styles from "../../../styles/Dashboard.module.scss";
-import { validateToken } from "../../../utils/validateToken";
+import { validateDashboardToken } from "../../../utils/validateDashboardToken";
 import RedirectMessage from "../../../components/RedirectMessage"; // optional if you want same UI
 
 import {
@@ -133,7 +133,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     };
   }
   // ✅ Step: validate token
-  const isValidToken = await validateToken(guildId, tokenId);
+  const isValidToken = await validateDashboardToken(guildId, tokenId);
 
   if (!isValidToken) {
     if (res) res.statusCode = 403;
