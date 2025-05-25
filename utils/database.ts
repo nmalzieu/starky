@@ -27,7 +27,6 @@ export const saveDashboardTokenToDatabase = async (
   token: string
 ) => {
   try {
-    console.log(token);
     const dashboardToken = DiscordDashboardTokenRepository.create({
       token,
       guildId,
@@ -35,8 +34,7 @@ export const saveDashboardTokenToDatabase = async (
       createdAt: new Date(),
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Expires in 7 days - 1 week
     });
-    const t = await DiscordDashboardTokenRepository.save(dashboardToken);
-    console.log("t", t);
+    await DiscordDashboardTokenRepository.save(dashboardToken);
   } catch (error) {
     console.error("Error saving token:", error);
   }
