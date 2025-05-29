@@ -99,6 +99,14 @@ const DashboardPage: NextPage<DashboardPageProps> = ({
                     {JSON.stringify(config.starkyModuleConfig, null, 2)}
                   </pre>
                 </div>
+                <div className={styles.configActions}>
+                  <a
+                    href={`/dashboard/${guildId}/${token}/configs/${config.id}`}
+                    className={styles.editButton}
+                  >
+                    Edit Configuration
+                  </a>
+                </div>
               </li>
             ))}
           </ul>
