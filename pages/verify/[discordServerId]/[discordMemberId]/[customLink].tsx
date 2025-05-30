@@ -328,15 +328,18 @@ const VerifyPage = ({
         />
         <br />
 
-        <WalletInfo
-          account={account}
-          networkType="starknet"
-          verifiedSignature={verifiedSignature}
-          onDisconnect={() => {
-            setAccount(undefined);
-            disconnect().catch(WatchTowerLogger.error);
-          }}
-        />
+        {(account || wrongStarknetNetwork) && (
+          <WalletInfo
+            account={account}
+            networkType="starknet"
+            verifiedSignature={verifiedSignature}
+            onDisconnect={() => {
+              setAccount(undefined);
+              setWrongStarknetNetwork(false);
+              disconnect().catch(WatchTowerLogger.error);
+            }}
+          />
+        )}
 
         <br />
         {verifiedSignature && (
@@ -353,7 +356,7 @@ const VerifyPage = ({
             <span>
               Identity: <b>verified</b>
             </span>
-            <h1>YOU’RE ALL SET FREN</h1>
+            <h1>YOU'RE ALL SET FREN</h1>
             <span>you shall close this tab</span>
           </div>
         )}
@@ -387,9 +390,8 @@ export async function getServerSideProps({ res, query }: any) {
     const serverInfo = await getDiscordServerInfo(`${query.discordServerId}`);
     discordServerName = serverInfo.name;
     discordServerIcon = serverInfo.icon
-      ? `https://cdn.discordapp.com/icons/${query.discordServerId}/${
-          serverInfo.icon
-        }${serverInfo.icon.startsWith("a_") ? ".gif" : ".png"}`
+      ? `https://cdn.discordapp.com/icons/${query.discordServerId}/${serverInfo.icon
+      }${serverInfo.icon.startsWith("a_") ? ".gif" : ".png"}`
       : null;
   } catch (e: any) {
     WatchTowerLogger.error(e.message, e);
