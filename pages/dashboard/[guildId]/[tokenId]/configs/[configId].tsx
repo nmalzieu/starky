@@ -27,7 +27,7 @@ interface ConfigProps {
   guildId: string;
   discordServerName: string | null;
   discordServerIcon: string | null;
-  token: string;
+  tokenId: string;
   error?: string;
 }
 
@@ -36,7 +36,7 @@ const ConfigPage: NextPage<ConfigProps> = ({
   guildId,
   discordServerName,
   discordServerIcon,
-  token,
+  tokenId,
   error,
 }) => {
   const router = useRouter();
@@ -113,7 +113,7 @@ const ConfigPage: NextPage<ConfigProps> = ({
 
       // Submit the form data
       const response = await axios.put(
-        `/api/guilds/${guildId}/configs/${config.id}?token=${token}`,
+        `/api/guilds/${guildId}/configs/${config.id}?token=${tokenId}`,
         {
           starknetNetwork: formData.starknetNetwork,
           discordRoleId: formData.discordRoleId,
@@ -244,30 +244,30 @@ export const getServerSideProps: GetServerSideProps = async ({
   await setupDb();
 
   const guildId = params?.guildId as string;
-  const token = params?.token as string;
+  const tokenId = params?.tokenId as string;
   const configId = params?.configId as string;
 
-  if (!guildId || !token || !configId) {
+  if (!guildId || !tokenId || !configId) {
     if (res) res.statusCode = 400;
     return {
       props: {
         error: "Missing guild ID, token, or config ID",
         guildId: "",
-        token: "",
+        tokenId: "",
         config: null,
       },
     };
   }
 
   // Validate token
-  const isValidToken = await validateDashboardToken(guildId, token);
+  const isValidToken = await validateDashboardToken(guildId, tokenId);
   if (!isValidToken) {
     if (res) res.statusCode = 403;
     return {
       props: {
         error: "Invalid or expired token.",
         guildId,
-        token,
+        tokenId,
         config: null,
       },
     };
@@ -284,7 +284,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       props: {
         error: "Guild not found",
         guildId,
-        token,
+        tokenId,
         config: null,
       },
     };
@@ -302,7 +302,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       props: {
         error: "Configuration not found",
         guildId,
-        token,
+        tokenId,
         config: null,
       },
     };
@@ -334,7 +334,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       guildId,
       discordServerName,
       discordServerIcon,
-      token,
+      tokenId,
     },
   };
 };

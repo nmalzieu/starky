@@ -27,7 +27,7 @@ interface DashboardPageProps {
   guildId: string;
   discordServerName: string | null;
   discordServerIcon: string | null;
-  token: string;
+  tokenId: string;
   error?: string;
 }
 
@@ -36,7 +36,7 @@ const DashboardPage: NextPage<DashboardPageProps> = ({
   guildId,
   discordServerName,
   discordServerIcon,
-  token,
+  tokenId,
   error,
 }) => {
   if (error == "Invalid or expired token.") {
@@ -70,7 +70,7 @@ const DashboardPage: NextPage<DashboardPageProps> = ({
       <button
         onClick={() => {
           const a = document.createElement("a");
-          a.href = `/api/guilds/${guildId}/download-members?token=${token}`;
+          a.href = `/api/guilds/${guildId}/download-members?token=${tokenId}`;
           a.download = `members_${guildId}.csv`;
           a.click();
         }}
@@ -101,7 +101,7 @@ const DashboardPage: NextPage<DashboardPageProps> = ({
                 </div>
                 <div className={styles.configActions}>
                   <a
-                    href={`/dashboard/${guildId}/${token}/configs/${config.id}`}
+                    href={`/dashboard/${guildId}/${tokenId}/configs/${config.id}`}
                     className={styles.editButton}
                   >
                     Edit Configuration
@@ -198,7 +198,7 @@ export const getServerSideProps: GetServerSideProps = async ({
       guildId,
       discordServerName,
       discordServerIcon,
-      token: tokenId,
+      tokenId: tokenId,
     },
   };
 };
