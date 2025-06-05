@@ -6,6 +6,8 @@ import { refreshDiscordMemberForAllConfigs } from "../../utils/discord/refreshRo
 import messageToSign from "../../utils/starknet/message";
 import { verifySignature } from "../../utils/starknet/verifySignature";
 
+import chainAliasByNetwork from "../../configs/chainAliasByNetwork.json";
+
 type Data = {
   message: string;
   error?: string;
@@ -54,7 +56,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     return;
   }
 
-  const messageHexHash = typedData.getMessageHash(messageToSign, body.account);
+  const message =
+    body.network === "sepolia"
+      ? {
+          ...messageToSign,
+          domain: {
+            ...messageToSign.domain,
+            chainId: chainAliasByNetwork["sepolia"][1],
+          },
+        }
+      : messageToSign;
+
+  const messageHexHash = typedData.getMessageHash(message, body.account);
+
   const { signatureValid, error } = await verifySignature(
     body.account,
     messageHexHash,
