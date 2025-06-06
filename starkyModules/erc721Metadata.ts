@@ -4,6 +4,7 @@ import { retrieveAssets } from "../utils/retrieveAsset";
 export const name = "ERC-721 Metadata";
 export const refreshInCron = false;
 export const refreshOnTransfer = true;
+export const networks = ["mainnet", "sepolia", "ethereum-mainnet"];
 
 export const fields: StarkyModuleField[] = [
   {
