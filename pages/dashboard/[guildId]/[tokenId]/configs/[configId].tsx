@@ -149,11 +149,6 @@ const ConfigPage: NextPage<ConfigProps> = ({
   return (
     <div className={styles.container}>
       <h1>Edit Configuration</h1>
-      <Guild
-        discordServerName={discordServerName!}
-        discordServerIcon={discordServerIcon}
-      />
-
       <BackButton destination={`/dashboard/${guildId}/${tokenId}`} />
 
       <form onSubmit={handleSubmit} className={styles.configForm}>
