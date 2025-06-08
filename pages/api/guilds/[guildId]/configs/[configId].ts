@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import {
-  setupDb,
   DiscordServerConfigRepository,
   DiscordServerRepository,
 } from "../../../../../db";
@@ -11,8 +10,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  await setupDb();
-
   const { guildId, configId, token } = req.query;
 
   if (

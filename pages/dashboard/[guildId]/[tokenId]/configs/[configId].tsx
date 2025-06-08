@@ -15,6 +15,7 @@ import {
 import { validateDashboardToken } from "../../../../../utils/validateDashboardToken";
 import { getDiscordServerInfo } from "../../../../../discord/utils";
 import { StarkyModuleConfig } from "../../../../../types/starkyModules";
+import BackButton from "../../../../../components/BackButton";
 
 interface ConfigProps {
   config: {
@@ -154,9 +155,7 @@ const ConfigPage: NextPage<ConfigProps> = ({
         discordServerIcon={discordServerIcon}
       />
 
-      <div className={styles.backLink}>
-        <a onClick={() => router.back()}>← Back to Dashboard</a>
-      </div>
+      <BackButton />
 
       <form onSubmit={handleSubmit} className={styles.configForm}>
         <div className={styles.formGroup}>
