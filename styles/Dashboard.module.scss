@@ -63,3 +63,125 @@
   border-radius: 0.5rem;
   color: #374151;
 }
+
+.configActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.editButton {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #5865f2;
+  color: white;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #4752c4;
+    color: white;
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.backLink {
+  margin-bottom: 1.5rem;
+
+  a {
+    color: #5865f2;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.configForm {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #111;
+  }
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: border-color 0.15s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #5865f2;
+    box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.1);
+  }
+}
+
+.textArea {
+  min-height: 200px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.875rem;
+}
+
+.submitButton {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: #5865f2;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #4752c4;
+  }
+
+  &:disabled {
+    background-color: #a5adff;
+    cursor: not-allowed;
+  }
+}
+
+.errorMessage {
+  color: #dc2626;
+  background-color: #fee2e2;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.successMessage {
+  color: #047857;
+  background-color: #d1fae5;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
